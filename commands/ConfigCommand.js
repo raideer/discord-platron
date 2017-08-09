@@ -34,21 +34,8 @@ class ConfigCommand extends Command {
         }
     }
 
-    // runAdd(message, args) {
-    //     switch(args.command) {
-    //         case "blacklist":
-    //             const user = this.client.util.resolveUser(args.arg2, this.client.users);
-    //             if (user) {
-    //
-    //             }
-    //             console.log(user);
-    //             // this.client.databases.blacklist.set(args.arg1, 'reason', args.arg2);
-    //             break;
-    //         default:
-    //             message.reply(`Invalid add request`);
-    //             break;
-    //     }
-    // }
+    runAdd(message, args) {
+    }
 
     exec(message, args) {
         switch(message.util.alias) {
