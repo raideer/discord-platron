@@ -48,7 +48,27 @@ class MarketCommand extends Command {
                 },
                 {
                     id: 'quality',
-                    type: 'number',
+                    type: (quality, message, args) => {
+                        quality = quality.replace( /^\D+/g, '');
+                        quality = Number(quality);
+
+                        switch(args.product) {
+                            case 'food':
+                            case 'weapons':
+                                if (quality > 0 && quality <= 7) {
+                                    return quality;
+                                }
+                                break;
+                            case 'tickets':
+                            case 'houses':
+                                if (quality > 0 && quality <= 5) {
+                                    return quality;
+                                }
+                                break;
+                        }
+
+                        return 1;
+                    },
                     default: 1
                 }
             ]
@@ -130,7 +150,7 @@ class MarketCommand extends Command {
                             var hpcc = Math.round((offer.price/hp)*10000)/10000;
                             answer += `**${number(offer.amount)}** for **${number(offer.price)} cc** (${hpcc} cc/hp) in ${getFlag(offer.country_name)} ${offer.country_name} | [Go to offer](https://www.erepublik.com/en/economy/marketplace/offer/${offer.offer_id})\n`;
                         }else{
-                            answer += `**${number(offer.amount)}** for **${number(offer.price)} cc** in ${getFlag(offer.country_name)} ${offer.country_name}] | [Go to offer](https://www.erepublik.com/en/economy/marketplace/offer/${offer.offer_id}) \n`;
+                            answer += `**${number(offer.amount)}** for **${number(offer.price)} cc** in ${getFlag(offer.country_name)} ${offer.country_name} | [Go to offer](https://www.erepublik.com/en/economy/marketplace/offer/${offer.offer_id}) \n`;
                         }
                     }
 
