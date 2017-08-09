@@ -16,7 +16,7 @@ const client = new AkairoClient({
             return '!';
         }
 
-        const id = Number(message.guild.id);
+        const id = message.guild.id;
         let prefix = client.databases.guilds.get(id, 'prefix');
 
         if (!prefix) {
