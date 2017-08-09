@@ -50,7 +50,8 @@ const force = false;
 
 Promise.all([
     Guild.sync({force: force}),
-    Blacklist.sync({force: force})
+    Blacklist.sync({force: force}),
+    Citizen.sync({force: force})
 ]).then(() => {
     client.login(client.env('TOKEN', ()=>{
         throw "Bot TOKEN not provided!";
