@@ -59,7 +59,7 @@ class CombatOrdersCommand extends Command {
                 let answer = '';
                 for(let i in battle.cos){
                     co = battle.cos[i];
-                    answer += (co.division === 11)? `  AIR BATTLE: `:`  DIV **${co.division}**: `;
+                    answer += (co.division === 11)? `AIR BATTLE: `:`DIV **${co.division}**: `;
                     answer += ` __**${number(co.reward)}cc**__/m (${number(co.budget)} cc budget) | ${getFlag(co.country.name)} **${co.country.name}** side\n`;
                 }
 
