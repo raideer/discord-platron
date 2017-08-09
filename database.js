@@ -6,7 +6,7 @@ const seq = new Sequelize({
 
 const Guild = seq.define('guilds', {
     id: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.STRING,
         primaryKey: true,
         allowNull: false
     },
@@ -18,7 +18,7 @@ const Guild = seq.define('guilds', {
 
 const Blacklist = seq.define('blacklist', {
     id: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.STRING,
         primaryKey: true,
         allowNull: false
     },
