@@ -40,7 +40,7 @@ const Citizen = seq.define('citizens', {
     avatar: {
         type: Sequelize.STRING
     },
-    varified: {
+    verified: {
         type: Sequelize.BOOLEAN,
         defaultValue: false
     }
