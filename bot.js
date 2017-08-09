@@ -1,7 +1,7 @@
 const { AkairoClient } = require('discord-akairo');
 
 const SequelizeProvider = require('./providers/SequelizeProvider');
-const { Guild, Blacklist } = require('./database');
+const { Guild, Blacklist, Citizen } = require('./database');
 
 require('dotenv').config();
 
@@ -9,7 +9,7 @@ const client = new AkairoClient({
     ownerID: ['98468246902038528'],
     commandDirectory: './commands/',
     inhibitorDirectory: './inhibitors/',
-    handleEdits: true,
+    handleEdits: false,
     commandUtil: true,
     prefix: message => {
         if (!message.guild) {
@@ -44,6 +44,7 @@ client.env = (key, defaultValue = null) => {
 
 client.addDatabase('guilds', new SequelizeProvider(Guild));
 client.addDatabase('blacklist', new SequelizeProvider(Blacklist));
+client.addDatabase('citizens', new SequelizeProvider(Citizen));
 
 const force = false;
 

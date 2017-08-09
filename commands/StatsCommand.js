@@ -1,8 +1,7 @@
 const { Command } = require('discord-akairo');
-const { getFlag, number, strToColor } = require('../utils');
+const { getFlag, number, strToColor, citizenNameToId } = require('../utils');
 const request = require('request');
 const { RichEmbed } = require('discord.js');
-const cheerio = require('cheerio');
 const _ = require('underscore');
 const AsciiTable = require('ascii-table');
 
@@ -96,7 +95,7 @@ class StatsCommand extends Command {
                     if (avatarUrl.startsWith('//')) {
                         avatarUrl = 'https:' + avatarUrl;
                     }
-                    console.log(avatarUrl);
+
                     embed.setThumbnail(avatarUrl);
                 }
 
@@ -115,28 +114,14 @@ class StatsCommand extends Command {
         if (Number.isInteger(args.user)) {
 
         } else {
-            request.get(`https://www.erepublik.com/en/main/search/?q=${encodeURIComponent(args.user)}`, (error, response, body) => {
+            citizenNameToId(args.user).then((data) => {
+                this.showStats(message, data.id, data.avatar);
+            }).catch((error) => {
                 if (error) {
                     return message.reply('Something went wrong while processing your request');
                 }
 
-                const $ = cheerio.load(body);
-
-                const results = $('table.bestof tr');
-
-                if (results.length >= 2) {
-                    const profileUrl = $(results[1]).find('.nameholder a').attr('href');
-                    if (profileUrl) {
-                        const avatar = $(results[1]).find('.avatarholder img').attr('src');
-                        const match = profileUrl.match(/profile\/([0-9]+)/);
-                        if (match) {
-                            const id = Number(match[1]);
-                            return this.showStats(message, id, avatar);
-                        }
-                    }
-                }
-
-                message.reply(`User with the name ${args.user} was not found!`);
+                return message.reply(`Citizen with name ${args.user} was not found`);
             });
         }
     }

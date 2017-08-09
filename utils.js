@@ -1,5 +1,7 @@
 const countries_json = require('./countryCodes.json');
 const { Collection } = require('discord.js');
+const cheerio = require('cheerio');
+const request = require('request');
 
 const countries = (() => {
     let col = new Collection();
@@ -46,5 +48,36 @@ module.exports = {
 
         return intToRGB(hashCode(str)).toLowerCase().split('').reduce( (result, ch) =>
         result * 16 + '0123456789abcdefgh'.indexOf(ch), 0);
+    },
+    citizenNameToId: (name) => {
+        return new Promise((resolve, reject) => {
+            request.get(`https://www.erepublik.com/en/main/search/?q=${encodeURIComponent(name)}`, (error, response, body) => {
+                if (error) {
+                    return reject(error);
+                }
+
+                const $ = cheerio.load(body);
+
+                const results = $('table.bestof tr');
+
+                if (results.length >= 2) {
+                    const profileUrl = $(results[1]).find('.nameholder a').attr('href');
+                    if (profileUrl) {
+                        const avatar = $(results[1]).find('.avatarholder img').attr('src');
+                        const match = profileUrl.match(/profile\/([0-9]+)/);
+                        if (match) {
+                            const id = Number(match[1]);
+
+                            return resolve({
+                                id: id,
+                                avatar: avatar
+                            });
+                        }
+                    }
+                }
+
+                return reject();
+            });
+        });
     }
 };

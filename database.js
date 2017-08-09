@@ -27,9 +27,29 @@ const Blacklist = seq.define('blacklist', {
     }
 });
 
+const Citizens = seq.define('citizens', {
+    id: {
+        type: Sequelize.STRING,
+        primaryKey: true,
+        allowNull: false
+    },
+    erep_id: {
+        type: Sequelize.STRING,
+        allowNull: false
+    },
+    avatar: {
+        type: Sequelize.STRING
+    },
+    varified: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false
+    }
+});
+
 module.exports = {
     Sequelize: Sequelize,
     sequelize: seq,
     Guild: Guild,
-    Blacklist: Blacklist
+    Blacklist: Blacklist,
+    Citizens: Citizens
 };
