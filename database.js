@@ -27,7 +27,7 @@ const Blacklist = seq.define('blacklist', {
     }
 });
 
-const Citizens = seq.define('citizens', {
+const Citizen = seq.define('citizens', {
     id: {
         type: Sequelize.STRING,
         primaryKey: true,
@@ -51,5 +51,5 @@ module.exports = {
     sequelize: seq,
     Guild: Guild,
     Blacklist: Blacklist,
-    Citizens: Citizens
+    Citizen: Citizen
 };
