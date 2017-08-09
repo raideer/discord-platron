@@ -54,6 +54,14 @@ class SequelizeProvider extends Provider {
         return defaultValue;
     }
 
+    getCollection(id) {
+        if (this.items.has(id)) {
+            return this.items.get(id);
+        }
+
+        return null;
+    }
+
     /**
      * Sets a value.
      * @param {string} id - ID of entry.

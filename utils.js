@@ -63,15 +63,11 @@ module.exports = {
                 if (results.length >= 2) {
                     const profileUrl = $(results[1]).find('.nameholder a').attr('href');
                     if (profileUrl) {
-                        const avatar = $(results[1]).find('.avatarholder img').attr('src');
                         const match = profileUrl.match(/profile\/([0-9]+)/);
                         if (match) {
                             const id = Number(match[1]);
 
-                            return resolve({
-                                id: id,
-                                avatar: avatar
-                            });
+                            return resolve(id);
                         }
                     }
                 }

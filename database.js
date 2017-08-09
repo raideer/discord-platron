@@ -1,7 +1,8 @@
 const Sequelize = require('sequelize');
 const seq = new Sequelize({
     dialect: 'sqlite',
-    storage: './database.sqlite'
+    storage: './database.sqlite',
+    logging: true
 });
 
 const Guild = seq.define('guilds', {
@@ -33,7 +34,7 @@ const Citizen = seq.define('citizens', {
         primaryKey: true,
         allowNull: false
     },
-    erep_id: {
+    discord_id: {
         type: Sequelize.STRING,
         allowNull: false
     },
@@ -43,6 +44,13 @@ const Citizen = seq.define('citizens', {
     verified: {
         type: Sequelize.BOOLEAN,
         defaultValue: false
+    },
+    reclaiming: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false
+    },
+    code: {
+        type: Sequelize.STRING
     }
 });
 

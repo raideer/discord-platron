@@ -13,7 +13,20 @@ class StatsCommand extends Command {
                 {
                     id: 'user',
                     type: 'string',
-                    match: 'rest'
+                    match: 'rest',
+                    default: (message) => {
+                        return new Promise((resolve, reject) => {
+                            this.client.databases.citizens.table.findOne({where: {discord_id: message.author.id}})
+                            .then((user) => {
+                                if (!user) {
+                                    message.reply('Please enter a valid username/user id or register (via !register) to look up your own stats');
+                                    return reject();
+                                }
+
+                                return resolve(user.id);
+                            });
+                        });
+                    }
                 }
             ]
         });
@@ -25,7 +38,7 @@ class StatsCommand extends Command {
         return title;
     }
 
-    showStats(message, userId, avatarUrl) {
+    showStats(message, userId) {
         const apiKey = this.client.env('EREP_API');
         request.get(`https://api.erepublik-deutschland.de/${apiKey}/players/details/${userId}`, (error, response, body) => {
             if (error) {
@@ -91,13 +104,7 @@ class StatsCommand extends Command {
 
                     embed.setColor(strToColor(player.citizenship.country_name));
 
-                if (avatarUrl) {
-                    if (avatarUrl.startsWith('//')) {
-                        avatarUrl = 'https:' + avatarUrl;
-                    }
-
-                    embed.setThumbnail(avatarUrl);
-                }
+                embed.setThumbnail(`https://www.erepublik-deutschland.de/api/playerapi.php?p=pidavatar&s=${player.citizen_id}`);
 
                 message.channel.send({
                     embed: embed
@@ -111,11 +118,11 @@ class StatsCommand extends Command {
             throw "eRepublik Deutchland API key is not set!";
         });
 
-        if (Number.isInteger(args.user)) {
-
+        if (Number.isInteger(Number(args.user))) {
+            this.showStats(message, args.user);
         } else {
-            citizenNameToId(args.user).then((data) => {
-                this.showStats(message, data.id, data.avatar);
+            citizenNameToId(args.user).then((id) => {
+                this.showStats(message, id);
             }).catch((error) => {
                 if (error) {
                     return message.reply('Something went wrong while processing your request');
