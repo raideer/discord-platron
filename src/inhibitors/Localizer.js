@@ -1,10 +1,9 @@
 const { Inhibitor } = require('discord-akairo');
-const Localize = require('localize');
-
-const localizations = new Localize('../../');
 
 function exec(message) {
-    message.locale = 'en';
+    const locale = this.client.databases.guilds.get(message.guild.id, 'locale', 'en');
+    this.client.localize.setLocale(locale);
+    message.locale = locale;
 }
 
 module.exports = new Inhibitor('localizer', exec, {
