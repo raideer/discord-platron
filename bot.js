@@ -1,15 +1,17 @@
-const { AkairoClient } = require('discord-akairo');
-
+const PlatronClient = require('./src/PlatronClient');
 const SequelizeProvider = require('./providers/SequelizeProvider');
+
 const { Guild, Blacklist, Citizen } = require('./database');
 
 require('dotenv').config();
 
-const client = new AkairoClient({
+const client = new PlatronClient({
     ownerID: ['98468246902038528'],
-    commandDirectory: './commands/',
-    inhibitorDirectory: './inhibitors/',
+    commandDirectory: './src/commands/',
+    inhibitorDirectory: './src/inhibitors/',
+    listenerDirectory: './src/listeners',
     handleEdits: false,
+    defaultCooldown: 1000,
     commandUtil: true,
     prefix: message => {
         if (!message.guild) {

@@ -9,6 +9,7 @@
     "discord-akairo": "^7.4.2",
     "discord.js": "^11.1.0",
     "dotenv": "^4.0.0",
+    "localize": "^0.4.7",
     "request": "^2.81.0",
     "sequelize": "^4.4.2",
     "sqlite": "^2.8.0",

@@ -9,6 +9,8 @@ class StatsCommand extends Command {
     constructor() {
         super('stats', {
             aliases: ['stats'],
+            cooldown: 60000,
+            ratelimit: 30,
             args: [
                 {
                     id: 'user',
