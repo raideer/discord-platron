@@ -25,6 +25,12 @@ class PlatronClient extends AkairoClient {
 
     env(key, defaultValue = null) {
         if (process.env[key]) {
+            if (process.env[key] == 'true') {
+                return true;
+            } else if (process.env[key] == 'false') {
+                return false;
+            }
+            
             return process.env[key];
         }
 
