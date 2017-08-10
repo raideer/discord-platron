@@ -2,7 +2,7 @@ const Sequelize = require('sequelize');
 const seq = new Sequelize({
     dialect: 'sqlite',
     storage: '../database.sqlite',
-    logging: true
+    logging: false
 });
 
 const Guild = seq.define('guilds', {
@@ -14,6 +14,10 @@ const Guild = seq.define('guilds', {
     prefix: {
         type: Sequelize.STRING,
         defaultValue: ''
+    },
+    locale: {
+        type: Sequelize.STRING,
+        defaultValue: 'en'
     }
 });
 
