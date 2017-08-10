@@ -26,10 +26,22 @@ class ConfigCommand extends Command {
         switch(args.command) {
             case "prefix":
                 this.client.databases.guilds.set(message.guild.id, 'prefix', args.arg1);
-                return message.reply(`Command prefix for guild **${message.guild.name}** set to \`${args.arg1}\``)
+                return message.reply(this.client._('command.config.prefix_changed', `**${message.guild.name}**`, `\`${args.arg1}\``));
+                break;
+            case "locale":
+                const locales = ['en', 'lv'];
+                if (locales.indexOf(args.arg1) === -1) {
+                    return message.reply(`Locale code \`${args.arg1}\` not recognised`);
+                }
+
+                this.client.databases.guilds.set(message.guild.id, 'locale', args.arg1);
+                this.client.localize.setLocale(args.arg1);
+
+                const reply_message = this.client._('command.config.locale_changed', `**${message.guild.name}**`);
+                return message.reply(`:white_check_mark: ${reply_message}`)
                 break;
             default:
-                message.reply(`Invalid set request`);
+                message.reply(this.client._('bot.invalid_request'));
                 break;
         }
     }
@@ -46,7 +58,7 @@ class ConfigCommand extends Command {
                 this.runGet(message, args);
                 break;
             default:
-                message.reply(`Invalid request`);
+                message.reply(this.client._('bot.invalid_request'));
                 break;
         }
     }
