@@ -1,6 +1,50 @@
 {
-    "bot.description": {
+    "bot.about.description": {
         "en": "Multi purpose eRepublik discord bot by $[1]",
         "lv": "Daudzfunkcionāls eRepublik discord bots. Izveidoja $[1]"
+    },
+    "bot.about.version": {
+        "en": "Currently running version $[1]",
+        "lv": "Pašreizējā versija $[1]"
+    },
+    "bot.prompt.confirm": {
+        "en": "Are you sure you want to $[1]",
+        "lv": "Vai Tu tiešām vēlies $[1]"
+    },
+    "bot.invalid_request": {
+        "en": "Request not recognised",
+        "lv": "Pieprasījums netika atpazīts"
+    },
+    "command.config.ban": {
+        "en": "ban",
+        "lv": "bloķēt"
+    },
+    "command.config.unban": {
+        "en": "unban",
+        "lv": "atbloķēt"
+    },
+    "command.config.locale_changed": {
+        "en": "Default language for guild $[1] set to **english**",
+        "lv": "Noklusējuma valoda serverim $[1] tagad ir **latviešu**"
+    },
+    "command.config.prefix_changed": {
+        "en": "Command prefix for guild $[1] set to $[2]",
+        "lv": "Komandu prefikss serverim $[1] uzstādīts uz $[2]"
+    },
+    "command.config.user_banned": {
+        "en": "Blacklisted user $[1]",
+        "lv": "Lietotājs $[1] bloķēts"
+    },
+    "command.config.user_unbanned": {
+        "en": "Removed user $[1] from the blacklist",
+        "lv": "Lietotājs $[1] atbloķēts"
+    },
+    "command.config.user_already_banned": {
+        "en": "User $[1] is already banned",
+        "lv": "Lietotājs $[1] jau ir bloķēts"
+    },
+    "command.config.user_not_banned": {
+        "en": "User $[1] is not in the blacklist",
+        "lv": "Lietotājs $[1] nav bloķēts"
     }
 }
