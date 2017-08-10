@@ -3,7 +3,7 @@ const { Command } = require('discord-akairo');
 class ConfigCommand extends Command {
     constructor() {
         super('config', {
-            aliases: ['set', 'add'],
+            aliases: ['set', 'get'],
             args: [
                 {
                     id: 'command',
@@ -34,7 +34,7 @@ class ConfigCommand extends Command {
         }
     }
 
-    runAdd(message, args) {
+    runGet(message, args) {
     }
 
     exec(message, args) {
@@ -42,11 +42,11 @@ class ConfigCommand extends Command {
             case "set":
                 this.runSet(message, args);
                 break;
-            case "add":
-                this.runAdd(message, args);
+            case "get":
+                this.runGet(message, args);
                 break;
             default:
-                message.reply(`Invalid set request`);
+                message.reply(`Invalid request`);
                 break;
         }
     }

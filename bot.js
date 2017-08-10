@@ -1,7 +1,7 @@
 const PlatronClient = require('./src/PlatronClient');
-const SequelizeProvider = require('./providers/SequelizeProvider');
+const SequelizeProvider = require('./src/providers/SequelizeProvider');
 
-const { Guild, Blacklist, Citizen } = require('./database');
+const { Guild, Blacklist, Citizen } = require('./src/database');
 
 require('dotenv').config();
 

@@ -8,7 +8,7 @@ class AboutCommand extends Command {
     }
 
     exec(message) {
-        return message.channel.send(`**Discord PlaTRON** (\`v${require('../package.json').version}\`) made by **raideer**`);
+        return message.channel.send(`**Discord PlaTRON** (\`v${require('../../package.json').version}\`) made by **raideer**`);
     }
 }
 
