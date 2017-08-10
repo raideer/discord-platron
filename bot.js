@@ -55,11 +55,12 @@ Promise.all([
     Blacklist.sync({force: force}),
     Citizen.sync({force: force})
 ]).then(() => {
+    console.log('Sync complete. Attempting to log in');
     client.login(client.env('TOKEN', ()=>{
         throw "Bot TOKEN not provided!";
     })).then(() => {
         console.log('Started up');
-    }).catch(console.error);
+    }).catch(console.log);
 });
 
 process.on('unhandledRejection', err => console.error(err));
