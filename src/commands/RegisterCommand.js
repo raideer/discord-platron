@@ -45,14 +45,10 @@ class RegisterCommand extends Command {
                 }
 
                 if (response.statusCode == 404) {
-                    return message.reply(`Citizen with ID ${args.user} was not found`);
+                    return message.reply(this.client._('user_not_found', `**${args.user}**`));
                 }
 
                 const $ = cheerio.load(body);
-
-                // console.log('User id', args.user);
-                //
-                // console.log($('.citizen_profile_header h2').text());
 
                 const db = this.client.databases.citizens.table;
 
@@ -68,7 +64,10 @@ class RegisterCommand extends Command {
                                 user.reclaiming = false;
 
                                 return user.save().then(() => {
-                                    message.reply(`:white_check_mark: Your ownership of citizen **${args.user}** has been verified!\n You can now remove the verification code from your profile page :thumbsup:`)
+                                    const l_verified = this.client._('command.register.verified', `**${args.user}**`);
+                                    const l_verified1 = this.client._('command.register.verified1');
+
+                                    message.reply(`:white_check_mark: ${l_verified}\n ${l_verified1} :thumbsup:`)
                                 });
                             } else if(verify === false) {
                                 return message.reply(`:information_source: Please add \`[tron=${user.code}]\` to your **About me** section`);
@@ -112,7 +111,8 @@ class RegisterCommand extends Command {
                             discord_id: message.author.id,
                             code: code
                         }).then(() => {
-                            return message.reply(`:information_source: To verify your ownership of **${args.user}**, please add \`[tron=${code}]\` to your eRepublik account's __About me__ section and then run this command again.`);
+                            const l_add_code = this.client._('command.register.add_code', `**${args.user}**`, `\`[tron=${code}]\``);
+                            return message.reply(`:information_source: ${l_add_code}.`)
                         });
                     }
                 });

@@ -46,5 +46,61 @@
     "command.config.user_not_banned": {
         "en": "User $[1] is not in the blacklist",
         "lv": "Lietotājs $[1] nav bloķēts"
+    },
+    "command.combatorders.not_found": {
+        "en": "No CO's found for division $[1]",
+        "lv": "Netika atrasts neviens CO $[1] divīzijai"
+    },
+    "command.combatorders.vs": {
+        "en": "vs",
+        "lv": "pret"
+    },
+    "command.combatorders.budget": {
+        "en": "budget",
+        "lv": "budžets"
+    },
+    "command.combatorders.side": {
+        "en": "side",
+        "lv": "pusē"
+    },
+    "command.combatorders.fight_for": {
+        "en": "Fight for",
+        "lv": "Kauja par"
+    },
+    "command.market.for": {
+        "en": "for",
+        "lv": "par"
+    },
+    "command.market.go_to_offer": {
+        "en": "Go to offer",
+        "lv": "Iet uz piedāvājumu"
+    },
+    "command.market.best_offers": {
+        "en": "Best offers",
+        "lv": "Labākie piedāvājumi"
+    },
+    "command.market.invalid_combination": {
+        "en": "Invalid product and quality combination",
+        "lv": "Nepareiza produkta un kvalitātes kombinācija"
+    },
+    "command.market.invalid_product": {
+        "en": "Invalid product name",
+        "lv": "Nepareizs produkta nosaukums"
+    },
+    "command.register.user_not_found": {
+        "en": "Citizen with ID $[1] was not found",
+        "lv": "Spēlētājs ar ID $[1] netika atrasts"
+    },
+    "command.register.verified": {
+        "en": "Your ownership of citizen $[1] has been verified!",
+        "lv": "Tu tiki veiksmīgi verificēts kā profila $[1] īpašnieks!"
+    },
+    "command.register.verified1": {
+        "en": "You can now remove the verification code from your profile page",
+        "lv": "Verifikācijas kods tavā profila lapā vairs nav vajadzīgs"
+    },
+    "command.register.add_code": {
+        "en": "To verify your ownership of $[1], please add $[2] to your eRepublik account's __About me__ section and then run this command again",
+        "lv": "Lai verificētu tevi kā profile $[1] īpašnieku, lūdzu pievieno $[2] sava eRepublik profila __About me__ sadaļā un ieraksti šo komandu vēlreiz"
     }
 }
