@@ -1,7 +1,7 @@
 {
     "bot.about.description": {
         "en": "Multi purpose eRepublik discord bot by $[1]",
-        "lv": "Daudzfunkcionāls eRepublik discord bots. Izveidoja $[1]"
+        "lv": "eRepublik discord bots by $[1]"
     },
     "bot.about.version": {
         "en": "Currently running version $[1]",
