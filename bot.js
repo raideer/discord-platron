@@ -32,34 +32,26 @@ const client = new PlatronClient({
     disableEveryone: true
 });
 
-client.env = (key, defaultValue = null) => {
-    if (process.env[key]) {
-        return process.env[key];
-    }
-
-    if (typeof defaultValue == 'function') {
-        return defaultValue.call(client);
-    }
-
-    return defaultValue;
-}
-
 client.addDatabase('guilds', new SequelizeProvider(Guild));
 client.addDatabase('blacklist', new SequelizeProvider(Blacklist));
 client.addDatabase('citizens', new SequelizeProvider(Citizen));
 
-const force = false;
+const syncSettings = {
+    force: client.env('DATABASE_FORCE', false),
+    alter: client.env('DATABASE_ALTER', false)
+};
 
 Promise.all([
-    Guild.sync({force: force}),
-    Blacklist.sync({force: force}),
-    Citizen.sync({force: force})
+    Guild.sync(syncSettings),
+    Blacklist.sync(syncSettings),
+    Citizen.sync(syncSettings)
 ]).then(() => {
     console.log('Sync complete. Attempting to log in');
     client.login(client.env('TOKEN', ()=>{
         throw "Bot TOKEN not provided!";
     })).then(() => {
         console.log('Started up');
+        client.user.setGame('eRepublik');
     }).catch(console.log);
 });
 
