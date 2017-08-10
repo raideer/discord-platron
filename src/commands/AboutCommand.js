@@ -1,4 +1,5 @@
 const { Command } = require('discord-akairo');
+const { RichEmbed } = require('discord.js');
 
 class AboutCommand extends Command {
     constructor() {
@@ -8,7 +9,14 @@ class AboutCommand extends Command {
     }
 
     exec(message) {
-        return message.channel.send(`**Discord PlaTRON** (\`v${require('../../package.json').version}\`) made by **raideer**`);
+        const embed = new RichEmbed();
+        embed.setTitle("Discord PlaTRON");
+        embed.setThumbnail("http://i.imgur.com/3piWqcG.png");
+        embed.setDescription("Multi purpose eRepublik discord bot by [Industrials](https://www.erepublik.com/en/citizen/profile/8075739)");
+        embed.setFooter(`💚 Currently running version **${require('../../package.json').version}**`);
+        embed.setColor(3186940);
+
+        return message.channel.send({embed: embed});
     }
 }
 
