@@ -57,6 +57,7 @@ class RegisterCommand extends Command {
                         if (user.code && user.verified === false || user.code && user.reclaiming === true) {
                             const verify = this.verifyCode($, user.code);
 
+                            //If code is in the about me page
                             if (verify) {
                                 user.verified = true;
                                 user.code = null;
@@ -70,8 +71,10 @@ class RegisterCommand extends Command {
                                     message.reply(`:white_check_mark: ${l_verified}\n ${l_verified1} :thumbsup:`)
                                 });
                             } else if(verify === false) {
-                                return message.reply(`:information_source: Please add \`[tron=${user.code}]\` to your **About me** section`);
+                                //If code doesn't match
+                                return message.reply(this.client._('command.register.add_code', `**${args.user}**`, `\`[tron=${user.code}]\``));
                             } else {
+                                //If invalid code
                                 const code = this.generateCode();
                                 user.code = code;
                                 user.save().then(() => {
@@ -81,12 +84,15 @@ class RegisterCommand extends Command {
                         } else {
                             const owner = this.client.util.resolveUser(user.discord_id, this.client.users);
                             if (owner.id == message.author.id) {
-                                return message.reply(`:white_check_mark: You have already successfully claimed this account!`)
+                                return message.reply(`:white_check_mark: ${this.client._('command.register.already_verified')}!`)
                             }
+
+                            const l_already_claimed = this.client._('command.register.already_claimed', `\`${args.user}\``, `<@${owner.id}>\n:arrows_counterclockwise: __`);
+                            const l_options = this.client._('bot.prompt.options', `**yes**`, `**no**`);
 
                             return this.client.util.prompt(
                                 message,
-                                `Citizen with the ID \`${args.user}\` is already claimed by <@${owner.id}>\n:arrows_counterclockwise: __Would you like to reclaim this account?__ (type **yes** or **no**)`,
+                                `${l_already_claimed}?__ (${l_options})`,
                                 () => true,
                                 30000,
                                 {
@@ -99,7 +105,7 @@ class RegisterCommand extends Command {
                                     user.code = code;
                                     user.save().then(() => {
                                         message
-                                            .reply(`Ok :ok_hand:. Please add \`[tron=${code}]\` to your eRepublik account's __About me__ section and then run this command again.`);
+                                            .reply(`Ok :ok_hand:. ${this.client._('command.register.add_code', `**${args.user}**`, `\`[tron=${code}]\``)}`);
                                     });
                                 }
                             });

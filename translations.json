@@ -11,6 +11,10 @@
         "en": "Are you sure you want to $[1]",
         "lv": "Vai Tu tiešām vēlies $[1]"
     },
+    "bot.prompt.options": {
+        "en": "Type $[1] or $[2]",
+        "lv": "Raksti $[1] vai $[2]"
+    },
     "bot.invalid_request": {
         "en": "Request not recognised",
         "lv": "Pieprasījums netika atpazīts"
@@ -101,6 +105,74 @@
     },
     "command.register.add_code": {
         "en": "To verify your ownership of $[1], please add $[2] to your eRepublik account's __About me__ section and then run this command again",
-        "lv": "Lai verificētu tevi kā profile $[1] īpašnieku, lūdzu pievieno $[2] sava eRepublik profila __About me__ sadaļā un ieraksti šo komandu vēlreiz"
+        "lv": "Lai verificētu tevi kā konta $[1] īpašnieku, lūdzu pievieno $[2] sava eRepublik profila __About me__ sadaļā un ieraksti šo komandu vēlreiz"
+    },
+    "command.register.already_verified": {
+        "en": "You have already successfully claimed this account",
+        "lv": "Tu jau esi verificēts kā šī konta īpašnieks"
+    },
+    "command.register.already_claimed": {
+        "en": "Citizen with the ID $[1] is already claimed by $[2] Would you like to reclaim this account",
+        "lv": "Konts ar ID $[1] jau pieder $[2] Vai Tu vēlies piesavināt šo kontu"
+    },
+    "command.stats.invalid": {
+        "en": "Please enter a valid username/user id or register (via !register yourID) to look up your own stats",
+        "lv": "Lūdzu ievadi pareizi lietotājvārdu/id vai reģistrējies (izmantojot komandu !register tavsID), lai redzētu savus status"
+    },
+    "command.stats.title": {
+        "en": "Stats for citizen $[1]",
+        "lv": "Stati spēlētājam $[1]"
+    },
+    "command.stats.level": {
+        "en": "Level",
+        "lv": "Līmenis"
+    },
+    "command.stats.citizenship": {
+        "en": "Citizenship",
+        "lv": "Pilsonība"
+    },
+    "command.stats.location": {
+        "en": "Location",
+        "lv": "Atrašanās vieta"
+    },
+    "command.stats.party": {
+        "en": "Party",
+        "lv": "Partija"
+    },
+    "command.stats.newspaper": {
+        "en": "Newspaper",
+        "lv": "Avīze"
+    },
+    "command.stats.mu": {
+        "en": "Military unit",
+        "lv": "Militārā vienība"
+    },
+    "command.stats.division": {
+        "en": "Division",
+        "lv": "Divīzija"
+    },
+    "command.stats.strength": {
+        "en": "Strength",
+        "lv": "Spēks"
+    },
+    "command.stats.perception": {
+        "en": "Perception",
+        "lv": "Uztvere"
+    },
+    "command.stats.rank": {
+        "en": "Rank",
+        "lv": "Rangs"
+    },
+    "command.stats.air_rank": {
+        "en": "Aircraft rank",
+        "lv": "Aviācijas rangs"
+    },
+    "command.stats.max_hit": {
+        "en": "Max hit",
+        "lv": "Stiprākais sitiens"
+    },
+    "command.stats.achievements": {
+        "en": "Achievements",
+        "lv": "Sasniegumi"
     }
 }

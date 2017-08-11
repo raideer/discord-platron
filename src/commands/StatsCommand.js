@@ -21,7 +21,7 @@ class StatsCommand extends Command {
                             this.client.databases.citizens.table.findOne({where: {discord_id: message.author.id}})
                             .then((user) => {
                                 if (!user) {
-                                    message.reply('Please enter a valid username/user id or register (via !register) to look up your own stats');
+                                    message.reply(this.client._('command.stats.invalid'));
                                     return reject();
                                 }
 
@@ -51,35 +51,35 @@ class StatsCommand extends Command {
 
             if (data.status == 'ok') {
                 if (!(userId in data.players)) {
-                    return message.reply(`Player with ID \`${userId}\` was not found!`);
+                    return message.reply(this.client._('command.register.user_not_found', `**${userId}**`));
                 }
 
                 const player = data.players[userId];
 
                 const embed = new RichEmbed();
-                    embed.setTitle(`Stats for citizen **${player.name}** (${player.citizen_id})`);
+                    embed.setTitle(this.client._('command.stats.title', `**${player.name}** (${player.citizen_id})`));
                     embed.setURL(`https://www.erepublik.com/en/citizen/profile/${player.citizen_id}`);
-                    embed.addField('Level', player.general.level, true);
+                    embed.addField(this.client._('command.stats.level'), player.general.level, true);
                     embed.addField('XP', number(player.general.experience_points), true);
-                    embed.addField('Citizenship', `${getFlag(player.citizenship.country_name)} ${player.citizenship.country_name}`, true);
-                    embed.addField('Location', `${getFlag(player.residence.country_name)} ${player.residence.region_name} (${player.residence.country_name})`, true);
+                    embed.addField(this.client._('command.stats.citizenship'), `${getFlag(player.citizenship.country_name)} ${player.citizenship.country_name}`, true);
+                    embed.addField(this.client._('command.stats.location'), `${getFlag(player.residence.country_name)} ${player.residence.region_name} (${player.residence.country_name})`, true);
                     if (player.party.id) {
-                        embed.addField('Party', `[${player.party.name}](https://www.erepublik.com/en/party/${player.party.id})`, true);
+                        embed.addField(this.client._('command.stats.party'), `[${player.party.name}](https://www.erepublik.com/en/party/${player.party.id})`, true);
                     }
 
                     if (player.newspaper.id) {
-                        embed.addField('Newspaper', `[${player.newspaper.name}](https://www.erepublik.com/en/newspaper/${player.newspaper.id})`, true);
+                        embed.addField(this.client._('command.stats.newspaper'), `[${player.newspaper.name}](https://www.erepublik.com/en/newspaper/${player.newspaper.id})`, true);
                     }
 
                     if (player.military_unit.id) {
-                        embed.addField('Military unit', `[${player.military_unit.name}](https://www.erepublik.com/en/military/military-unit/${player.military_unit.id})`, true);
+                        embed.addField(this.client._('command.stats.mu'), `[${player.military_unit.name}](https://www.erepublik.com/en/military/military-unit/${player.military_unit.id})`, true);
                     }
-                    embed.addField('Division', player.military.division, true);
-                    embed.addField('Strength', number(player.military.strength), true);
-                    embed.addField('Perception', number(player.military.perception), true);
-                    embed.addField('Rank', `__${player.military.rank_name}__ (${number(player.military.rank_points)} points)`, true);
-                    embed.addField('Aircraft rank', `__${player.military.rank_name_aircraft}__ (${number(player.military.rank_points_aircraft)} points)`, true);
-                    embed.addField('Max hit', `${number(player.military.maxhit)} | ${number(player.military.maxhit_aircraft)} (air)`, true);
+                    embed.addField(this.client._('command.stats.division'), player.military.division, true);
+                    embed.addField(this.client._('command.stats.strength'), number(player.military.strength), true);
+                    embed.addField(this.client._('command.stats.perception'), number(player.military.perception), true);
+                    embed.addField(this.client._('command.stats.rank'), `__${player.military.rank_name}__ (${number(player.military.rank_points)} points)`, true);
+                    embed.addField(this.client._('command.stats.air_rank'), `__${player.military.rank_name_aircraft}__ (${number(player.military.rank_points_aircraft)} points)`, true);
+                    embed.addField(this.client._('command.stats.max_hit'), `${number(player.military.maxhit)} | ${number(player.military.maxhit_aircraft)} (air)`, true);
 
                     const tableLeft = new AsciiTable();
                     const tableRight = new AsciiTable();
@@ -101,8 +101,8 @@ class StatsCommand extends Command {
                         tableRight.addRow(this.prettifyAchievement(a), player.achievements[a]);
                     }
 
-                    embed.addField('Achievements', `\`${tableLeft.toString()}\``, true);
-                    embed.addField('Achievements', `\`${tableRight.toString()}\``, true);
+                    embed.addField(this.client._('command.stats.achievements'), `\`${tableLeft.toString()}\``, true);
+                    embed.addField(this.client._('command.stats.achievements'), `\`${tableRight.toString()}\``, true);
 
                     embed.setColor(strToColor(player.citizenship.country_name));
 
@@ -130,7 +130,7 @@ class StatsCommand extends Command {
                     return message.reply('Something went wrong while processing your request');
                 }
 
-                return message.reply(`Citizen with name ${args.user} was not found`);
+                return message.reply(this.client._('command.register.user_not_found', `**${args.user}**`));
             });
         }
     }

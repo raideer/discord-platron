@@ -20,7 +20,7 @@ class SalaryCommand extends Command {
                 let data = JSON.parse(buffer.toString());
 
                 if (data.status != 'ok') {
-                    return message.reply("Something went wrong while processing this request");
+                    return message.reply(this.client._('bot.invalid_request'));
                 }
 
                 let limit = (data.bestoffers.length < 10)?data.bestoffers.length:10;
@@ -38,7 +38,7 @@ class SalaryCommand extends Command {
                 message.reply(answer);
             })
             .on('error', (error) => {
-                message.reply('There was a problem while processing this request');
+                return message.reply(this.client._('bot.invalid_request'));
             })
             ;
     }
