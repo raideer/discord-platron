@@ -47,6 +47,11 @@ class ConfigCommand extends Command {
     }
 
     runGet(message, args) {
+        switch(args.command) {
+            case "link":
+                return message.reply(`<https://discordapp.com/oauth2/authorize?client_id=${this.client.user.id}&scope=bot&permissions=268435464>`)
+                break;
+        }
     }
 
     exec(message, args) {
