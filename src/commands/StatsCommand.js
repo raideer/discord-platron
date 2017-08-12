@@ -59,6 +59,7 @@ class StatsCommand extends Command {
                 const embed = new RichEmbed();
                     embed.setTitle(this.client._('command.stats.title', `**${player.name}** (${player.citizen_id})`));
                     embed.setURL(`https://www.erepublik.com/en/citizen/profile/${player.citizen_id}`);
+                    embed.setFooter(this.client._('command.stats.last_update', new Date(player.general.lastupdate).toLocaleString()));
                     embed.addField(this.client._('command.stats.level'), player.general.level, true);
                     embed.addField('XP', number(player.general.experience_points), true);
                     embed.addField(this.client._('command.stats.citizenship'), `${getFlag(player.citizenship.country_name)} ${player.citizenship.country_name}`, true);
