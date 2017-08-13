@@ -30,7 +30,7 @@ class PlatronClient extends AkairoClient {
             } else if (process.env[key] == 'false') {
                 return false;
             }
-            
+
             return process.env[key];
         }
 
