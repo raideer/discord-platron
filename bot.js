@@ -50,7 +50,7 @@ Promise.all([
     client.login(client.env('TOKEN', ()=>{
         throw "Bot TOKEN not provided!";
     })).then(() => {
-        console.log('Started up');
+        console.log('Successfully logged in');
         client.user.setGame('eRepublik');
     }).catch(console.log);
 });
