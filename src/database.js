@@ -18,7 +18,8 @@ const Guild = seq.define('guilds', {
     locale: {
         type: Sequelize.STRING,
         defaultValue: 'en'
-    }
+    },
+    verifiedRole: Sequelize.STRING
 });
 
 const Blacklist = seq.define('blacklist', {
