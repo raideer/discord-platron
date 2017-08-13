@@ -1,4 +1,4 @@
-const { Command } = require('discord-akairo');
+const Command = require('../PlatronCommand');
 const { getFlag, number, strToColor, citizenNameToId } = require('../utils');
 const request = require('request');
 const { RichEmbed } = require('discord.js');
@@ -11,6 +11,10 @@ class StatsCommand extends Command {
             aliases: ['stats'],
             cooldown: 60000,
             ratelimit: 30,
+            description: () => {
+                return this.client._('command.stats.description');
+            },
+            usage: 'stats (player name|citizen ID)',
             args: [
                 {
                     id: 'user',

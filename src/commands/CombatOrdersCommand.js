@@ -1,4 +1,4 @@
-const { Command } = require('discord-akairo');
+const Command = require('../PlatronCommand');
 const request = require('request');
 const { getFlag, number, strToColor } = require('../utils');
 const { RichEmbed } = require('discord.js');
@@ -13,6 +13,14 @@ class CombatOrdersCommand extends Command {
                     type: ['1', '2', '3', '4', 'air'],
                     default: null
                 }
+            ],
+            description: () => {
+                return this.client._('command.combatorders.description');
+            },
+            usage: 'co [1|2|3|4|air]',
+            usageExamples: [
+                'co',
+                'co air'
             ]
         });
     }

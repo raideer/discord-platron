@@ -1,4 +1,4 @@
-const { Command } = require('discord-akairo');
+const Command = require('../PlatronCommand');
 
 class BlacklistCommand extends Command {
     constructor() {
@@ -21,13 +21,15 @@ class BlacklistCommand extends Command {
                             const user = args.user;
                             let action = message.util.alias;
 
-                            let l_action = this.client._(`command.config.${action}`);
+                            let l_action = this.client._(`command.blacklist.${action}`);
                             let l_confirm = this.client._("bot.prompt.confirm", `__${l_action}__ **${user.username}** (yes/no)?`);
                             return l_confirm;
                         }
                     }
                 }
-            ]
+            ],
+            ownerOnly: true,
+            showInHelp: false
         });
     }
 
@@ -43,25 +45,25 @@ class BlacklistCommand extends Command {
         switch(message.util.alias) {
             case "ban":
                 if (is_banned) {
-                    response = this.client._('command.config.user_already_banned', `**${args.user.username}**`);
+                    response = this.client._('command.blacklist.user_already_banned', `**${args.user.username}**`);
                     break;
                 }
 
                 db.set(args.user.id, 'reason', args.reason);
 
                 response = ':no_entry: ';
-                response += this.client._('command.config.user_banned', `**${args.user.username}**`)
+                response += this.client._('command.blacklist.user_banned', `**${args.user.username}**`)
                 response += ` (ID ${args.user.id})`;
                 break;
             case "unban":
                 if (!is_banned) {
-                    response = this.client._('command.config.user_not_banned', `**${args.user.username}**`);
+                    response = this.client._('command.blacklist.user_not_banned', `**${args.user.username}**`);
                     break;
                 }
 
                 db.clear(args.user.id);
                 response = ':white_check_mark: ';
-                response += this.client._('command.config.user_unbanned', `**${args.user.username}**`)
+                response += this.client._('command.blacklist.user_unbanned', `**${args.user.username}**`)
                 break;
         }
 

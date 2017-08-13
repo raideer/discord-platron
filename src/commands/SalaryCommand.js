@@ -1,4 +1,4 @@
-const { Command } = require('discord-akairo');
+const Command = require('../PlatronCommand');
 const { getFlag, number } = require('../utils');
 const request = require('request');
 

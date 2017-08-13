@@ -1,9 +1,10 @@
-const { Command } = require('discord-akairo');
+const Command = require('../PlatronCommand');
 
 class PingCommand extends Command {
     constructor() {
         super('ping', {
-            aliases: ['ping', 'hello']
+            aliases: ['ping', 'hello'],
+            showInHelp: false
         });
     }
 

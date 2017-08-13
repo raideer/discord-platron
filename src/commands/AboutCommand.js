@@ -1,10 +1,14 @@
-const { Command } = require('discord-akairo');
+const Command = require('../PlatronCommand');
 const { RichEmbed } = require('discord.js');
 
 class AboutCommand extends Command {
     constructor() {
         super('about', {
-            aliases: ['about', 'version']
+            aliases: ['about', 'version'],
+            description: () => {
+                return this.client._('command.about.description');
+            },
+            usage: `about`
         });
     }
 
@@ -13,10 +17,10 @@ class AboutCommand extends Command {
         embed.setTitle("Discord PlaTRON");
         embed.setThumbnail("http://i.imgur.com/3piWqcG.png");
         embed.setDescription(
-            this.client.localize.translate("bot.about.description", "[Industrials](https://www.erepublik.com/en/citizen/profile/8075739)")
+            this.client.localize.translate("command.about.description", "[Industrials](https://www.erepublik.com/en/citizen/profile/8075739)")
         );
 
-        const vt = this.client.localize.translate("bot.about.version", `v${require('../../package.json').version}`);
+        const vt = this.client.localize.translate("command.about.version", `v${require('../../package.json').version}`);
         embed.setFooter(`💚 ${vt}`);
         embed.setColor(3186940);
 

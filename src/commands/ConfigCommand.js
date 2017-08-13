@@ -1,4 +1,4 @@
-const { Command } = require('discord-akairo');
+const Command = require('../PlatronCommand');
 
 class ConfigCommand extends Command {
     constructor() {
@@ -18,7 +18,8 @@ class ConfigCommand extends Command {
                     type: 'string'
                 }
             ],
-            channelRestriction: 'guild'
+            channelRestriction: 'guild',
+            ownerOnly: true
         });
     }
 

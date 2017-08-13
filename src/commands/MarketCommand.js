@@ -1,4 +1,4 @@
-const { Command } = require('discord-akairo');
+const Command = require('../PlatronCommand');
 const { getFlag, number } = require('../utils');
 const request = require('request');
 const { RichEmbed } = require('discord.js');
@@ -7,6 +7,14 @@ class MarketCommand extends Command {
     constructor() {
         super('market', {
             aliases: ['bo', 'market', 'price', 'bestoffers'],
+            description: () => {
+                return this.client._('command.market.description');
+            },
+            usage: 'bo (product) [quality]',
+            usageExamples: [
+                'bo food 5',
+                'bo wrm'
+            ],
             args: [
                 {
                     id: 'product',

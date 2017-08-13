@@ -1,4 +1,4 @@
-const { Command } = require('discord-akairo');
+const Command = require('../PlatronCommand');
 const { citizenNameToId } = require('../utils');
 const request = require('request');
 const cheerio = require('cheerio');
@@ -13,7 +13,14 @@ class RegisterCommand extends Command {
                     type: 'dynamicInt',
                     match: 'rest'
                 }
-            ]
+            ],
+            description: () => {
+                return this.client._('command.register.description');
+            },
+            usage: 'register (citizen ID)',
+            usageNote: () => {
+                return this.client._('command.register.usage_note');
+            }
         });
     }
 
