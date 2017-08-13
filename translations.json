@@ -1,11 +1,15 @@
 {
-    "bot.about.description": {
+    "command.about.description": {
         "en": "Multi purpose eRepublik discord bot by $[1]",
         "lv": "eRepublik discord bots by $[1]"
     },
-    "bot.about.version": {
+    "command.about.version": {
         "en": "Currently running version $[1]",
         "lv": "Pašreizējā versija $[1]"
+    },
+    "command.about.description": {
+        "en": "Basic information about the bot",
+        "lv": "Informācija par botu"
     },
     "bot.prompt.confirm": {
         "en": "Are you sure you want to $[1]",
@@ -19,11 +23,23 @@
         "en": "Request not recognised",
         "lv": "Pieprasījums netika atpazīts"
     },
-    "command.config.ban": {
+    "bot.command.list_of_commands": {
+        "en": "List of commands",
+        "lv": "Komandu saraksts"
+    },
+    "bot.command.usage": {
+        "en": "Usage",
+        "lv": "Pielietojums"
+    },
+    "bot.command.examples": {
+        "en": "Examples",
+        "lv": "Piemēri"
+    },
+    "command.blacklist.ban": {
         "en": "ban",
         "lv": "bloķēt"
     },
-    "command.config.unban": {
+    "command.blacklist.unban": {
         "en": "unban",
         "lv": "atbloķēt"
     },
@@ -35,25 +51,29 @@
         "en": "Command prefix for guild $[1] set to $[2]",
         "lv": "Komandu prefikss serverim $[1] uzstādīts uz $[2]"
     },
-    "command.config.user_banned": {
+    "command.blacklist.user_banned": {
         "en": "Blacklisted user $[1]",
         "lv": "Lietotājs $[1] bloķēts"
     },
-    "command.config.user_unbanned": {
+    "command.blacklist.user_unbanned": {
         "en": "Removed user $[1] from the blacklist",
         "lv": "Lietotājs $[1] atbloķēts"
     },
-    "command.config.user_already_banned": {
+    "command.blacklist.user_already_banned": {
         "en": "User $[1] is already banned",
         "lv": "Lietotājs $[1] jau ir bloķēts"
     },
-    "command.config.user_not_banned": {
+    "command.blacklist.user_not_banned": {
         "en": "User $[1] is not in the blacklist",
         "lv": "Lietotājs $[1] nav bloķēts"
     },
     "command.combatorders.not_found": {
         "en": "No CO's found for division $[1]",
         "lv": "Netika atrasts neviens CO $[1] divīzijai"
+    },
+    "command.combatorders.description": {
+        "en": "View all active CO's",
+        "lv": "Apskati visus aktīvos CO"
     },
     "command.combatorders.vs": {
         "en": "vs",
@@ -70,6 +90,10 @@
     "command.combatorders.fight_for": {
         "en": "Fight for",
         "lv": "Kauja par"
+    },
+    "command.market.description": {
+        "en": "Shows 5 best offers for a product",
+        "lv": "Parāda 5 labākos piedāvājumus produktam"
     },
     "command.market.for": {
         "en": "for",
@@ -90,6 +114,14 @@
     "command.market.invalid_product": {
         "en": "Invalid product name",
         "lv": "Nepareizs produkta nosaukums"
+    },
+    "command.register.description": {
+        "en": "Attach an eRepublik account to your discord for additional features",
+        "lv": "Pievieno savu eRepublik kontu, lai saņemtu papildus iespējas"
+    },
+    "command.register.usage_note": {
+        "en": "Citizen ID is the number at the end of your profile URL",
+        "lv": "Citizen ID ir ciparu kombinācija tava profila linka beigās"
     },
     "command.register.user_not_found": {
         "en": "Citizen with ID $[1] was not found",
@@ -115,6 +147,10 @@
         "en": "Citizen with the ID $[1] is already claimed by $[2] Would you like to reclaim this account",
         "lv": "Konts ar ID $[1] jau pieder $[2] Vai Tu vēlies piesavināt šo kontu"
     },
+    "command.stats.description": {
+        "en": "Shows basic profile information about a player",
+        "lv": "Parāda pamata informāciju par kādu spēlētāju"
+    },
     "command.stats.invalid": {
         "en": "Please enter a valid username/user id or register (via !register yourID) to look up your own stats",
         "lv": "Lūdzu ievadi pareizi lietotājvārdu/id vai reģistrējies (izmantojot komandu !register tavsID), lai redzētu savus status"
@@ -122,6 +158,10 @@
     "command.stats.title": {
         "en": "Stats for citizen $[1]",
         "lv": "Stati spēlētājam $[1]"
+    },
+    "command.stats.last_update": {
+        "en": "Last updated $[1]",
+        "lv": "Dati pēdējo reizi atjaunoti $[1]"
     },
     "command.stats.level": {
         "en": "Level",
