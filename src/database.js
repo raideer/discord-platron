@@ -19,7 +19,7 @@ const Guild = seq.define('guilds', {
         type: Sequelize.STRING,
         defaultValue: 'en'
     },
-    roles: Sequelize.JSON,
+    roleVerified: Sequelize.STRING,
     roleVerifiedEnabled: {
         type: Sequelize.BOOLEAN,
         defaultValue: true
