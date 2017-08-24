@@ -3,7 +3,7 @@ const AutoRoleModule = require('../AutoRoleModule');
 module.exports = class VerifiedRole extends AutoRoleModule {
     constructor() {
         super('verified', {
-            roleKey: 'verified',
+            roleKey: 'roleVerified',
             roleOptions: {
                 name: 'Verified by PlaTRON',
                 color: '#5e9e11'
