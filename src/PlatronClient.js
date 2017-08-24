@@ -1,4 +1,7 @@
 const { AkairoClient } = require('discord-akairo');
+
+const CronHandler = require('./CronHandler');
+const AutoRoleHandler = require('./AutoRoleHandler');
 const Localize = require('localize');
 const fs = require('fs');
 
@@ -12,11 +15,27 @@ class PlatronClient extends AkairoClient {
         const localize = new Localize(translations, null, 'machine');
         this.localize = localize;
 
+        if (this.akairoOptions.cronDirectory) {
+            this.cronHandler = new CronHandler(this, this.akairoOptions);
+        }
+
+        if (this.akairoOptions.rolesDirectory) {
+            this.roleHandler = new AutoRoleHandler(this, this.akairoOptions);
+        }
+
         return super.build();
     }
 
     loadAll() {
         super.loadAll();
+
+        if (this.cronHandler) {
+            this.cronHandler.loadAll();
+        }
+
+        if (this.roleHandler) {
+            this.roleHandler.loadAll();
+        }
     }
 
     _() {
