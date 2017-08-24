@@ -18,8 +18,8 @@ class ConfigCommand extends Command {
                     type: 'string'
                 }
             ],
-            channelRestriction: 'guild',
-            ownerOnly: true
+            ownerOnly: true,
+            channelRestriction: 'guild'
         });
     }
 
