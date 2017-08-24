@@ -1,4 +1,5 @@
 const Command = require('../PlatronCommand');
+const async = require('async');
 
 class ConfigCommand extends Command {
     constructor() {
@@ -51,6 +52,19 @@ class ConfigCommand extends Command {
         switch(args.command) {
             case "link":
                 return message.reply(`<https://discordapp.com/oauth2/authorize?client_id=${this.client.user.id}&scope=bot&permissions=268435464>`)
+                break;
+            case "del":
+                async.eachSeries(message.guild.roles.array(), (role, cb) => {
+                    if (role.name == 'Verified by PlaTRON') {
+                        return role.delete().then(() => {
+                            cb();
+                        });
+                    }
+
+                    return cb();
+                }, () => {
+                    message.reply('Done');
+                });
                 break;
         }
     }
