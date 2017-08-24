@@ -1,9 +1,10 @@
 const CronModule = require('../CronModule');
+const async = require('async');
 
 module.exports = class RoleSetter extends CronModule {
     constructor() {
         super('roleSetter', {
-            tab: '*/2 * * * *'
+            tab: '*/10 * * * * *'
         });
     }
 
@@ -35,19 +36,22 @@ module.exports = class RoleSetter extends CronModule {
                     item.roles = {};
                 }
 
-                const roleId = item.roles[roleKey];
+                const roleId = item[roleKey];
 
                 let role = null;
 
                 if (roleId) {
                     role = guild.roles.find('id', roleId);
+                    // console.log('found role', role.name);
                 }
 
                 if (!role) {
                     console.log('Creating role', defaults.name, 'in guild', guild.name);
                     return guild.createRole(defaults).then(createdRole => {
-                        item.roles[roleKey] = createdRole.id;
-                        return item.save().then(() => {
+                        console.log('Role created', createdRole.id);
+                        item[roleKey] = createdRole.id;
+                        return item.save().then((updatedItem) => {
+                            console.log('database item updated', updatedItem.roles);
                             return resolve(createdRole);
                         });
                     }).catch(error => {
@@ -60,38 +64,44 @@ module.exports = class RoleSetter extends CronModule {
                 }
 
                 return resolve(role);
-            });
+            }).catch(reject);
         });
     }
 
-    exec() {
-        this.client.guilds.forEach((guild) => {
-            guild.members.forEach((member) => {
+    _processGuild(guild) {
+        return new Promise((resolve, reject) => {
+            async.eachSeries(guild.members.array(), (member, callback) => {
+                console.log('Looking at', member.user.username);
+
                 this.client.roleHandler.modules.forEach((module) => {
                     const checkIfEnabled = Promise.resolve(module.isEnabled(guild));
                     checkIfEnabled.then(enabled => {
                         if (!enabled) {
-                            return console.log('Role', module.roleKey, 'not enabled in guild', guild.name);
+                            console.log('Role', module.roleKey, 'not enabled in guild', guild.name);
+                            return callback();
                         }
 
                         const check = Promise.resolve(module.isEligible(member, guild));
                         check.then(isEligible => {
-
                             this.findOrCreateRole(guild, module.roleKey, module.roleOptions).then(role => {
                                 if (!!isEligible) {
                                     if (!member.roles.has(role.id)) {
-                                        member.addRole(role).then(() => {
-                                            // console.log('Added role', module.roleKey, 'to', member.user.username);
+                                        return member.addRole(role).then(() => {
+                                            callback();
+                                            console.log('Added role', module.roleKey, 'to', member.user.username);
                                         });
                                     } else {
+                                        return callback();
                                         // console.log('Member', member.user.username, 'already has role', module.roleKey);
                                     }
                                 }else {
                                     if (member.roles.has(role.id)) {
-                                        member.removeRole(role).then(() => {
-                                            // console.log('Removed role', module.roleKey, 'from', member.user.username);
+                                        return member.removeRole(role).then(() => {
+                                            callback();
+                                            console.log('Removed role', module.roleKey, 'from', member.user.username);
                                         });
                                     } else {
+                                        return callback();
                                         // console.log('Member', member.user.username, 'is NOT eligible for', module.roleKey);
                                     }
                                 }
@@ -101,7 +111,19 @@ module.exports = class RoleSetter extends CronModule {
 
                     });
                 });
+            }, () => {
+                resolve();
             });
+        });
+    }
+
+    exec() {
+        async.eachSeries(this.client.guilds.array(), (guild, cb) => {
+            console.log('processing', guild.name);
+            this._processGuild(guild).then(() => {
+                console.log('\n\n\n');
+                cb();
+            })
         });
     }
 }
