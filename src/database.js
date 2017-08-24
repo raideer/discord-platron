@@ -19,7 +19,12 @@ const Guild = seq.define('guilds', {
         type: Sequelize.STRING,
         defaultValue: 'en'
     },
-    verifiedRole: Sequelize.STRING
+    roles: Sequelize.JSON,
+    roleVerifiedEnabled: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: true
+    },
+    logging: Sequelize.JSON
 });
 
 const Blacklist = seq.define('blacklist', {
