@@ -4,7 +4,9 @@ const async = require('async');
 module.exports = class RoleSetter extends CronModule {
     constructor() {
         super('roleSetter', {
-            tab: '*/2 * * * *'
+            tab: () => {
+                return this.client.env('ROLE_SETTER', '*/5 * * * *');
+            }
         });
     }
 

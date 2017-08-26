@@ -14,7 +14,9 @@ class CronModule extends AkairoModule {
     }
 
     run() {
-        this.cron = new CronJob(this.tab, this.exec, null, true, null, this);
+        let tab = (typeof this.tab === 'function')?this.tab.call(this):this.tab;
+
+        this.cron = new CronJob(tab, this.exec, null, true, null, this);
     }
 
     disable() {
