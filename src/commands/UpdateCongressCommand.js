@@ -149,7 +149,6 @@ class ConfigCommand extends Command {
 
     exec(message, args) {
         const Citizen = this.client.databases.citizens.table;
-        console.log(message.guild.members.array().length);
         async.eachSeries(message.guild.members.array(), (member, cb) => {
             console.log('Looking at', member.user.username, member.user.id);
 
