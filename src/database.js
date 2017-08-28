@@ -27,6 +27,24 @@ const Guild = seq.define('guilds', {
     logging: Sequelize.JSON
 });
 
+const Role = seq.define('roles', {
+    id: {
+        type: Sequelize.STRING,
+        primaryKey: true,
+        allowNull: false
+    },
+    type: {
+        type: Sequelize.STRING,
+        allowNull: false
+    },
+    key: {
+        type: Sequelize.STRING,
+        allowNull: false
+    }
+});
+
+Role.belongsTo(Guild);
+
 const Blacklist = seq.define('blacklist', {
     id: {
         type: Sequelize.STRING,
@@ -66,5 +84,6 @@ module.exports = {
     sequelize: seq,
     Guild: Guild,
     Blacklist: Blacklist,
-    Citizen: Citizen
+    Citizen: Citizen,
+    Role: Role
 };
