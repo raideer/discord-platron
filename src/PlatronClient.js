@@ -15,7 +15,7 @@ class PlatronClient extends AkairoClient {
         const localize = new Localize(translations, null, 'machine');
         this.localize = localize;
 
-        if (this.akairoOptions.cronDirectory) {
+        if (this.akairoOptions.cronDirectory && this.env('CRON_ENABLED', true)) {
             this.cronHandler = new CronHandler(this, this.akairoOptions);
         }
 
