@@ -70,49 +70,74 @@ module.exports = class RoleSetter extends CronModule {
         });
     }
 
+    _checkIfEligible(module, guild, member) {
+        return new Promise((resolve, reject) => {
+            const check = Promise.resolve(module.isEligible(member, guild, this.preData));
+            check.then(isEligible => {
+                return resolve(isEligible);
+            });
+        });
+    }
+
+    _checkIfEnabled(module, guild) {
+        return new Promise((resolve, reject) => {
+            const checkIfEnabled = Promise.resolve(module.isEnabled(guild));
+            checkIfEnabled.then(enabled => {
+                if (!enabled) {
+                    console.log('Role', module.roleKey, 'not enabled in guild', guild.name);
+                }
+
+                return resolve(enabled);
+            });
+        });
+    }
+
+    _applyRole(module, guild, member, isEligible) {
+        return new Promise((resolve, reject) => {
+            this.findOrCreateRole(guild, module.roleKey, module.roleOptions).then(role => {
+                if (!!isEligible) {
+                    if (!member.roles.has(role.id)) {
+                        return member.addRole(role).then(() => {
+                            resolve();
+                            console.log('Added role', module.roleKey, 'to', member.user.username);
+                        });
+                    } else {
+                        return resolve();
+                    }
+                }else {
+                    if (member.roles.has(role.id)) {
+                        return member.removeRole(role).then(() => {
+                            resolve();
+                            console.log('Removed role', module.roleKey, 'from', member.user.username);
+                        });
+                    } else {
+                        return resolve();
+                    }
+                }
+            });
+        });
+    }
+
     _processGuild(guild) {
         return new Promise((resolve, reject) => {
             async.eachSeries(guild.members.array(), (member, callback) => {
                 console.log('Looking at', member.user.username);
 
                 this.client.roleHandler.modules.forEach((module) => {
-                    const checkIfEnabled = Promise.resolve(module.isEnabled(guild));
-                    checkIfEnabled.then(enabled => {
-                        if (!enabled) {
-                            console.log('Role', module.roleKey, 'not enabled in guild', guild.name);
+                    this._checkIfEnabled(module, guild).then((isEnabled) => {
+
+                        if (!isEnabled) {
                             return callback();
                         }
 
-                        const check = Promise.resolve(module.isEligible(member, guild));
-                        check.then(isEligible => {
-                            this.findOrCreateRole(guild, module.roleKey, module.roleOptions).then(role => {
-                                if (!!isEligible) {
-                                    if (!member.roles.has(role.id)) {
-                                        return member.addRole(role).then(() => {
-                                            callback();
-                                            console.log('Added role', module.roleKey, 'to', member.user.username);
-                                        });
-                                    } else {
-                                        return callback();
-                                        // console.log('Member', member.user.username, 'already has role', module.roleKey);
-                                    }
-                                }else {
-                                    if (member.roles.has(role.id)) {
-                                        return member.removeRole(role).then(() => {
-                                            callback();
-                                            console.log('Removed role', module.roleKey, 'from', member.user.username);
-                                        });
-                                    } else {
-                                        return callback();
-                                        // console.log('Member', member.user.username, 'is NOT eligible for', module.roleKey);
-                                    }
-                                }
-                            });
+                        this._checkIfEligible(module, guild, member).then((isEligible) => {
+
+                            this._applyRole(module, guild, member, isEligible).then(callback);
 
                         });
-
                     });
                 });
+
             }, () => {
                 resolve();
             });
