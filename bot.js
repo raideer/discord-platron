@@ -1,7 +1,7 @@
 const PlatronClient = require('./src/PlatronClient');
 const SequelizeProvider = require('./src/providers/SequelizeProvider');
 
-const { Guild, Blacklist, Citizen } = require('./src/database');
+const { Guild, Blacklist, Citizen, Role } = require('./src/database');
 
 require('dotenv').config();
 
@@ -37,6 +37,7 @@ const client = new PlatronClient({
 client.addDatabase('guilds', new SequelizeProvider(Guild));
 client.addDatabase('blacklist', new SequelizeProvider(Blacklist));
 client.addDatabase('citizens', new SequelizeProvider(Citizen));
+client.addDatabase('roles', new SequelizeProvider(Role));
 
 const syncSettings = {
     force: client.env('DATABASE_FORCE', false),
@@ -46,7 +47,8 @@ const syncSettings = {
 Promise.all([
     Guild.sync(syncSettings),
     Blacklist.sync(syncSettings),
-    Citizen.sync(syncSettings)
+    Citizen.sync(syncSettings),
+    Role.sync(syncSettings)
 ]).then(() => {
     console.log('Sync complete. Attempting to log in');
     client.login(client.env('TOKEN', ()=>{
