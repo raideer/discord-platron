@@ -49,6 +49,29 @@ module.exports = {
         return intToRGB(hashCode(str)).toLowerCase().split('').reduce( (result, ch) =>
         result * 16 + '0123456789abcdefgh'.indexOf(ch), 0);
     },
+    getCitizenInfo: (id) => {
+        return new Promise((resolve, reject) => {
+            request.get(`https://www.erepublik.com/en/citizen/profile/${id}`, (error, response, body) => {
+                if (error) {
+                    return reject(error);
+                }
+
+                const $ = cheerio.load(body);
+                let data = {};
+
+                const $ca = $('.citizen_activity').children();
+
+                function prettify(text) {
+                    return String(text).replace(/[\t\n\r]/g, '').replace(/\s+/g, ' ').trim();
+                }
+
+                data.party = prettify($ca.first().find('.noborder span a').text());
+                data.partyRole = prettify($ca.first().find('h3').text());
+
+                return resolve(data);
+            });
+        });
+    },
     citizenNameToId: (name) => {
         return new Promise((resolve, reject) => {
             request.get(`https://www.erepublik.com/en/main/search/?q=${encodeURIComponent(name)}`, (error, response, body) => {
