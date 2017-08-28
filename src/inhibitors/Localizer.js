@@ -2,12 +2,10 @@ const { Inhibitor } = require('discord-akairo');
 
 function exec(message) {
 
+    let locale = 'en'
     if (message.guild) {
-        const locale = this.client.databases.guilds.get(message.guild.id, 'locale', 'en');
-    } else {
-        const locale = 'en';
+        locale = this.client.databases.guilds.get(message.guild.id, 'locale', 'en');
     }
-
 
     this.client.localize.setLocale(locale);
     message.locale = locale;
