@@ -146,43 +146,45 @@ module.exports = class RoleSetter extends CronModule {
     }
 
     _processGuild(guild) {
-        const Citizen = this.client.databases.citizens.table;
-        async.eachSeries(guild.members.array(), (member, cb) => {
-            console.log('Looking at', member.user.username, member.user.id);
+        return new Promise((resolve, reject) => {
+            const Citizen = this.client.databases.citizens.table;
+            async.eachSeries(guild.members.array(), (member, cb) => {
+                console.log('Looking at', member.user.username, member.user.id);
 
-            Citizen.findOne({where: {
-                discord_id: member.user.id
-            }}).then(dbUser => {
-                if (!dbUser) {
-                    console.log('Not found');
-                    return this._removeAllRoles(member, guild).then(() => {
-                        console.log('Removed all roles');
-                        cb();
-                    });
-                }
+                Citizen.findOne({where: {
+                    discord_id: member.user.id
+                }}).then(dbUser => {
+                    if (!dbUser) {
+                        console.log('Not found');
+                        return this._removeAllRoles(member, guild).then(() => {
+                            console.log('Removed all roles');
+                            cb();
+                        });
+                    }
 
-                if (!dbUser.verified) {
-                    console.log('User',dbUser.id,'is NOT VERIFIED')
-                    return this._removeAllRoles(member, guild).then(() => {
-                        console.log('Removed all roles for unverified');
-                        cb();
-                    });
-                }
+                    if (!dbUser.verified) {
+                        console.log('User',dbUser.id,'is NOT VERIFIED')
+                        return this._removeAllRoles(member, guild).then(() => {
+                            console.log('Removed all roles for unverified');
+                            cb();
+                        });
+                    }
 
-                utils.getCitizenInfo(dbUser.id).then(data => {
-                    this._addPartyRole(data.party, member, guild).then(() => {
-                        const inCongress =  data.partyRole == 'Congress Member';
+                    utils.getCitizenInfo(dbUser.id).then(data => {
+                        this._addPartyRole(data.party, member, guild).then(() => {
+                            const inCongress =  data.partyRole == 'Congress Member';
 
-                        console.log('Is in congress', inCongress);
+                            console.log('Is in congress', inCongress);
 
-                        this._addOrRemoveCongressRole(member, guild, !inCongress).then(() => {
-                            setTimeout(cb, 2000);
+                            this._addOrRemoveCongressRole(member, guild, !inCongress).then(() => {
+                                setTimeout(cb, 2000);
+                            });
                         });
                     });
                 });
+            }, () => {
+                resolve();
             });
-        }, () => {
-            message.reply('Done');
         });
     }
 
@@ -190,7 +192,6 @@ module.exports = class RoleSetter extends CronModule {
         async.eachSeries(this.client.guilds.array(), (guild, cb) => {
             console.log('processing', guild.name);
             this._processGuild(guild).then(() => {
-                console.log('\n\n\n');
                 cb();
             });
         });
