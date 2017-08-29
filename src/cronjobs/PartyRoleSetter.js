@@ -1,5 +1,7 @@
 const CronModule = require('../CronModule');
 const async = require('async');
+const slugify = require('slugify');
+const utils = require('../utils');
 
 module.exports = class RoleSetter extends CronModule {
     constructor() {
