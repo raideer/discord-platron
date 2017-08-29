@@ -16,4 +16,10 @@ module.exports = class PlatronCommand extends Command {
         this.usageNote = options.usageNote || "";
         this.showInHelp = !!options.showInHelp;
     }
+
+    deleteMessage(message, timeout = 10000) {
+        setTimeout(() => {
+            message.delete();
+        }, timeout);
+    }
 }
