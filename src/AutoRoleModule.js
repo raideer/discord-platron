@@ -1,4 +1,5 @@
 const { AkairoModule } = require('discord-akairo');
+const winston = require('winston');
 
 class AutoRoleModule extends AkairoModule {
     constructor(id, options) {
@@ -21,7 +22,7 @@ class AutoRoleModule extends AkairoModule {
     }
 
     isEligible() {
-        console.error(`Super "isEligible" not overriden for AutoRoleModule ${this.id}`);
+        winston.error('Super "isEligible" not overriden for AutoRoleModule', this.id);
         return false;
     }
 }

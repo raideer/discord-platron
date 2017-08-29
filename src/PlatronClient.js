@@ -4,6 +4,7 @@ const CronHandler = require('./CronHandler');
 const AutoRoleHandler = require('./AutoRoleHandler');
 const Localize = require('localize');
 const fs = require('fs');
+const winston = require('winston');
 
 class PlatronClient extends AkairoClient {
     build() {
@@ -15,12 +16,16 @@ class PlatronClient extends AkairoClient {
         const localize = new Localize(translations, null, 'machine');
         this.localize = localize;
 
-        if (this.akairoOptions.cronDirectory && this.env('CRON_ENABLED', true)) {
+        if (this.akairoOptions.cronDirectory) {
             this.cronHandler = new CronHandler(this, this.akairoOptions);
+        } else {
+            winston.warn('Cron module is not set up');
         }
 
         if (this.akairoOptions.rolesDirectory) {
             this.roleHandler = new AutoRoleHandler(this, this.akairoOptions);
+        } else {
+            winston.warn('Auto role module is not set up');
         }
 
         return super.build();

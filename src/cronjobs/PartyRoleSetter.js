@@ -1,5 +1,9 @@
 const CronModule = require('../CronModule');
 const async = require('async');
+const slugify = require('slugify');
+const utils = require('../utils');
+const winston = require('winston');
+const colors = require('colors');
 
 module.exports = class RoleSetter extends CronModule {
     constructor() {
@@ -22,17 +26,17 @@ module.exports = class RoleSetter extends CronModule {
                 }
             }).then(item => {
                 if (item) {
-                    console.log('Found role in db with type', roleType);
+                    winston.verbose('Found role in db with type', roleType);
                     const role = guild.roles.find('id', item.id);
 
                     if (role) {
-                        console.log('Found role in the collection');
+                        winston.verbose('Found role in the collection');
                         return resolve(role);
                     }
                 }
 
                 return guild.createRole(defaults).then(createdRole => {
-                    console.log('Created role', createdRole.name, 'with id', createdRole.id);
+                    winston.info('Created role', createdRole.name, 'with id', createdRole.id);
 
                     Role.create({
                         id: createdRole.id,
@@ -40,7 +44,7 @@ module.exports = class RoleSetter extends CronModule {
                         guildId: guild.id,
                         key: roleKey
                     }).then(() => {
-                        console.log('Role', createdRole.id, 'saved to database for guild', guild.id);
+                        winston.info('Role', createdRole.id, 'saved to database for guild', guild.id);
                         resolve(createdRole);
                     });
                 });
@@ -86,7 +90,7 @@ module.exports = class RoleSetter extends CronModule {
                     return member.addRole(role).then(resolve);
                 }
 
-                console.log('Member already has congress role');
+                winston.verbose('Member', member.user.username ,'already has congress role');
 
                 return resolve();
             });
@@ -109,9 +113,9 @@ module.exports = class RoleSetter extends CronModule {
                         member.removeRoles(otherParties).then(() => {
                             if (!member.roles.has(role.id)) {
                                 member.addRole(role);
-                                console.log('Attached role', role.name, 'to', member.user.username);
+                                winston.verbose('Attached role', role.name, 'to', member.user.username)
                             } else {
-                                console.log(member.user.username, 'already has role', role.name);
+                                winston.verbose(member.user.username, 'already has role', role.name);
                             }
 
                             resolve();
@@ -149,23 +153,23 @@ module.exports = class RoleSetter extends CronModule {
         return new Promise((resolve, reject) => {
             const Citizen = this.client.databases.citizens.table;
             async.eachSeries(guild.members.array(), (member, cb) => {
-                console.log('Looking at', member.user.username, member.user.id);
+                winston.verbose('Checking roles for user', member.user.username, member.user.id)
 
                 Citizen.findOne({where: {
                     discord_id: member.user.id
                 }}).then(dbUser => {
                     if (!dbUser) {
-                        console.log('Not found');
+                        winston.verbose('User', member.user.username, member.user.id, 'not registered');
                         return this._removeAllRoles(member, guild).then(() => {
-                            console.log('Removed all roles');
+                            winston.verbose('Removed ineligible roles for', member.user.username, member.user.id);
                             cb();
                         });
                     }
 
                     if (!dbUser.verified) {
-                        console.log('User',dbUser.id,'is NOT VERIFIED')
+                        winston.verbose('User', dbUser.id, 'is not verified');
                         return this._removeAllRoles(member, guild).then(() => {
-                            console.log('Removed all roles for unverified');
+                            winston.verbose('Removed ineligible roles for', member.user.username, member.user.id);
                             cb();
                         });
                     }
@@ -174,7 +178,11 @@ module.exports = class RoleSetter extends CronModule {
                         this._addPartyRole(data.party, member, guild).then(() => {
                             const inCongress =  data.partyRole == 'Congress Member';
 
-                            console.log('Is in congress', inCongress);
+                            if (inCongress) {
+                                winston.verbose('User', member.user.username, member.user.id, 'is in congress');
+                            } else {
+                                winston.verbose('User', member.user.username, member.user.id, 'is NOT in congress');
+                            }
 
                             this._addOrRemoveCongressRole(member, guild, !inCongress).then(() => {
                                 setTimeout(cb, 2000);
@@ -190,8 +198,10 @@ module.exports = class RoleSetter extends CronModule {
 
     exec() {
         async.eachSeries(this.client.guilds.array(), (guild, cb) => {
-            console.log('processing', guild.name);
+            winston.info('Setting party roles for guild', guild.name.cyan);
+            let timer = winston.startTimer();
             this._processGuild(guild).then(() => {
+                timer.done(`Finished setting party roles for guild ${guild.name.cyan}`);
                 cb();
             });
         });

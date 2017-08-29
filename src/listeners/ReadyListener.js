@@ -1,11 +1,16 @@
 const { Listener } = require('discord-akairo');
+const winston = require('winston');
 
 function exec() {
     if (this.client.cronHandler) {
-        this.client.cronHandler.modules.forEach((module) => {
-            console.log('Running cron module', module.id);
-            module.run();
-        });
+        if (this.client.env('CRON_ENABLED', true)) {
+            this.client.cronHandler.modules.forEach((module) => {
+                winston.info('Running cron module', module.id);
+                module.run();
+            });
+        } else {
+            winston.warn('Cron module is disabled');
+        }
     }
 }
 

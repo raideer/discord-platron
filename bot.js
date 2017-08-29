@@ -1,3 +1,30 @@
+const winston = require('winston');
+require('winston-daily-rotate-file');
+
+winston.configure({
+    transports: [
+        new (winston.transports.Console)(),
+        new (winston.transports.DailyRotateFile)({
+            name: 'log-file',
+            filename: './logs/log'
+        }),
+        new (winston.transports.DailyRotateFile)({
+            name: 'error-file',
+            filename: './logs/error',
+            level: 'error'
+        })
+    ]
+});
+
+winston.exitOnError = false;
+winston.cli();
+
+winston.handleExceptions(new winston.transports.DailyRotateFile({
+    name: 'error-file',
+    filename: './logs/error',
+    level: 'error'
+}));
+
 const PlatronClient = require('./src/PlatronClient');
 const SequelizeProvider = require('./src/providers/SequelizeProvider');
 
@@ -44,19 +71,21 @@ const syncSettings = {
     alter: client.env('DATABASE_ALTER', false)
 };
 
+const timer = winston.startTimer();
+
 Promise.all([
     Guild.sync(syncSettings),
     Blacklist.sync(syncSettings),
     Citizen.sync(syncSettings),
     Role.sync(syncSettings)
 ]).then(() => {
-    console.log('Sync complete. Attempting to log in');
+    timer.done('Finished syncing database.');
+    winston.info('Attempting to log in');
+
     client.login(client.env('TOKEN', ()=>{
         throw "Bot TOKEN not provided!";
     })).then(() => {
-        console.log('Successfully logged in');
+        winston.info('Successfully logged in');
         client.user.setGame('eRepublik');
-    }).catch(console.log);
+    }).catch(winston.error);
 });
-
-process.on('unhandledRejection', err => console.error(err));

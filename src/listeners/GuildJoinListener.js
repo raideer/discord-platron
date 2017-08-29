@@ -1,8 +1,9 @@
 const { Listener } = require('discord-akairo');
-
+const winston = require('winston');
 
 function exec(guild) {
-    console.log('Joined guild', guild.name);
+    winston.info('Joined guild', guild.name);
+
     const Guild = this.client.databases.guilds.table;
 
     Guild.findOrCreate({
