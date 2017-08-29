@@ -53,6 +53,12 @@ class ConfigCommand extends Command {
             case "link":
                 return message.reply(`<https://discordapp.com/oauth2/authorize?client_id=${this.client.user.id}&scope=bot&permissions=268435464>`)
                 break;
+            case "test":
+                return message.reply(`test`).then(reply => {
+                    this.deleteMessage(message);
+                    this.deleteMessage(reply);
+                });
+                break;
             case "del":
                 async.eachSeries(message.guild.roles.array(), (role, cb) => {
                     if (role.name == 'Verified by PlaTRON') {
