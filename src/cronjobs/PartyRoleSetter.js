@@ -32,6 +32,9 @@ module.exports = class RoleSetter extends CronModule {
                     if (role) {
                         winston.verbose('Found role in the collection');
                         return resolve(role);
+                    } else {
+                        winston.warn('Role', item.id, 'was not valid. Deleting from database');
+                        item.destroy();
                     }
                 }
 
@@ -149,50 +152,53 @@ module.exports = class RoleSetter extends CronModule {
         });
     }
 
-    _processGuild(guild) {
+    _processMember(member, guild) {
         return new Promise((resolve, reject) => {
+            winston.verbose('Checking roles for user', member.user.username, member.user.id)
             const Citizen = this.client.databases.citizens.table;
-            async.eachSeries(guild.members.array(), (member, cb) => {
-                winston.verbose('Checking roles for user', member.user.username, member.user.id)
+            Citizen.findOne({where: {
+                discord_id: member.user.id
+            }}).then(dbUser => {
+                if (!dbUser) {
+                    winston.verbose('User', member.user.username, member.user.id, 'not registered');
+                    return this._removeAllRoles(member, guild).then(() => {
+                        winston.verbose('Removed ineligible roles for', member.user.username, member.user.id);
+                        resolve();
+                    });
+                }
 
-                Citizen.findOne({where: {
-                    discord_id: member.user.id
-                }}).then(dbUser => {
-                    if (!dbUser) {
-                        winston.verbose('User', member.user.username, member.user.id, 'not registered');
-                        return this._removeAllRoles(member, guild).then(() => {
-                            winston.verbose('Removed ineligible roles for', member.user.username, member.user.id);
-                            cb();
-                        });
-                    }
+                if (!dbUser.verified) {
+                    winston.verbose('User', dbUser.id, 'is not verified');
+                    return this._removeAllRoles(member, guild).then(() => {
+                        winston.verbose('Removed ineligible roles for', member.user.username, member.user.id);
+                        resolve();
+                    });
+                }
 
-                    if (!dbUser.verified) {
-                        winston.verbose('User', dbUser.id, 'is not verified');
-                        return this._removeAllRoles(member, guild).then(() => {
-                            winston.verbose('Removed ineligible roles for', member.user.username, member.user.id);
-                            cb();
-                        });
-                    }
+                utils.getCitizenInfo(dbUser.id).then(data => {
+                    this._addPartyRole(data.party, member, guild).then(() => {
+                        const inCongress =  data.partyRole == 'Congress Member';
 
-                    utils.getCitizenInfo(dbUser.id).then(data => {
-                        this._addPartyRole(data.party, member, guild).then(() => {
-                            const inCongress =  data.partyRole == 'Congress Member';
+                        if (inCongress) {
+                            winston.verbose('User', member.user.username, member.user.id, 'is in congress');
+                        } else {
+                            winston.verbose('User', member.user.username, member.user.id, 'is NOT in congress');
+                        }
 
-                            if (inCongress) {
-                                winston.verbose('User', member.user.username, member.user.id, 'is in congress');
-                            } else {
-                                winston.verbose('User', member.user.username, member.user.id, 'is NOT in congress');
-                            }
-
-                            this._addOrRemoveCongressRole(member, guild, !inCongress).then(() => {
-                                setTimeout(cb, 2000);
-                            });
+                        this._addOrRemoveCongressRole(member, guild, !inCongress).then(() => {
+                            setTimeout(resolve, 2000);
                         });
                     });
                 });
-            }, () => {
-                resolve();
             });
+        });
+    }
+
+    _processGuild(guild) {
+        return new Promise((resolve, reject) => {
+            async.eachSeries(guild.members.array(), (member, cb) => {
+                this._processMember(member, guild).then(cb);
+            }, resolve);
         });
     }
 
