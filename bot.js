@@ -12,10 +12,16 @@ winston.configure({
             name: 'error-file',
             filename: './logs/error',
             level: 'error'
+        }),
+        new (winston.transports.DailyRotateFile)({
+            name: 'verbose-file',
+            filename: './logs/verbose',
+            level: 'verbose'
         })
     ]
 });
 
+winston.level = 'verbose';
 winston.exitOnError = false;
 winston.cli();
 
