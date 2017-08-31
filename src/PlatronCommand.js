@@ -35,7 +35,7 @@ module.exports = class PlatronCommand extends Command {
         this.usage = options.usage || "";
         this.usageExamples = options.usageExamples || [];
         this.usageNote = options.usageNote || "";
-        this.showInHelp = !!options.showInHelp;
+        this.showInHelp = (typeof options.showInHelp === 'undefined')?true:!!options.showInHelp;
     }
 
     deleteMessage(message, timeout = 10000) {
