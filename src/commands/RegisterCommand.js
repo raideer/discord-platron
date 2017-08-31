@@ -18,7 +18,7 @@ class RegisterCommand extends Command {
             description: () => {
                 return this.client._('command.register.description');
             },
-            usage: 'register (citizen ID)',
+            usage: 'register YOUR_CITIZEN_ID',
             usageNote: () => {
                 return this.client._('command.register.usage_note');
             }
@@ -50,6 +50,10 @@ class RegisterCommand extends Command {
     }
 
     exec(message, args) {
+        if (!args.user) {
+            return this.client.emit('invalidUsage', message, this);
+        }
+
         if (Number.isInteger(args.user)) {
             request.get(`https://www.erepublik.com/en/citizen/profile/${args.user}`, (error, response, body) => {
                 if (error) {
