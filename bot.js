@@ -24,7 +24,7 @@ winston.handleExceptions(new winston.transports.DailyRotateFile({
 const PlatronClient = require('./src/PlatronClient');
 const SequelizeProvider = require('./src/providers/SequelizeProvider');
 
-const { Guild, Blacklist, Citizen, Role } = require('./src/database');
+const db = require('./db/models/index');
 
 require('dotenv').config();
 
@@ -57,23 +57,23 @@ const client = new PlatronClient({
     disableEveryone: true
 });
 
-client.addDatabase('guilds', new SequelizeProvider(Guild));
-client.addDatabase('blacklist', new SequelizeProvider(Blacklist));
-client.addDatabase('citizens', new SequelizeProvider(Citizen));
-client.addDatabase('roles', new SequelizeProvider(Role));
+client.addDatabase('guilds', new SequelizeProvider(db.Guild));
+client.addDatabase('blacklist', new SequelizeProvider(db.Blacklist));
+client.addDatabase('citizens', new SequelizeProvider(db.Citizen));
+client.addDatabase('roles', new SequelizeProvider(db.Role));
 
 const syncSettings = {
-    force: client.env('DATABASE_FORCE', false),
-    alter: client.env('DATABASE_ALTER', false)
+    // force: client.env('DATABASE_FORCE', false),
+    // alter: client.env('DATABASE_ALTER', false)
 };
 
-const timer = winston.startTimer();
+let timer = winston.startTimer();
 
 Promise.all([
-    Guild.sync(syncSettings),
-    Blacklist.sync(syncSettings),
-    Citizen.sync(syncSettings),
-    Role.sync(syncSettings)
+    db.Guild.sync(syncSettings),
+    db.Blacklist.sync(syncSettings),
+    db.Citizen.sync(syncSettings),
+    db.Role.sync(syncSettings)
 ]).then(() => {
     timer.done('Finished syncing database.');
     winston.info('Attempting to log in');
