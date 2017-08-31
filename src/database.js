@@ -24,6 +24,10 @@ const Guild = seq.define('guilds', {
         type: Sequelize.BOOLEAN,
         defaultValue: true
     },
+    forceErepNames: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false
+    },
     logging: Sequelize.JSON
 });
 
