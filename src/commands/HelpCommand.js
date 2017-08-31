@@ -13,11 +13,11 @@ class HelpCommand extends Command {
         let answers = [`__${this.client._('bot.command.list_of_commands')}__`];
 
         this.client.commandHandler.modules.forEach((command) => {
-            let a = [];
-
             if (!command.showInHelp) {
                 return;
             }
+
+            let a = [];
 
             let aliases = (_.rest(command.aliases).length > 0)? `(${_.rest(command.aliases).join(' | ')})` : '';
             let description = (typeof command.description === 'function')?command.description.call(this):command.description;
