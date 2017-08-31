@@ -16,7 +16,7 @@ class HelpCommand extends Command {
             let a = [];
 
             if (!command.showInHelp) {
-                continue;
+                return;
             }
 
             let aliases = (_.rest(command.aliases).length > 0)? `(${_.rest(command.aliases).join(' | ')})` : '';
