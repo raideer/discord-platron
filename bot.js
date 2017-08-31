@@ -7,16 +7,6 @@ winston.configure({
         new (winston.transports.DailyRotateFile)({
             name: 'log-file',
             filename: './logs/log'
-        }),
-        new (winston.transports.DailyRotateFile)({
-            name: 'error-file',
-            filename: './logs/error',
-            level: 'error'
-        }),
-        new (winston.transports.DailyRotateFile)({
-            name: 'verbose-file',
-            filename: './logs/verbose',
-            level: 'verbose'
         })
     ]
 });
