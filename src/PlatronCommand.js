@@ -39,6 +39,10 @@ module.exports = class PlatronCommand extends Command {
     }
 
     deleteMessage(message, timeout = 10000) {
+        if (!message.guild) {
+            return;
+        }
+
         setTimeout(() => {
             message.delete();
         }, timeout);
