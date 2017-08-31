@@ -14,70 +14,9 @@ module.exports = class RoleSetter extends CronModule {
         });
     }
 
-    _findOrCreateRole(roleType, roleKey, guild, defaults) {
-        return new Promise((resolve, reject) => {
-            const Role = this.client.databases.roles.table;
-
-            Role.findOne({
-                where: {
-                    type: roleType,
-                    guildId: guild.id,
-                    key: roleKey
-                }
-            }).then(item => {
-                if (item) {
-                    winston.verbose('Found role in db with type', roleType);
-                    const role = guild.roles.find('id', item.id);
-
-                    if (role) {
-                        winston.verbose('Found role in the collection');
-                        return resolve(role);
-                    } else {
-                        winston.warn('Role', item.id, 'was not valid. Deleting from database');
-                        item.destroy();
-                    }
-                }
-
-                return guild.createRole(defaults).then(createdRole => {
-                    winston.info('Created role', createdRole.name, 'with id', createdRole.id);
-
-                    Role.create({
-                        id: createdRole.id,
-                        type: roleType,
-                        guildId: guild.id,
-                        key: roleKey
-                    }).then(() => {
-                        winston.info('Role', createdRole.id, 'saved to database for guild', guild.id);
-                        resolve(createdRole);
-                    });
-                });
-            });
-        });
-    }
-
-    _getRolesWithKey(key) {
-        return new Promise((resolve, reject) => {
-            const Role = this.client.databases.roles.table;
-
-            Role.findAll({
-                where: {
-                    key: key
-                }
-            }).then(roles => {
-                let keys = [];
-
-                for(let i in roles) {
-                    keys.push(roles[i].id);
-                }
-
-                resolve(keys);
-            });
-        });
-    }
-
     _addOrRemoveCongressRole(member, guild, remove = false) {
         return new Promise((resolve, reject) => {
-            this._findOrCreateRole('congress', 'congress', guild, {
+            this.roleUtils.findOrCreateRole('congress', 'congress', guild, {
                 name: 'Congress',
                 color: '#0f81c9'
             }).then(role => {
@@ -102,9 +41,9 @@ module.exports = class RoleSetter extends CronModule {
 
     _addPartyRole(party, member, guild) {
         return new Promise((resolve, reject) => {
-            this._getRolesWithKey('party').then(roleKeys => {
+            this.roleUtils.getRolesWithKey('party').then(roleKeys => {
                 if (party) {
-                    return this._findOrCreateRole(slugify(party).toLowerCase(), 'party', guild, {
+                    return this.roleUtils.findOrCreateRole(slugify(party).toLowerCase(), 'party', guild, {
                         name: party,
                         color: '#923dff'
                     }).then(role => {
@@ -132,26 +71,6 @@ module.exports = class RoleSetter extends CronModule {
         });
     }
 
-    _removeAllRoles(member, guild) {
-        return new Promise((resolve, reject) => {
-            const Role = this.client.databases.roles.table;
-
-            Role.findAll({
-                where: {
-                    guildId: guild.id
-                }
-            }).then(roles => {
-                let roleKeys = [];
-                for(let i in roles) {
-                    roleKeys.push(roles[i].id);
-
-                }
-
-                member.removeRoles(roleKeys).then(resolve).catch(resolve);
-            });
-        });
-    }
-
     _processMember(member, guild) {
         return new Promise((resolve, reject) => {
             winston.verbose('Checking roles for user', member.user.username, member.user.id)
@@ -161,7 +80,7 @@ module.exports = class RoleSetter extends CronModule {
             }}).then(dbUser => {
                 if (!dbUser) {
                     winston.verbose('User', member.user.username, member.user.id, 'not registered');
-                    return this._removeAllRoles(member, guild).then(() => {
+                    return this.roleUtils.removeAllRoles(member, guild).then(() => {
                         winston.verbose('Removed ineligible roles for', member.user.username, member.user.id);
                         resolve();
                     });
@@ -169,7 +88,7 @@ module.exports = class RoleSetter extends CronModule {
 
                 if (!dbUser.verified) {
                     winston.verbose('User', dbUser.id, 'is not verified');
-                    return this._removeAllRoles(member, guild).then(() => {
+                    return this.roleUtils.removeAllRoles(member, guild).then(() => {
                         winston.verbose('Removed ineligible roles for', member.user.username, member.user.id);
                         resolve();
                     });

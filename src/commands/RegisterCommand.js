@@ -165,7 +165,10 @@ class RegisterCommand extends Command {
                             code: code
                         }).then(() => {
                             const l_add_code = this.client._('command.register.add_code', `**${args.user}**`, `\`[tron=${code}]\``);
-                            return message.reply(`:information_source: ${l_add_code}.`)
+                            return message.reply(`:information_source: ${l_add_code}.`).then(reply => {
+                                this.deleteMessage(message);
+                                this.deleteMessage(reply);
+                            });
                         });
                     }
                 });

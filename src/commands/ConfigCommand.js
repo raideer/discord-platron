@@ -1,10 +1,11 @@
 const Command = require('../PlatronCommand');
 const async = require('async');
+const winston = require('winston');
 
 class ConfigCommand extends Command {
     constructor() {
         super('config', {
-            aliases: ['set', 'get'],
+            aliases: ['set', 'get', 'run'],
             args: [
                 {
                     id: 'command',
@@ -53,23 +54,45 @@ class ConfigCommand extends Command {
             case "link":
                 return message.reply(`<https://discordapp.com/oauth2/authorize?client_id=${this.client.user.id}&scope=bot&permissions=268435464>`)
                 break;
-            case "test":
-                return message.reply(`test`).then(reply => {
-                    this.deleteMessage(message);
-                    this.deleteMessage(reply);
-                });
-                break;
-            case "del":
-                async.eachSeries(message.guild.roles.array(), (role, cb) => {
-                    if (role.name == 'Verified by PlaTRON') {
-                        return role.delete().then(() => {
-                            cb();
-                        });
+        }
+    }
+
+    runRun(message, args) {
+        switch(args.command) {
+            case "updateRoles":
+                const User = this.client.util.resolveUser(args.arg1, this.client.users);
+                if (!User) {
+                    return message.reply('User not found');
+                }
+
+                const Citizen = this.client.databases.citizens.table;
+                Citizen.findOne({
+                    where: {
+                        discord_id: User.id
+                    }
+                }).then(citizen => {
+                    if (!citizen) {
+                        return message.reply('User not registered');
                     }
 
-                    return cb();
-                }, () => {
-                    message.reply('Done');
+                    if (!citizen.verified) {
+                        return message.reply('User not verified');
+                    }
+
+                    if (this.client.cronHandler && message.guild) {
+                        const roleSetter = this.client.cronHandler.modules.get('partyRoleSetter');
+
+                        if (roleSetter) {
+                            winston.info('Running partyRoleSetter module');
+                            roleSetter._processMember(message.member, message.guild).then(() => {
+                                message.reply('Done');
+                            });
+                        } else {
+                            winston.error('Party role setter not found')
+                        }
+                    } else {
+                        return message.reply('Invalid environment');
+                    }
                 });
                 break;
         }
@@ -82,6 +105,9 @@ class ConfigCommand extends Command {
                 break;
             case "get":
                 this.runGet(message, args);
+                break;
+            case "run":
+                this.runRun(message, args);
                 break;
             default:
                 message.reply(this.client._('bot.invalid_request'));
