@@ -7,8 +7,29 @@ module.exports = class PlatronCommand extends Command {
             exec = null;
         }
 
-        super(id, exec, options);
+        if (!options.args) {
+            options.args = [];
+        }
 
+        options.args.push({
+            id: '_lang',
+            match: 'prefix',
+            prefix: ['--lang=', '--l=']
+        });
+
+        options.args.push({
+            id: '_en',
+            match: 'flag',
+            prefix: ['--en', '-en']
+        });
+
+        options.args.push({
+            id: '_lv',
+            match: 'flag',
+            prefix: ['--lv', '-lv']
+        });
+
+        super(id, exec, options);
 
         this.description = options.description || "";
         this.usage = options.usage || "";
