@@ -15,6 +15,10 @@ class HelpCommand extends Command {
         this.client.commandHandler.modules.forEach((command) => {
             let a = [];
 
+            if (!command.showInHelp) {
+                continue;
+            }
+
             let aliases = (_.rest(command.aliases).length > 0)? `(${_.rest(command.aliases).join(' | ')})` : '';
             let description = (typeof command.description === 'function')?command.description.call(this):command.description;
             if (description) {
