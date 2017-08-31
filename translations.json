@@ -214,5 +214,81 @@
     "command.stats.achievements": {
         "en": "Achievements",
         "lv": "Sasniegumi"
+    },
+    "command.8ball.affirmative1": {
+        "en": "It is certain",
+        "lv": "Tas ir skaidrs"
+    },
+    "command.8ball.affirmative2": {
+        "en": "It is decidedly so",
+        "lv": "Tā visnotaļ ir"
+    },
+    "command.8ball.affirmative3": {
+        "en": "Yes, definitely",
+        "lv": "Jā, noteikti"
+    },
+    "command.8ball.affirmative4": {
+        "en": "You may rely on it",
+        "lv": "Tu vari uz to paļauties"
+    },
+    "command.8ball.affirmative5": {
+        "en": "As I see it, yes",
+        "lv": "Kā es to redzu, jā"
+    },
+    "command.8ball.affirmative6": {
+        "en": "Most likely",
+        "lv": "Visticamāk"
+    },
+    "command.8ball.affirmative7": {
+        "en": "My processor says yes",
+        "lv": "Mans procesors saka jā"
+    },
+    "command.8ball.affirmative8": {
+        "en": "Yes",
+        "lv": "Jā"
+    },
+    "command.8ball.neutral1": {
+        "en": "Better not tell you now",
+        "lv": "Labāk tev to neteikšu"
+    },
+    "command.8ball.neutral2": {
+        "en": "Cannot predict now",
+        "lv": "Šobrīd nespēju pareģot"
+    },
+    "command.8ball.neutral3": {
+        "en": "Concentrate and ask again",
+        "lv": "Koncentrējies un jautā vēlreiz"
+    },
+    "command.8ball.neutral4": {
+        "en": "No time to answer that... Gotta process all those pack orders",
+        "lv": "Nevaru šobrīd atbildēt... Jāapstrādā visi paku pirkumi"
+    },
+    "command.8ball.neutral5": {
+        "en": "I'll answer only if you'll buy gold from me",
+        "lv": "Atbildēšu tikai ja nopirksi no manīm zeltu"
+    },
+    "command.8ball.neutral6": {
+        "en": "I don't feel like answering",
+        "lv": "Es nevēlos atbildēt"
+    },
+    "command.8ball.negative1": {
+        "en": "My processor says no",
+        "lv": "Mans procesors saka nē"
+    },
+    "command.8ball.negative2": {
+        "en": "My reply is no",
+        "lv": "Mana atbilde ir nē"
+    },
+    "command.8ball.negative3": {
+        "en": "My sources say no",
+        "lv": "Mani avoti saka nē"
+    },
+    "command.8ball.negative4": {
+        "en": "Very doubtful",
+        "lv": "Apšaubāmi"
+    },
+    "command.8ball.negative5": {
+        "en": "Only in your dreams",
+        "lv": "Tikai tavos sapņos"
     }
 }
