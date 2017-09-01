@@ -83,7 +83,7 @@ class RegisterCommand extends Command {
                     // If the user was found
                     if (user) {
                         winston.verbose('Found citizen with id', user.id);
-                        if (user.verified === false || user.reclaiming === true) {
+                        if ((user.verified === false && user.discord_id == message.author.id) || user.reclaiming == message.author.id) {
                             const verify = this.verifyCode($, user.code);
 
                             //If code is in the about me page
@@ -92,7 +92,7 @@ class RegisterCommand extends Command {
                                 user.verified = true;
                                 user.code = null;
                                 user.discord_id = message.author.id;
-                                user.reclaiming = false;
+                                user.reclaiming = null;
 
                                 return user.save().then(() => {
                                     if (this.client.cronHandler && message.guild) {
@@ -126,6 +126,7 @@ class RegisterCommand extends Command {
                                 //If invalid code
                                 const code = this.generateCode();
                                 user.code = code;
+                                user.discord_id = message.author.id;
                                 user.save().then(() => {
                                     return message.reply(`:arrows_counterclockwise: Something went wrong! Please add \`[tron=${code}]\` to your **About me** section and try again`).then(reply => {
                                         this.deleteMessage(message);
@@ -156,7 +157,7 @@ class RegisterCommand extends Command {
                             ).then((promt) => {
                                 if (promt.content.startsWith('y')) {
                                     const code = this.generateCode();
-                                    user.reclaiming = true;
+                                    user.reclaiming = message.author.id;
                                     user.code = code;
                                     user.save().then(() => {
                                         message
@@ -165,6 +166,10 @@ class RegisterCommand extends Command {
                                                 this.deleteMessage(reply);
                                             });
                                     });
+                                }
+                            }).catch((e) => {
+                                if (e == 'time') {
+                                    message.reply('Oops... reply time has ran out');
                                 }
                             });
                         }
