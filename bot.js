@@ -21,6 +21,10 @@ winston.handleExceptions(new winston.transports.DailyRotateFile({
     level: 'error'
 }));
 
+process.on('uncaughtException', function (error) {
+   winston.error(error);
+});
+
 const PlatronClient = require('./src/PlatronClient');
 const SequelizeProvider = require('./src/providers/SequelizeProvider');
 
