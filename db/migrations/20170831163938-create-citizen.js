@@ -13,11 +13,11 @@ module.exports = {
       },
       verified: {
         type: Sequelize.BOOLEAN,
-        allowNull: false
+        defaultValue: false
       },
       reclaiming: {
         type: Sequelize.BOOLEAN,
-        allowNull: false
+        defaultValue: false
       },
       code: {
         type: Sequelize.STRING

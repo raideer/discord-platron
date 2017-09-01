@@ -12,11 +12,11 @@ module.exports = function(sequelize, DataTypes) {
     },
     verified: {
         type: DataTypes.BOOLEAN,
-        allowNull: false
+        defaultValue: false
     },
     reclaiming: {
         type: DataTypes.BOOLEAN,
-        allowNull: false
+        defaultValue: false
     },
     code: DataTypes.STRING
   }, {
