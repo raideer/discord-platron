@@ -55,8 +55,11 @@ class RegisterCommand extends Command {
         }
 
         if (Number.isInteger(args.user)) {
+            winston.info('Attempting to register', args.user);
+
             request.get(`https://www.erepublik.com/en/citizen/profile/${args.user}`, (error, response, body) => {
                 if (error) {
+                    winston.error('Received error when registering', args.user, error);
                     return message.reply('Something went wrong while processing your request').then(reply => {
                         this.deleteMessage(message);
                         this.deleteMessage(reply);
@@ -64,6 +67,7 @@ class RegisterCommand extends Command {
                 }
 
                 if (response.statusCode == 404) {
+                    winston.warn('Didn\'t find a user with id', args.user);
                     return message.reply(this.client._('user_not_found', `**${args.user}**`)).then(reply => {
                         this.deleteMessage(message);
                         this.deleteMessage(reply);
@@ -78,11 +82,13 @@ class RegisterCommand extends Command {
                 db.findById(args.user).then(user => {
                     // If the user was found
                     if (user) {
+                        winston.verbose('Found citizen with id', user.id);
                         if (user.verified === false || user.reclaiming === true) {
                             const verify = this.verifyCode($, user.code);
 
                             //If code is in the about me page
                             if (verify) {
+                                winston.verbose('Successfully verified code for', user.id);
                                 user.verified = true;
                                 user.code = null;
                                 user.discord_id = message.author.id;
@@ -109,12 +115,14 @@ class RegisterCommand extends Command {
                                     });
                                 });
                             } else if(verify === false) {
+                                winston.warn('Code didn\'t match for', args.user);
                                 //If code doesn't match
                                 return message.reply(this.client._('command.register.add_code', `**${args.user}**`, `\`[tron=${user.code}]\``)).then(reply => {
                                     this.deleteMessage(message);
                                     this.deleteMessage(reply);
                                 });
                             } else {
+                                winston.warn('Code invalid for', args.user);
                                 //If invalid code
                                 const code = this.generateCode();
                                 user.code = code;
@@ -162,6 +170,7 @@ class RegisterCommand extends Command {
                         }
                     //If the user wasnt found in the database
                     } else {
+                        winston.verbose('Generating code for', args.user);
                         const code = this.generateCode();
                         db.create({
                             id: args.user,

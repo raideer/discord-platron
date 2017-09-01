@@ -8,7 +8,7 @@ var db        = {};
 
 var sequelize = new Sequelize({
     dialect: 'sqlite',
-    storage: __dirname + '/../../database.sqlite',
+    storage: __dirname + '/../database.sqlite',
     logging: false
 });
 
