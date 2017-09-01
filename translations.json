@@ -8,8 +8,8 @@
         "lv": "Pašreizējā versija $[1]"
     },
     "command.about.description": {
-        "en": "Basic information about the bot",
-        "lv": "Informācija par botu"
+        "en": "Cross-server eRepublik discord bot",
+        "lv": "Daudzfunkcionāls eRepublik discord bots"
     },
     "bot.prompt.confirm": {
         "en": "Are you sure you want to $[1]",
