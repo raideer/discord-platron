@@ -15,8 +15,7 @@ module.exports = function(sequelize, DataTypes) {
         defaultValue: false
     },
     reclaiming: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: false
+        type: DataTypes.STRING
     },
     code: DataTypes.STRING
   }, {
