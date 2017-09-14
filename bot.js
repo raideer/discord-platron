@@ -3,8 +3,8 @@ require('winston-daily-rotate-file');
 
 winston.configure({
     transports: [
-        new (winston.transports.Console)(),
-        new (winston.transports.DailyRotateFile)({
+        new winston.transports.Console(),
+        new winston.transports.DailyRotateFile({
             name: 'log-file',
             filename: './logs/log'
         })
@@ -21,8 +21,8 @@ winston.handleExceptions(new winston.transports.DailyRotateFile({
     level: 'error'
 }));
 
-process.on('uncaughtException', function (error) {
-   winston.error(error);
+process.on('uncaughtException', error => {
+    winston.error(error);
 });
 
 const PlatronClient = require('./src/PlatronClient');
@@ -48,7 +48,7 @@ const client = new PlatronClient({
         }
 
         const id = message.guild.id;
-        let prefix = client.databases.guilds.get(id, 'prefix');
+        const prefix = client.databases.guilds.get(id, 'prefix');
 
         if (!prefix) {
             client.databases.guilds.set(id, 'prefix', '!');
@@ -71,7 +71,7 @@ const syncSettings = {
     // alter: client.env('DATABASE_ALTER', false)
 };
 
-let timer = winston.startTimer();
+const timer = winston.startTimer();
 
 Promise.all([
     db.Guild.sync(syncSettings),
@@ -82,8 +82,8 @@ Promise.all([
     timer.done('Finished syncing database.');
     winston.info('Attempting to log in');
 
-    client.login(client.env('TOKEN', ()=>{
-        throw "Bot TOKEN not provided!";
+    client.login(client.env('TOKEN', () => {
+        throw 'Bot TOKEN not provided!';
     })).then(() => {
         winston.info('Successfully logged in');
         client.user.setGame('eRepublik');
