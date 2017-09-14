@@ -29,6 +29,7 @@ const PlatronClient = require('./src/PlatronClient');
 const SequelizeProvider = require('./src/providers/SequelizeProvider');
 
 const db = require('./db/models/index');
+const _ = require('underscore');
 
 require('dotenv').config();
 
@@ -79,7 +80,7 @@ client.guildConfig = async (guild, key, defaultValue = null) => {
         }
     });
 
-    return val.value;
+    return _.first(val).value;
 };
 
 const syncSettings = {
