@@ -55,7 +55,7 @@ module.exports = class RoleSetter extends CronModule {
                         member.removeRoles(otherParties).then(() => {
                             if (!member.roles.has(role.id)) {
                                 member.addRole(role);
-                                winston.verbose('Attached role', role.name, 'to', member.user.username)
+                                winston.verbose('Attached role', role.name, 'to', member.user.username);
                             } else {
                                 winston.verbose(member.user.username, 'already has role', role.name);
                             }
@@ -73,7 +73,7 @@ module.exports = class RoleSetter extends CronModule {
 
     _processMember(member, guild) {
         return new Promise((resolve, reject) => {
-            winston.verbose('Checking roles for user', member.user.username, member.user.id)
+            winston.verbose('Checking roles for user', member.user.username, member.user.id);
             const Citizen = this.client.databases.citizens.table;
             Citizen.findOne({where: {
                 discord_id: member.user.id
@@ -123,12 +123,12 @@ module.exports = class RoleSetter extends CronModule {
 
     exec() {
         async.eachSeries(this.client.guilds.array(), (guild, cb) => {
-            winston.info('Setting party roles for guild', guild.name.cyan);
+            winston.info('Setting party roles for guild', guild.name);
             let timer = winston.startTimer();
             this._processGuild(guild).then(() => {
-                timer.done(`Finished setting party roles for guild ${guild.name.cyan}`);
+                timer.done(`Finished setting party roles for guild ${guild.name}`);
                 cb();
             });
         });
     }
-}
+};
