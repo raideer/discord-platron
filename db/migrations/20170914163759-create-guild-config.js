@@ -3,8 +3,13 @@ module.exports = {
     up: (queryInterface, Sequelize) => {
         return queryInterface.createTable('GuildConfigs', {
             id: {
-                type: Sequelize.STRING,
+                type: Sequelize.INTEGER,
                 primaryKey: true,
+                allowNull: false,
+                autoIncrement: true
+            },
+            field: {
+                type: Sequelize.STRING,
                 allowNull: false,
                 unique: 'comp'
             },

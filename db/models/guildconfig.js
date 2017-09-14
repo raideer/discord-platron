@@ -2,8 +2,13 @@
 module.exports = (sequelize, DataTypes) => {
     const GuildConfig = sequelize.define('GuildConfig', {
         id: {
-            type: DataTypes.STRING,
+            type: DataTypes.INTEGER,
             primaryKey: true,
+            allowNull: false,
+            autoIncrement: true
+        },
+        field: {
+            type: DataTypes.STRING,
             allowNull: false,
             unique: 'comp'
         },
@@ -16,7 +21,9 @@ module.exports = (sequelize, DataTypes) => {
     }, {
         classMethods: {
             associate: models => {
-                GuildConfig.belongsTo(models.Guild);
+                GuildConfig.belongsTo(models.Guild, {
+                    as: 'guild_id'
+                });
             }
         }
     });

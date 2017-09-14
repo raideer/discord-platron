@@ -67,6 +67,21 @@ client.addDatabase('citizens', new SequelizeProvider(db.Citizen));
 client.addDatabase('roles', new SequelizeProvider(db.Role));
 client.addDatabase('config', new SequelizeProvider(db.GuildConfig));
 
+client.guildConfig = async (guild, key, defaultValue = null) => {
+    const Config = client.databases.config.table;
+    const val = await Config.findOrCreate({
+        where: {
+            field: key,
+            guild_id: guild.id
+        },
+        defaults: {
+            value: defaultValue
+        }
+    });
+
+    return val.value;
+};
+
 const syncSettings = {
     // force: client.env('DATABASE_FORCE', false),
     // alter: client.env('DATABASE_ALTER', false)
