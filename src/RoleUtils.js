@@ -9,8 +9,8 @@ module.exports = class RoleUtils {
         return this.module.client;
     }
 
-    removeAllRoles(member, guild){
-        return new Promise((resolve, reject) => {
+    removeAllRoles(member, guild) {
+        return new Promise(resolve => {
             const Role = this.client.databases.roles.table;
 
             Role.findAll({
@@ -18,10 +18,9 @@ module.exports = class RoleUtils {
                     guildId: guild.id
                 }
             }).then(roles => {
-                let roleKeys = [];
-                for(let i in roles) {
+                const roleKeys = [];
+                for (const i in roles) {
                     roleKeys.push(roles[i].id);
-
                 }
 
                 member.removeRoles(roleKeys).then(resolve).catch(resolve);
@@ -30,7 +29,7 @@ module.exports = class RoleUtils {
     }
 
     getRolesWithKey(key) {
-        return new Promise((resolve, reject) => {
+        return new Promise(resolve => {
             const Role = this.client.databases.roles.table;
 
             Role.findAll({
@@ -38,9 +37,9 @@ module.exports = class RoleUtils {
                     key: key
                 }
             }).then(roles => {
-                let keys = [];
+                const keys = [];
 
-                for(let i in roles) {
+                for (const i in roles) {
                     keys.push(roles[i].id);
                 }
 
@@ -50,7 +49,7 @@ module.exports = class RoleUtils {
     }
 
     findOrCreateRole(roleType, roleKey, guild, defaults) {
-        return new Promise((resolve, reject) => {
+        return new Promise(resolve => {
             const Role = this.client.databases.roles.table;
 
             Role.findOne({
@@ -89,4 +88,4 @@ module.exports = class RoleUtils {
             });
         });
     }
-}
+};
