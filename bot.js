@@ -65,6 +65,7 @@ client.addDatabase('guilds', new SequelizeProvider(db.Guild));
 client.addDatabase('blacklist', new SequelizeProvider(db.Blacklist));
 client.addDatabase('citizens', new SequelizeProvider(db.Citizen));
 client.addDatabase('roles', new SequelizeProvider(db.Role));
+client.addDatabase('config', new SequelizeProvider(db.GuildConfig));
 
 const syncSettings = {
     // force: client.env('DATABASE_FORCE', false),
@@ -77,7 +78,8 @@ Promise.all([
     db.Guild.sync(syncSettings),
     db.Blacklist.sync(syncSettings),
     db.Citizen.sync(syncSettings),
-    db.Role.sync(syncSettings)
+    db.Role.sync(syncSettings),
+    db.GuildConfig.sync(syncSettings)
 ]).then(() => {
     timer.done('Finished syncing database.');
     winston.info('Attempting to log in');
