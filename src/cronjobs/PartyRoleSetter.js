@@ -96,7 +96,16 @@ module.exports = class RoleSetter extends CronModule {
 
                 utils.getCitizenInfo(dbUser.id).then(data => {
                     this._addPartyRole(data.party, member, guild).then(() => {
-                        const inCongress =  data.partyRole == 'Congress Member';
+                        const titles = [
+                            'Congress Member',
+                            'Prime Minister',
+                            'Governor',
+                            'Minister of Defense',
+                            'Minister of Foreign Affairs',
+                            'Minister of Education'
+                        ];
+
+                        const inCongress = titles.indexOf(data.partyRole) !== -1;
 
                         if (inCongress) {
                             winston.verbose('User', member.user.username, member.user.id, 'is in congress');
