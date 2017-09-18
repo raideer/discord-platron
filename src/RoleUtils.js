@@ -70,7 +70,7 @@ module.exports = class RoleUtils {
             }
         }
 
-        const createdRole = await guild.createdRole(defaults);
+        const createdRole = await guild.createRole(defaults);
         winston.info('Created role', createdRole.name, 'with id', createdRole.id);
 
         await Role.create({
