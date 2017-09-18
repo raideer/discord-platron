@@ -3,6 +3,7 @@ const Promise = require('bluebird');
 const winston = require('winston');
 const request = require('request-promise');
 const _ = require('lodash');
+const slugify = require('slugify');
 
 module.exports = class AccessoryRoleSetter extends CronModule {
     constructor() {
@@ -13,19 +14,13 @@ module.exports = class AccessoryRoleSetter extends CronModule {
         });
     }
 
-    async _addVerifiedRole(guild, citizen) {
-        const role = await this.utils.findOrCreateRole('roleVerified', 'roleVerified', guild, {
-            name: 'Registered',
-            color: '#5e9e11'
+    async exec() {
+        await Promise.each(this.client.guilds.array(), async guild => {
+            winston.info('Setting accessory roles for guild', guild.name);
+            const timer = winston.startTimer();
+            await this._processGuild(guild);
+            timer.done(`Finished setting accessory roles for guild ${guild.name}`);
         });
-
-        if (citizen.citizen.verified) {
-            await citizen.member.addRole(role);
-            winston.info('Added verified role to', citizen.member.user.username);
-        } else {
-            await citizen.member.removeRole(role);
-            winston.info('Removed verified role from', citizen.member.user.username);
-        }
     }
 
     async _processGuild(guild) {
@@ -60,24 +55,62 @@ module.exports = class AccessoryRoleSetter extends CronModule {
         winston.info('Collected data for', Object.keys(data).length, 'players');
 
         const verifiedRoleEnabled = await this.client.guildConfig(guild, 'setVerifiedRoles', false);
+        const countryRoleEnabled = await this.client.guildConfig(guild, 'setCountryRoles', false);
 
         if (verifiedRoleEnabled == '1') {
             winston.verbose('Setting verified roles');
             await Promise.each(citizens.array(), async citizen => {
-                const player = data.players[citizen.citizen.id];
-                await this._addVerifiedRole(guild, citizen, player);
+                await this._addVerifiedRole(guild, citizen);
             });
         } else {
             winston.info('Verified roles are disabled in', guild.name);
         }
+
+        if (countryRoleEnabled == '1') {
+            winston.verbose('Setting country roles');
+            await Promise.each(citizens.array(), async citizen => {
+                const player = data.players[citizen.citizen.id];
+                await this._addCountryRole(guild, citizen, player);
+            });
+        } else {
+            winston.info('Country roles are disabled in', guild.name);
+        }
     }
 
-    async exec() {
-        await Promise.each(this.client.guilds.array(), async guild => {
-            winston.info('Setting accessory roles for guild', guild.name);
-            const timer = winston.startTimer();
-            await this._processGuild(guild);
-            timer.done(`Finished setting accessory roles for guild ${guild.name}`);
+    async _addVerifiedRole(guild, citizen) {
+        const role = await this.utils.findOrCreateRole('roleVerified', 'roleVerified', guild, {
+            name: 'Registered',
+            color: '#5e9e11'
         });
+
+        if (citizen.citizen.verified) {
+            await citizen.member.addRole(role);
+            winston.info('Added verified role to', citizen.member.user.username);
+        } else {
+            await citizen.member.removeRole(role);
+            winston.info('Removed verified role from', citizen.member.user.username);
+        }
+    }
+
+    async _addCountryRole(guild, citizen, citizenInfo) {
+        const countryRoles = await this.utils.getRolesWithGroup('country');
+
+        if (!citizen.citizen.verified) {
+            await citizen.member.removeRoles(countryRoles);
+            return;
+        }
+
+        const role = await this.utils.findOrCreateRole(slugify(citizenInfo.citizenship.country_name).toLowerCase(), 'country', guild, {
+            name: citizenInfo.citizenship.country_name,
+            color: '#af900f'
+        });
+
+        const otherCountries = countryRoles.filter(key => {
+            return key != role.id;
+        });
+
+        await citizen.member.removeRoles(otherCountries);
+        await citizen.member.addRole(role);
+        winston.info('Added country role for', citizen.member.user.username);
     }
 };
