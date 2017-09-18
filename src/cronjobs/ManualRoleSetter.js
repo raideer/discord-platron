@@ -4,11 +4,11 @@ const utils = require('../utils');
 const winston = require('winston');
 const Promise = require('bluebird');
 
-module.exports = class RoleSetter extends CronModule {
+module.exports = class ManualRoleSetter extends CronModule {
     constructor() {
         super('manualRoleSetter', {
             tab: () => {
-                return this.client.env('PARTY_ROLE_SETTER', '0 * * * *');
+                return this.client.env('MANUAL_ROLE_SETTER', '0 * * * *');
             }
         });
     }

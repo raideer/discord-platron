@@ -5,11 +5,11 @@ const request = require('request-promise');
 const _ = require('lodash');
 const slugify = require('slugify');
 
-module.exports = class AccessoryRoleSetter extends CronModule {
+module.exports = class APIRoleSetter extends CronModule {
     constructor() {
-        super('accessoryRoleSetter', {
+        super('apiRoleSetter', {
             tab: () => {
-                return this.client.env('ACCESSORY_ROLE_SETTER', '*/5 * * * *');
+                return this.client.env('API_ROLE_SETTER', '*/5 * * * *');
             }
         });
     }
