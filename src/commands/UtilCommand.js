@@ -74,12 +74,11 @@ class UtilCommand extends Command {
             break;
         }
         case 'updateRoles': {
-
             if (this.client.cronHandler && message.guild) {
                 const roleSetter = this.client.cronHandler.modules.get('manualRoleSetter');
                 const apiRoleSetter = this.client.cronHandler.modules.get('apiRoleSetter');
 
-                if (roleSetter) {
+                if (roleSetter && (args.arg1 == 'manual' || !args.arg1)) {
                     winston.info('Running manualRoleSetter module');
                     await roleSetter._processGuild(message.guild);
                     await message.reply('Finished setting manual roles');
@@ -87,7 +86,7 @@ class UtilCommand extends Command {
                     winston.error('Manual role setter not found');
                 }
 
-                if (apiRoleSetter) {
+                if (apiRoleSetter && (args.arg1 == 'api' || !args.arg1)) {
                     winston.info('Running apiRoleSetter module');
                     await apiRoleSetter._processGuild(message.guild);
                     await message.reply('Finished setting api roles');
