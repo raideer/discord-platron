@@ -1,6 +1,6 @@
 const { AkairoModule } = require('discord-akairo');
 const { CronJob } = require('cron');
-const RoleUtils = require('./RoleUtils');
+const CronUtils = require('./CronUtils');
 
 class CronModule extends AkairoModule {
     constructor(id, exec, options) {
@@ -12,11 +12,11 @@ class CronModule extends AkairoModule {
         }
 
         this.tab = options.tab || '* * * * *';
-        this.roleUtils = new RoleUtils(this);
+        this.utils = new CronUtils(this);
     }
 
     run() {
-        let tab = (typeof this.tab === 'function')?this.tab.call(this):this.tab;
+        const tab = typeof this.tab === 'function' ? this.tab() : this.tab;
 
         this.cron = new CronJob(tab, this.exec, null, true, null, this);
     }
