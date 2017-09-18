@@ -2,6 +2,7 @@ const CronModule = require('../CronModule');
 const Promise = require('bluebird');
 const winston = require('winston');
 const request = require('request-promise');
+const _ = require('lodash');
 
 module.exports = class AccessoryRoleSetter extends CronModule {
     constructor() {
@@ -39,10 +40,21 @@ module.exports = class AccessoryRoleSetter extends CronModule {
             return winston.info('No citizens in guild', guild.name);
         }
 
-        const data = await request({
-            method: 'GET',
-            json: true,
-            uri: `https://api.erepublik-deutschland.de/${apiKey}/players/details/${ids.join(',')}`
+        const chunks = _.chunk(ids, 20);
+        let data = null;
+
+        await Promise.each(chunks, async (chunk, i, len) => {
+            const chunkData = await request({
+                method: 'GET',
+                json: true,
+                uri: `https://api.erepublik-deutschland.de/${apiKey}/players/details/${chunk.join(',')}`
+            });
+
+            data = _.merge(data, chunkData);
+
+            if ((i + 1) < len) {
+                await new Promise(resolve => setTimeout(resolve, 200));
+            }
         });
 
         console.log(data);
