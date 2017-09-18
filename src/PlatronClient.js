@@ -1,7 +1,6 @@
 const { AkairoClient } = require('discord-akairo');
 
 const CronHandler = require('./CronHandler');
-const AutoRoleHandler = require('./AutoRoleHandler');
 const Localize = require('localize');
 const fs = require('fs');
 const winston = require('winston');
