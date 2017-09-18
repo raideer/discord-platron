@@ -2,7 +2,7 @@ const Command = require('../PlatronCommand');
 const { getFlag, number, strToColor, citizenNameToId } = require('../utils');
 const request = require('request');
 const { RichEmbed } = require('discord.js');
-const _ = require('underscore');
+const _ = require('lodash');
 const AsciiTable = require('ascii-table');
 
 class StatsCommand extends Command {

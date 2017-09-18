@@ -1,5 +1,5 @@
 const Command = require('../PlatronCommand');
-const _ = require('underscore');
+const _ = require('lodash');
 
 class HelpCommand extends Command {
     constructor() {
