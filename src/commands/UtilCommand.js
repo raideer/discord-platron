@@ -81,35 +81,20 @@ class UtilCommand extends Command {
                 return message.reply('User not found');
             }
 
-            const Citizen = this.client.databases.citizens.table;
-            Citizen.findOne({
-                where: {
-                    discord_id: User.id
-                }
-            }).then(citizen => {
-                if (!citizen) {
-                    return message.reply('User not registered');
-                }
+            if (this.client.cronHandler && message.guild) {
+                const roleSetter = this.client.cronHandler.modules.get('partyRoleSetter');
 
-                if (!citizen.verified) {
-                    return message.reply('User not verified');
-                }
-
-                if (this.client.cronHandler && message.guild) {
-                    const roleSetter = this.client.cronHandler.modules.get('partyRoleSetter');
-
-                    if (roleSetter) {
-                        winston.info('Running partyRoleSetter module');
-                        roleSetter._processMember(message.member, message.guild).then(() => {
-                            message.reply('Done');
-                        });
-                    } else {
-                        winston.error('Party role setter not found');
-                    }
+                if (roleSetter) {
+                    winston.info('Running partyRoleSetter module');
+                    roleSetter._processGuild(message.guild).then(() => {
+                        message.reply('Done');
+                    });
                 } else {
-                    return message.reply('Invalid environment');
+                    winston.error('Party role setter not found');
                 }
-            });
+            } else {
+                return message.reply('Invalid environment');
+            }
             break;
         }
         }
