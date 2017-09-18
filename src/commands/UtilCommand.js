@@ -88,7 +88,7 @@ class UtilCommand extends Command {
                 if (roleSetter) {
                     winston.info('Running partyRoleSetter module');
                     await roleSetter._processGuild(message.guild);
-                    await message.reply('Done');
+                    await message.reply('Finished setting party roles');
                 } else {
                     winston.error('Party role setter not found');
                 }
@@ -96,7 +96,7 @@ class UtilCommand extends Command {
                 if (accessoryRoleSetter) {
                     winston.info('Running accessoryRoleSetter module');
                     await accessoryRoleSetter._processGuild(message.guild);
-                    await message.reply('Done');
+                    await message.reply('Finished setting congress roles');
                 } else {
                     winston.error('Accessory role setter not found');
                 }
