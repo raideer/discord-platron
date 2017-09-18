@@ -37,7 +37,7 @@ module.exports = class APIRoleSetter extends CronModule {
             return winston.info('No citizens in guild', guild.name);
         }
 
-        const chunks = _.chunk(ids, 1);
+        const chunks = _.chunk(ids, 19);
         let data = null;
 
         await Promise.each(chunks, async (chunk, i, len) => {
