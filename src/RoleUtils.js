@@ -48,44 +48,38 @@ module.exports = class RoleUtils {
         });
     }
 
-    findOrCreateRole(roleType, roleKey, guild, defaults) {
-        return new Promise(resolve => {
-            const Role = this.client.databases.roles.table;
-
-            Role.findOne({
-                where: {
-                    type: roleType,
-                    guildId: guild.id,
-                    key: roleKey
-                }
-            }).then(item => {
-                if (item) {
-                    winston.verbose('Found role in db with type', roleType);
-                    const role = guild.roles.find('id', item.id);
-
-                    if (role) {
-                        winston.verbose('Found role in the collection');
-                        return resolve(role);
-                    } else {
-                        winston.warn('Role', item.id, 'was not valid. Deleting from database');
-                        item.destroy();
-                    }
-                }
-
-                return guild.createRole(defaults).then(createdRole => {
-                    winston.info('Created role', createdRole.name, 'with id', createdRole.id);
-
-                    Role.create({
-                        id: createdRole.id,
-                        type: roleType,
-                        guildId: guild.id,
-                        key: roleKey
-                    }).then(() => {
-                        winston.info('Role', createdRole.id, 'saved to database for guild', guild.id);
-                        resolve(createdRole);
-                    });
-                });
-            });
+    async findOrCreateRole(roleName, roleGroup, guild, defaults) {
+        const Role = this.client.databases.roles.table;
+        const roleItem = await Role.findOne({
+            where: {
+                name: roleName,
+                guildId: guild.id,
+                group: roleGroup
+            }
         });
+
+        if (roleItem) {
+            winston.verbose('Found role in db with name', roleName);
+
+            if (guild.roles.has(roleItem.id)) {
+                winston.verbose('Found role in the collection');
+                return guild.roles.get(roleItem.id);
+            } else {
+                winston.warn('Role', roleItem.id, 'was not valid. Deleting from database');
+                await roleItem.destroy();
+            }
+        }
+
+        const createdRole = await guild.createdRole(defaults);
+        winston.info('Created role', createdRole.name, 'with id', createdRole.id);
+
+        await Role.create({
+            id: createdRole.id,
+            name: roleName,
+            guildId: guild.id,
+            group: roleGroup
+        });
+        winston.info('Role', createdRole.id, 'saved to database for guild', guild.id);
+        return createdRole;
     }
 };
