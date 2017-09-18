@@ -32,8 +32,7 @@ module.exports = class RoleSetter extends CronModule {
 
         const inCongress = titles.indexOf(citizenInfo.partyRole) !== -1;
 
-        console.log(citizen.citizen.id, citizen.member.user.username, citizen.citizen.verified);
-        console.log('In congress', inCongress);
+        winston.verbose(citizen.member.user.username, 'in congress', inCongress, citizenInfo.partyRole);
 
         if (!inCongress || !citizen.citizen.verified) {
             await citizen.member.removeRole(role);

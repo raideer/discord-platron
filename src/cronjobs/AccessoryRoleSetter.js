@@ -57,7 +57,7 @@ module.exports = class AccessoryRoleSetter extends CronModule {
             }
         });
 
-        console.log(data);
+        winston.info('Collected data for', Object.keys(data).length, 'players');
 
         const verifiedRoleEnabled = await this.client.guildConfig(guild, 'setVerifiedRoles', false);
 

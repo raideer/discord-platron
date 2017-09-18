@@ -60,9 +60,7 @@ class UtilCommand extends Command {
         case 'deleteRoles': {
             async.eachSeries(message.guild.roles.array(), (role, cb) => {
                 if (!role.name.startsWith('@') && role.name != 'Bot') {
-                    console.log('Deleting', role.name);
                     role.delete().then(() => {
-                        console.log('Deleted', role.name);
                         cb();
                     });
                 } else {
