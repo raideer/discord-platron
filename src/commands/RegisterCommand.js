@@ -1,5 +1,6 @@
 const Command = require('../PlatronCommand');
 const { citizenNameToId } = require('../utils');
+const { Collection } = require('discord.js');
 const request = require('request');
 const cheerio = require('cheerio');
 const winston = require('winston');
@@ -100,11 +101,13 @@ class RegisterCommand extends Command {
 
                                         if (roleSetter) {
                                             winston.info('Running manualRoleSetter module');
-
-                                            roleSetter._processGuild(message.guild, [{
+                                            const fakeColl = new Collection();
+                                            fakeColl.set(user.id, {
                                                 citizen: user,
                                                 member: message.member
-                                            }]);
+                                            });
+
+                                            roleSetter._processGuild(message.guild, fakeColl);
                                         } else {
                                             winston.error('Party role setter not found')
                                         }
