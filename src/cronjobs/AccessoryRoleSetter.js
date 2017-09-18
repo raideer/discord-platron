@@ -45,6 +45,8 @@ module.exports = class AccessoryRoleSetter extends CronModule {
             uri: `https://api.erepublik-deutschland.de/${apiKey}/players/details/${ids.join(',')}`
         });
 
+        console.log(data);
+
         const verifiedRoleEnabled = await this.client.guildConfig(guild, 'setVerifiedRoles', false);
 
         if (verifiedRoleEnabled == '1') {
