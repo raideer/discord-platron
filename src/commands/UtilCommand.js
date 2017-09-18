@@ -74,10 +74,6 @@ class UtilCommand extends Command {
             break;
         }
         case 'updateRoles': {
-            const User = this.client.util.resolveUser(args.arg1, this.client.users);
-            if (!User) {
-                return message.reply('User not found');
-            }
 
             if (this.client.cronHandler && message.guild) {
                 const roleSetter = this.client.cronHandler.modules.get('manualRoleSetter');

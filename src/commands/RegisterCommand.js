@@ -87,7 +87,7 @@ class RegisterCommand extends Command {
                         if ((user.verified === false && user.discord_id == message.author.id) || user.reclaiming == message.author.id) {
                             const verify = this.verifyCode($, user.code);
 
-                            //If code is in the about me page
+                            // If code is in the about me page
                             if (verify) {
                                 winston.verbose('Successfully verified code for', user.id);
                                 user.verified = true;
@@ -95,22 +95,20 @@ class RegisterCommand extends Command {
                                 user.discord_id = message.author.id;
                                 user.reclaiming = null;
 
-                                return user.save().then(() => {
+                                return user.save().then(async () => {
                                     if (this.client.cronHandler && message.guild) {
                                         const roleSetter = this.client.cronHandler.modules.get('manualRoleSetter');
+                                        const apiroleSetter = this.client.cronHandler.modules.get('apiRoleSetter');
 
-                                        if (roleSetter) {
-                                            winston.info('Running manualRoleSetter module');
-                                            const fakeColl = new Collection();
-                                            fakeColl.set(user.id, {
-                                                citizen: user,
-                                                member: message.member
-                                            });
+                                        winston.info('Running manualRoleSetter module');
+                                        const fakeColl = new Collection();
+                                        fakeColl.set(user.id, {
+                                            citizen: user,
+                                            member: message.member
+                                        });
 
-                                            roleSetter._processGuild(message.guild, fakeColl);
-                                        } else {
-                                            winston.error('Party role setter not found')
-                                        }
+                                        await roleSetter._processGuild(message.guild, fakeColl);
+                                        await apiroleSetter._processGuild(message.guild, fakeColl);
                                     }
 
                                     const l_verified = this.client._('command.register.verified', `**${args.user}**`);
