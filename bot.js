@@ -83,19 +83,14 @@ client.guildConfig = async (guild, key, defaultValue = null) => {
     return _.first(val).value;
 };
 
-const syncSettings = {
-    // force: client.env('DATABASE_FORCE', false),
-    // alter: client.env('DATABASE_ALTER', false)
-};
-
 const timer = winston.startTimer();
 
 Promise.all([
-    db.Guild.sync(syncSettings),
-    db.Blacklist.sync(syncSettings),
-    db.Citizen.sync(syncSettings),
-    db.Role.sync(syncSettings),
-    db.GuildConfig.sync(syncSettings)
+    db.Guild.sync(),
+    db.Blacklist.sync(),
+    db.Citizen.sync(),
+    db.Role.sync(),
+    db.GuildConfig.sync()
 ]).then(() => {
     timer.done('Finished syncing database.');
     winston.info('Attempting to log in');
