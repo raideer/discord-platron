@@ -111,6 +111,10 @@ module.exports = class APIRoleSetter extends CronModule {
             return;
         }
 
+        if (!citizenInfo) {
+            return winston.warn('No citizenInfo for', citizen.member.user.username, '(divisionrole)');
+        }
+
         const role = await this.utils.findOrCreateRole(`div${citizenInfo.military.division}`, 'division', guild, {
             name: `DIV ${citizenInfo.military.division}`,
             color: '#0faf8d'
@@ -131,6 +135,10 @@ module.exports = class APIRoleSetter extends CronModule {
         if (!citizen.citizen.verified) {
             await citizen.member.removeRoles(countryRoles);
             return;
+        }
+
+        if (!citizenInfo) {
+            return winston.warn('No citizenInfo for', citizen.member.user.username, '(countryrole)');
         }
 
         const role = await this.utils.findOrCreateRole(slugify(citizenInfo.citizenship.country_name).toLowerCase(), 'country', guild, {
