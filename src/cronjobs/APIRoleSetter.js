@@ -61,6 +61,7 @@ module.exports = class APIRoleSetter extends CronModule {
         const verifiedRoleEnabled = await this.client.guildConfig(guild, 'setVerifiedRoles', false);
         const countryRoleEnabled = await this.client.guildConfig(guild, 'setCountryRoles', false);
         const divisionRoleEnabled = await this.client.guildConfig(guild, 'setDivisionRoles', false);
+        const muRoleEnabled = await this.client.guildConfig(guild, 'setMURoles', false);
 
         if (verifiedRoleEnabled == '1') {
             winston.verbose('Setting verified roles');
@@ -89,6 +90,16 @@ module.exports = class APIRoleSetter extends CronModule {
             });
         } else {
             winston.info('Division roles are disabled in', guild.name);
+        }
+
+        if (muRoleEnabled == '1') {
+            winston.verbose('Setting MU roles');
+            await Promise.each(citizens.array(), async citizen => {
+                const player = data.players[citizen.citizen.id];
+                await this._addMURole(guild, citizen, player);
+            });
+        } else {
+            winston.info('MU roles are disabled in', guild.name);
         }
     }
 
@@ -131,6 +142,32 @@ module.exports = class APIRoleSetter extends CronModule {
         await citizen.member.removeRoles(otherDivisions);
         await citizen.member.addRole(role);
         winston.info('Added division role for', citizen.member.user.username);
+    }
+
+    async _addMURole(guild, citizen, citizenInfo) {
+        const muRoles = await this.utils.getRolesWithGroup('mu');
+
+        if (!citizen.citizen.verified) {
+            await citizen.member.removeRoles(muRoles);
+            return;
+        }
+
+        if (!citizenInfo) {
+            return winston.warn('No citizenInfo for', citizen.member.user.username, '(mu)');
+        }
+
+        const role = await this.utils.findOrCreateRole(slugify(citizenInfo.military_unit.name).toLowerCase(), 'mu', guild, {
+            name: citizenInfo.military_unit.name,
+            color: '#212121'
+        });
+
+        const otherMUs = muRoles.filter(key => {
+            return key != role.id;
+        });
+
+        await citizen.member.removeRoles(otherMUs);
+        await citizen.member.addRole(role);
+        winston.info('Added MU role for', citizen.member.user.username);
     }
 
     async _addCountryRole(guild, citizen, citizenInfo) {
