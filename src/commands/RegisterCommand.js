@@ -100,7 +100,11 @@ class RegisterCommand extends Command {
 
                                         if (roleSetter) {
                                             winston.info('Running manualRoleSetter module');
-                                            roleSetter._processMember(message.member, message.guild);
+
+                                            roleSetter._processGuild(message.guild, {
+                                                citizen: user,
+                                                member: message.member
+                                            });
                                         } else {
                                             winston.error('Party role setter not found')
                                         }
