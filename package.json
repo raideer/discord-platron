@@ -1,6 +1,6 @@
 {
   "name": "discord-platron",
-  "version": "1.9.0",
+  "version": "1.9.1",
   "description": "",
   "main": "bot.js",
   "dependencies": {
