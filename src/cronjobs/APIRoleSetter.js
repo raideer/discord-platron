@@ -35,7 +35,7 @@ module.exports = class APIRoleSetter extends CronModule {
             return winston.info('No citizens in guild', guild.name);
         }
 
-        const chunks = _.chunk(ids, 20);
+        const chunks = _.chunk(ids, 1);
         let data = null;
 
         await Promise.each(chunks, async (chunk, i, len) => {
@@ -46,6 +46,8 @@ module.exports = class APIRoleSetter extends CronModule {
             });
 
             data = _.merge(data, chunkData);
+
+            console.log(data);
 
             if ((i + 1) < len) {
                 await new Promise(resolve => setTimeout(resolve, 200));
