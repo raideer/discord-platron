@@ -28,23 +28,16 @@ module.exports = class RoleUtils {
         });
     }
 
-    getRolesWithKey(key) {
-        return new Promise(resolve => {
-            const Role = this.client.databases.roles.table;
+    async getRolesWithGroup(group) {
+        const Role = this.client.databases.roles.table;
+        const roles = await Role.findAll({
+            where: {
+                group: group
+            }
+        });
 
-            Role.findAll({
-                where: {
-                    key: key
-                }
-            }).then(roles => {
-                const keys = [];
-
-                for (const i in roles) {
-                    keys.push(roles[i].id);
-                }
-
-                resolve(keys);
-            });
+        return roles.map(role => {
+            return role.id;
         });
     }
 
