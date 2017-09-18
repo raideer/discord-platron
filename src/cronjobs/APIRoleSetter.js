@@ -23,9 +23,11 @@ module.exports = class APIRoleSetter extends CronModule {
         });
     }
 
-    async _processGuild(guild) {
+    async _processGuild(guild, citizens) {
         const apiKey = this.client.env('EREP_API');
-        const citizens = await this.utils.getCitizensInGuild(guild);
+        if (!citizens) {
+            citizens = await this.utils.getCitizensInGuild(guild);
+        }
 
         const ids = citizens.array().map(ob => {
             return ob.citizen.id;
