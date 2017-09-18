@@ -3,3 +3,5 @@
 database.sqlite
 database-backup.sqlite
 npm-debug.log
+.DS_Store
+package-lock.json

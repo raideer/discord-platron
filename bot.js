@@ -3,8 +3,8 @@ require('winston-daily-rotate-file');
 
 winston.configure({
     transports: [
-        new (winston.transports.Console)(),
-        new (winston.transports.DailyRotateFile)({
+        new winston.transports.Console(),
+        new winston.transports.DailyRotateFile({
             name: 'log-file',
             filename: './logs/log'
         })
@@ -21,14 +21,15 @@ winston.handleExceptions(new winston.transports.DailyRotateFile({
     level: 'error'
 }));
 
-process.on('uncaughtException', function (error) {
-   winston.error(error);
+process.on('uncaughtException', error => {
+    winston.error(error);
 });
 
 const PlatronClient = require('./src/PlatronClient');
-const SequelizeProvider = require('./src/providers/SequelizeProvider');
+const { SequelizeProvider } = require('discord-akairo');
 
 const db = require('./db/models/index');
+const _ = require('underscore');
 
 require('dotenv').config();
 
@@ -48,7 +49,7 @@ const client = new PlatronClient({
         }
 
         const id = message.guild.id;
-        let prefix = client.databases.guilds.get(id, 'prefix');
+        const prefix = client.databases.guilds.get(id, 'prefix');
 
         if (!prefix) {
             client.databases.guilds.set(id, 'prefix', '!');
@@ -65,25 +66,37 @@ client.addDatabase('guilds', new SequelizeProvider(db.Guild));
 client.addDatabase('blacklist', new SequelizeProvider(db.Blacklist));
 client.addDatabase('citizens', new SequelizeProvider(db.Citizen));
 client.addDatabase('roles', new SequelizeProvider(db.Role));
+client.addDatabase('config', new SequelizeProvider(db.GuildConfig));
 
-const syncSettings = {
-    // force: client.env('DATABASE_FORCE', false),
-    // alter: client.env('DATABASE_ALTER', false)
+client.guildConfig = async (guild, key, defaultValue = null) => {
+    const Config = client.databases.config.table;
+    const val = await Config.findOrCreate({
+        where: {
+            field: key,
+            guild_id: guild.id
+        },
+        defaults: {
+            value: defaultValue
+        }
+    });
+
+    return _.first(val).value;
 };
 
-let timer = winston.startTimer();
+const timer = winston.startTimer();
 
 Promise.all([
-    db.Guild.sync(syncSettings),
-    db.Blacklist.sync(syncSettings),
-    db.Citizen.sync(syncSettings),
-    db.Role.sync(syncSettings)
+    db.Guild.sync(),
+    db.Blacklist.sync(),
+    db.Citizen.sync(),
+    db.Role.sync(),
+    db.GuildConfig.sync()
 ]).then(() => {
     timer.done('Finished syncing database.');
     winston.info('Attempting to log in');
 
-    client.login(client.env('TOKEN', ()=>{
-        throw "Bot TOKEN not provided!";
+    client.login(client.env('TOKEN', () => {
+        throw 'Bot TOKEN not provided!';
     })).then(() => {
         winston.info('Successfully logged in');
         client.user.setGame('eRepublik');

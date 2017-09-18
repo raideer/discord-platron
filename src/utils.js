@@ -15,6 +15,13 @@ const countries = (() => {
 
 module.exports = {
     countries: countries,
+    objectToCollection: object => {
+        const col = new Collection();
+        for (const id in object) {
+            col.set(id, object[id]);
+        }
+        return col;
+    },
     getFlag: (countryName) => {
         let country = countries.find((c) => {
             return c.countryName.toLowerCase() == countryName.toLowerCase();

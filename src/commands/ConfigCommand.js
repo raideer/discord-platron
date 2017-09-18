@@ -5,18 +5,19 @@ const winston = require('winston');
 class ConfigCommand extends Command {
     constructor() {
         super('config', {
-            aliases: ['set', 'get', 'run'],
+            aliases: ['config'],
             args: [
                 {
-                    id: 'command',
+                    id: 'action',
+                    type: ['set', 'get'],
+                    default: 'set'
+                },
+                {
+                    id: 'field',
                     type: 'string'
                 },
                 {
-                    id: 'arg1',
-                    type: 'string'
-                },
-                {
-                    id: 'arg2',
+                    id: 'value',
                     type: 'string'
                 }
             ],
@@ -25,93 +26,48 @@ class ConfigCommand extends Command {
         });
     }
 
-    runSet(message, args) {
-        switch(args.command) {
-            case "prefix":
-                this.client.databases.guilds.set(message.guild.id, 'prefix', args.arg1);
-                return message.reply(this.client._('command.config.prefix_changed', `**${message.guild.name}**`, `\`${args.arg1}\``));
-                break;
-            case "locale":
-                const locales = ['en', 'lv'];
-                if (locales.indexOf(args.arg1) === -1) {
-                    return message.reply(`Locale code \`${args.arg1}\` not recognised`);
-                }
-
-                this.client.databases.guilds.set(message.guild.id, 'locale', args.arg1);
-                this.client.localize.setLocale(args.arg1);
-
-                const reply_message = this.client._('command.config.locale_changed', `**${message.guild.name}**`);
-                return message.reply(`:white_check_mark: ${reply_message}`)
-                break;
-            default:
-                message.reply(this.client._('bot.invalid_request'));
-                break;
-        }
-    }
-
-    runGet(message, args) {
-        switch(args.command) {
-            case "link":
-                return message.reply(`<https://discordapp.com/oauth2/authorize?client_id=${this.client.user.id}&scope=bot&permissions=268435464>`)
-                break;
-        }
-    }
-
-    runRun(message, args) {
-        switch(args.command) {
-            case "updateRoles":
-                const User = this.client.util.resolveUser(args.arg1, this.client.users);
-                if (!User) {
-                    return message.reply('User not found');
-                }
-
-                const Citizen = this.client.databases.citizens.table;
-                Citizen.findOne({
-                    where: {
-                        discord_id: User.id
-                    }
-                }).then(citizen => {
-                    if (!citizen) {
-                        return message.reply('User not registered');
-                    }
-
-                    if (!citizen.verified) {
-                        return message.reply('User not verified');
-                    }
-
-                    if (this.client.cronHandler && message.guild) {
-                        const roleSetter = this.client.cronHandler.modules.get('partyRoleSetter');
-
-                        if (roleSetter) {
-                            winston.info('Running partyRoleSetter module');
-                            roleSetter._processMember(message.member, message.guild).then(() => {
-                                message.reply('Done');
-                            });
-                        } else {
-                            winston.error('Party role setter not found')
-                        }
-                    } else {
-                        return message.reply('Invalid environment');
-                    }
-                });
-                break;
-        }
-    }
-
     exec(message, args) {
-        switch(message.util.alias) {
-            case "set":
-                this.runSet(message, args);
-                break;
-            case "get":
-                this.runGet(message, args);
-                break;
-            case "run":
-                this.runRun(message, args);
-                break;
-            default:
-                message.reply(this.client._('bot.invalid_request'));
-                break;
+        const Config = this.client.databases.config.table;
+
+        switch (args.action) {
+        case 'set':
+            Config.find({
+                where: {
+                    field: args.field,
+                    guild_id: message.guild.id
+                }
+            }).then(config => {
+                if (config) {
+                    let value = args.value;
+                    if (value === 'true') {
+                        value = true;
+                    } else if (value === 'false') {
+                        value = false;
+                    }
+
+                    config.value = value;
+                    config.save().then(() => {
+                        message.reply(`${args.field} has been set to ${value}`);
+                    });
+                } else {
+                    message.reply(`**${args.field}** doesn't exist`);
+                }
+            });
+            break;
+        case 'get':
+            Config.find({
+                where: {
+                    field: args.field,
+                    guild_id: message.guild.id
+                }
+            }).then(config => {
+                if (config) {
+                    message.reply(`**${args.field}** is \`${config.value}\``);
+                } else {
+                    message.reply(`**${args.field}** doesn't exist`);
+                }
+            });
+            break;
         }
     }
 }

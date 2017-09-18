@@ -1,16 +1,16 @@
 const { AkairoClient } = require('discord-akairo');
 
 const CronHandler = require('./CronHandler');
-const AutoRoleHandler = require('./AutoRoleHandler');
 const Localize = require('localize');
 const fs = require('fs');
 const winston = require('winston');
+const path = require('path');
 
 class PlatronClient extends AkairoClient {
     build() {
-        const translations = JSON.parse(fs.readFileSync(__dirname + '/../translations.json'));
+        const translations = JSON.parse(fs.readFileSync(path.join(__dirname, '/../translations.json')));
         if (!translations) {
-            throw "Failed to parse translations.json";
+            throw 'Failed to parse translations.json';
         }
 
         const localize = new Localize(translations, null, 'machine');
@@ -20,12 +20,6 @@ class PlatronClient extends AkairoClient {
             this.cronHandler = new CronHandler(this, this.akairoOptions);
         } else {
             winston.warn('Cron module is not set up');
-        }
-
-        if (this.akairoOptions.rolesDirectory) {
-            this.roleHandler = new AutoRoleHandler(this, this.akairoOptions);
-        } else {
-            winston.warn('Auto role module is not set up');
         }
 
         return super.build();
@@ -43,8 +37,8 @@ class PlatronClient extends AkairoClient {
         }
     }
 
-    _() {
-        return this.localize.translate.apply(null, arguments);
+    _(...args) {
+        return this.localize.translate.apply(null, args);
     }
 
     env(key, defaultValue = null) {
