@@ -96,10 +96,10 @@ class RegisterCommand extends Command {
 
                                 return user.save().then(() => {
                                     if (this.client.cronHandler && message.guild) {
-                                        const roleSetter = this.client.cronHandler.modules.get('partyRoleSetter');
+                                        const roleSetter = this.client.cronHandler.modules.get('manualRoleSetter');
 
                                         if (roleSetter) {
-                                            winston.info('Running partyRoleSetter module');
+                                            winston.info('Running manualRoleSetter module');
                                             roleSetter._processMember(message.member, message.guild);
                                         } else {
                                             winston.error('Party role setter not found')

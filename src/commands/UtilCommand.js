@@ -80,23 +80,23 @@ class UtilCommand extends Command {
             }
 
             if (this.client.cronHandler && message.guild) {
-                const roleSetter = this.client.cronHandler.modules.get('partyRoleSetter');
-                const accessoryRoleSetter = this.client.cronHandler.modules.get('accessoryRoleSetter');
+                const roleSetter = this.client.cronHandler.modules.get('manualRoleSetter');
+                const apiRoleSetter = this.client.cronHandler.modules.get('apiRoleSetter');
 
                 if (roleSetter) {
-                    winston.info('Running partyRoleSetter module');
+                    winston.info('Running manualRoleSetter module');
                     await roleSetter._processGuild(message.guild);
-                    await message.reply('Finished setting party roles');
+                    await message.reply('Finished setting manual roles');
                 } else {
-                    winston.error('Party role setter not found');
+                    winston.error('Manual role setter not found');
                 }
 
-                if (accessoryRoleSetter) {
-                    winston.info('Running accessoryRoleSetter module');
-                    await accessoryRoleSetter._processGuild(message.guild);
-                    await message.reply('Finished setting congress roles');
+                if (apiRoleSetter) {
+                    winston.info('Running apiRoleSetter module');
+                    await apiRoleSetter._processGuild(message.guild);
+                    await message.reply('Finished setting api roles');
                 } else {
-                    winston.error('Accessory role setter not found');
+                    winston.error('API role setter not found');
                 }
             } else {
                 return message.reply('Invalid environment');

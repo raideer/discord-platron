@@ -6,7 +6,7 @@ const Promise = require('bluebird');
 
 module.exports = class RoleSetter extends CronModule {
     constructor() {
-        super('partyRoleSetter', {
+        super('manualRoleSetter', {
             tab: () => {
                 return this.client.env('PARTY_ROLE_SETTER', '0 * * * *');
             }

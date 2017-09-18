@@ -56,6 +56,7 @@ module.exports = class AccessoryRoleSetter extends CronModule {
 
         const verifiedRoleEnabled = await this.client.guildConfig(guild, 'setVerifiedRoles', false);
         const countryRoleEnabled = await this.client.guildConfig(guild, 'setCountryRoles', false);
+        const divisionRoleEnabled = await this.client.guildConfig(guild, 'setDivisionRoles', false);
 
         if (verifiedRoleEnabled == '1') {
             winston.verbose('Setting verified roles');
@@ -75,6 +76,16 @@ module.exports = class AccessoryRoleSetter extends CronModule {
         } else {
             winston.info('Country roles are disabled in', guild.name);
         }
+
+        if (divisionRoleEnabled == '1') {
+            winston.verbose('Setting division roles');
+            await Promise.each(citizens.array(), async citizen => {
+                const player = data.players[citizen.citizen.id];
+                await this._addDivisionRole(guild, citizen, player);
+            });
+        } else {
+            winston.info('Division roles are disabled in', guild.name);
+        }
     }
 
     async _addVerifiedRole(guild, citizen) {
@@ -90,6 +101,28 @@ module.exports = class AccessoryRoleSetter extends CronModule {
             await citizen.member.removeRole(role);
             winston.info('Removed verified role from', citizen.member.user.username);
         }
+    }
+
+    async _addDivisionRole(guild, citizen, citizenInfo) {
+        const divisionRoles = await this.utils.getRolesWithGroup('division');
+
+        if (!citizen.citizen.verified) {
+            await citizen.member.removeRoles(divisionRoles);
+            return;
+        }
+
+        const role = await this.utils.findOrCreateRole(`div${citizenInfo.military.division}`, 'division', guild, {
+            name: `DIV ${citizenInfo.military.division}`,
+            color: '#0faf8d'
+        });
+
+        const otherDivisions = divisionRoles.filter(key => {
+            return key != role.id;
+        });
+
+        await citizen.member.removeRoles(otherDivisions);
+        await citizen.member.addRole(role);
+        winston.info('Added division role for', citizen.member.user.username);
     }
 
     async _addCountryRole(guild, citizen, citizenInfo) {

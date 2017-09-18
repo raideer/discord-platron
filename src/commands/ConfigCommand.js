@@ -1,4 +1,5 @@
 const Command = require('../PlatronCommand');
+const _ = require('lodash');
 
 class ConfigCommand extends Command {
     constructor() {
@@ -35,7 +36,8 @@ class ConfigCommand extends Command {
             } else if (value === 'false') {
                 value = false;
             }
-            const config = await Config.findOrCreate({
+
+            const config = _.first(await Config.findOrCreate({
                 where: {
                     field: args.field,
                     guild_id: message.guild.id
@@ -43,12 +45,11 @@ class ConfigCommand extends Command {
                 defaults: {
                     value: value
                 }
-            });
+            }));
 
             config.value = value;
-            config.save().then(() => {
-                message.reply(`${args.field} has been set to ${value}`);
-            });
+            await config.save();
+            message.reply(`${args.field} has been set to ${value}`);
             break;
         }
         case 'get':
