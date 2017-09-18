@@ -26,7 +26,7 @@ process.on('uncaughtException', error => {
 });
 
 const PlatronClient = require('./src/PlatronClient');
-const SequelizeProvider = require('./src/providers/SequelizeProvider');
+const { SequelizeProvider } = require('discord-akairo');
 
 const db = require('./db/models/index');
 const _ = require('underscore');
