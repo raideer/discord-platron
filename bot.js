@@ -29,7 +29,7 @@ const PlatronClient = require('./src/PlatronClient');
 const { SequelizeProvider } = require('discord-akairo');
 
 const db = require('./db/models/index');
-const _ = require('underscore');
+const _ = require('lodash');
 
 require('dotenv').config();
 
