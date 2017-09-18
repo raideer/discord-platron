@@ -1,5 +1,4 @@
 const CronModule = require('../CronModule');
-const { Collection } = require('discord.js');
 const Promise = require('bluebird');
 const winston = require('winston');
 const request = require('request-promise');
@@ -13,44 +12,24 @@ module.exports = class AccessoryRoleSetter extends CronModule {
         });
     }
 
-    async _getCitizensInGuild(guild) {
-        const Citizen = this.client.databases.citizens.table;
-        const citizens = await Citizen.findAll({
-            where: {
-                verified: true
-            }
-        });
-        const filtered = new Collection();
-
-        for (const i in citizens) {
-            const citizen = citizens[i];
-
-            if (guild.members.has(citizen.discord_id)) {
-                filtered.set(citizen.id, {
-                    citizen: citizen,
-                    member: guild.members.get(citizen.discord_id)
-                });
-            }
-        }
-
-        return filtered;
-    }
-
     async _addVerifiedRole(guild, citizen) {
-        if (citizen.citizen.verified) {
-            const role = await this.roleUtils.findOrCreateRole('roleVerified', 'roleVerified', guild, {
-                name: 'Verified by PlaTRON',
-                color: '#5e9e11'
-            });
+        const role = await this.utils.findOrCreateRole('roleVerified', 'roleVerified', guild, {
+            name: 'Registered',
+            color: '#5e9e11'
+        });
 
+        if (citizen.citizen.verified) {
             await citizen.member.addRole(role);
             winston.info('Added verified role to', citizen.member.user.username);
+        } else {
+            await citizen.member.removeRole(role);
+            winston.info('Removed verified role from', citizen.member.user.username);
         }
     }
 
     async _processGuild(guild) {
         const apiKey = this.client.env('EREP_API');
-        const citizens = await this._getCitizensInGuild(guild);
+        const citizens = await this.utils.getCitizensInGuild(guild);
 
         const ids = citizens.array().map(ob => {
             return ob.citizen.id;

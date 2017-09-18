@@ -13,33 +13,43 @@ module.exports = class RoleSetter extends CronModule {
         });
     }
 
-    async _addOrRemoveCongressRole(member, guild, remove = false) {
+    async _addCongressRole(citizen, guild, citizenInfo) {
+        const titles = [
+            'Congress Member',
+            'Prime Minister',
+            'Governor',
+            'Minister of Defense',
+            'Minister of Foreign Affairs',
+            'Minister of Education',
+            'Country President'
+        ];
+
         // Get or create the congress role
-        const role = await this.roleUtils.findOrCreateRole('congress', 'congress', guild, {
+        const role = await this.utils.findOrCreateRole('congress', 'congress', guild, {
             name: 'Congress',
             color: '#0f81c9'
         });
 
-        if (remove) {
-            await member.removeRole(role);
+        const inCongress = titles.indexOf(citizenInfo.partyRole) !== -1;
+
+        console.log(citizen.citizen.id, citizen.member.user.username, citizen.citizen.verified);
+        console.log('In congress', inCongress);
+
+        if (!inCongress || !citizen.citizen.verified) {
+            await citizen.member.removeRole(role);
 
             return;
         }
 
-        if (!member.roles.has(role.id)) {
-            await member.addRole(role);
-
-            return;
-        }
-
-        winston.verbose('Member', member.user.username, 'already has congress role');
+        await citizen.member.addRole(role);
+        winston.verbose('Added congress role to', citizen.member.user.username);
     }
 
-    async _addPartyRole(party, member, guild) {
-        const roleKeys = this.roleUtils.getRolesWithKey('party');
-        if (party) {
-            const role = await this.roleUtils.findOrCreateRole(slugify(party).toLowerCase(), 'party', guild, {
-                name: party,
+    async _addPartyRole(citizen, guild, citizenInfo) {
+        const roleKeys = await this.utils.getRolesWithGroup('party');
+        if (citizenInfo.party && citizen.citizen.verified) {
+            const role = await this.utils.findOrCreateRole(slugify(citizenInfo.party).toLowerCase(), 'party', guild, {
+                name: citizenInfo.party,
                 color: '#923dff'
             });
 
@@ -48,64 +58,50 @@ module.exports = class RoleSetter extends CronModule {
                 return key != role.id;
             });
 
-            await member.removeRoles(otherParties);
-            await member.addRole(role);
+            await citizen.member.removeRoles(otherParties);
+            await citizen.member.addRole(role);
         } else {
             // If not a member of any party, remove all party roles
-            await member.removeRoles(roleKeys);
+            await citizen.member.removeRoles(roleKeys);
         }
     }
 
-    async _processMember(member, guild) {
-        winston.verbose('Checking roles for user', member.user.username, member.user.id);
-        const Citizen = this.client.databases.citizens.table;
-        const dbUser = await Citizen.findOne({
-            where: {
-                discord_id: member.user.id
+    async _processGuild(guild, citizens) {
+        if (!citizens) {
+            citizens = await this.utils.getCitizensInGuild(guild);
+        }
+
+        const partyRoleEnabled = await this.client.guildConfig(guild, 'setPartyRoles', false);
+        const congressRoleEnabled = await this.client.guildConfig(guild, 'setCongressRoles', false);
+
+        // Temporary citizen info caching
+        const citizenData = {};
+        const getCitizenInfo = async id => {
+            if (citizenData[id]) {
+                return citizenData[id];
             }
-        });
 
-        if (!dbUser) {
-            winston.verbose('User', member.user.username, member.user.id, 'not registered');
-            await this.roleUtils.removeAllRoles(member, guild);
-            winston.verbose('Removed ineligible roles for', member.user.username, member.user.id);
-            return;
+            citizenData[id] = await utils.getCitizenInfo(id);
+            // Spacing out requests
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            return citizenData[id];
+        };
+
+        if (partyRoleEnabled == '1') {
+            winston.info('Adding party roles');
+            await Promise.each(citizens.array(), async citizen => {
+                const citizenInfo = await getCitizenInfo(citizen.citizen.id);
+                await this._addPartyRole(citizen, guild, citizenInfo);
+            });
         }
 
-        if (!dbUser.verified) {
-            winston.verbose('User', dbUser.id, 'is not verified');
-            await this.roleUtils.removeAllRoles(member, guild);
-            winston.verbose('Removed ineligible roles for', member.user.username, member.user.id);
-            return;
+        if (congressRoleEnabled == '1') {
+            winston.info('Adding congress roles');
+            await Promise.each(citizens.array(), async citizen => {
+                const citizenInfo = await getCitizenInfo(citizen.citizen.id);
+                await this._addCongressRole(citizen, guild, citizenInfo);
+            });
         }
-
-        const citizenInfo = await utils.getCitizenInfo(dbUser.id);
-        await this._addPartyRole(citizenInfo.party, member, guild);
-        const titles = [
-            'Congress Member',
-            'Prime Minister',
-            'Governor',
-            'Minister of Defense',
-            'Minister of Foreign Affairs',
-            'Minister of Education'
-        ];
-
-        const inCongress = titles.indexOf(citizenInfo.partyRole) !== -1;
-
-        if (inCongress) {
-            winston.verbose('User', member.user.username, member.user.id, 'is in congress');
-        } else {
-            winston.verbose('User', member.user.username, member.user.id, 'is NOT in congress');
-        }
-
-        await this._addOrRemoveCongressRole(member, guild, !inCongress);
-        await new Promise(resolve => setTimeout(resolve, 2000));
-    }
-
-    async _processGuild(guild) {
-        await Promise.each(guild.members.array(), async member => {
-            await this._processMember(member, guild);
-        });
     }
 
     async exec() {
