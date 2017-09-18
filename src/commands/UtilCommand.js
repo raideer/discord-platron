@@ -55,7 +55,7 @@ class UtilCommand extends Command {
         }
     }
 
-    runRun(message, args) {
+    async runRun(message, args) {
         switch (args.command) {
         case 'deleteRoles': {
             async.eachSeries(message.guild.roles.array(), (role, cb) => {
@@ -83,14 +83,22 @@ class UtilCommand extends Command {
 
             if (this.client.cronHandler && message.guild) {
                 const roleSetter = this.client.cronHandler.modules.get('partyRoleSetter');
+                const accessoryRoleSetter = this.client.cronHandler.modules.get('accessoryRoleSetter');
 
                 if (roleSetter) {
                     winston.info('Running partyRoleSetter module');
-                    roleSetter._processGuild(message.guild).then(() => {
-                        message.reply('Done');
-                    });
+                    await roleSetter._processGuild(message.guild);
+                    await message.reply('Done');
                 } else {
                     winston.error('Party role setter not found');
+                }
+
+                if (accessoryRoleSetter) {
+                    winston.info('Running accessoryRoleSetter module');
+                    await accessoryRoleSetter._processGuild(message.guild);
+                    await message.reply('Done');
+                } else {
+                    winston.error('Accessory role setter not found');
                 }
             } else {
                 return message.reply('Invalid environment');
@@ -100,19 +108,19 @@ class UtilCommand extends Command {
         }
     }
 
-    exec(message, args) {
+    async exec(message, args) {
         switch (message.util.alias) {
         case 'set':
-            this.runSet(message, args);
+            await this.runSet(message, args);
             break;
         case 'get':
-            this.runGet(message, args);
+            await this.runGet(message, args);
             break;
         case 'run':
-            this.runRun(message, args);
+            await this.runRun(message, args);
             break;
         default:
-            message.reply(this.client._('bot.invalid_request'));
+            await message.reply(this.client._('bot.invalid_request'));
             break;
         }
     }
