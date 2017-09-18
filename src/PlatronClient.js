@@ -23,12 +23,6 @@ class PlatronClient extends AkairoClient {
             winston.warn('Cron module is not set up');
         }
 
-        if (this.akairoOptions.rolesDirectory) {
-            this.roleHandler = new AutoRoleHandler(this, this.akairoOptions);
-        } else {
-            winston.warn('Auto role module is not set up');
-        }
-
         return super.build();
     }
 
