@@ -19,11 +19,11 @@ class PingCommand extends Command {
             this.client._('command.8ball.affirmative8'),
 
             this.client._('command.8ball.neutral1'),
-            this.client._('command.8ball.neutral2'),
-            this.client._('command.8ball.neutral3'),
+            // this.client._('command.8ball.neutral2'),
+            // this.client._('command.8ball.neutral3'),
             this.client._('command.8ball.neutral4'),
             this.client._('command.8ball.neutral5'),
-            this.client._('command.8ball.neutral6'),
+            // this.client._('command.8ball.neutral6'),
 
             this.client._('command.8ball.negative1'),
             this.client._('command.8ball.negative2'),
