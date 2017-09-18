@@ -1,9 +1,8 @@
 const CronModule = require('../CronModule');
-const async = require('async');
 const slugify = require('slugify');
 const utils = require('../utils');
 const winston = require('winston');
-const colors = require('colors');
+const Promise = require('bluebird');
 
 module.exports = class RoleSetter extends CronModule {
     constructor() {
@@ -14,130 +13,107 @@ module.exports = class RoleSetter extends CronModule {
         });
     }
 
-    _addOrRemoveCongressRole(member, guild, remove = false) {
-        return new Promise((resolve, reject) => {
-            this.roleUtils.findOrCreateRole('congress', 'congress', guild, {
-                name: 'Congress',
-                color: '#0f81c9'
-            }).then(role => {
-                if (remove) {
-                    if (member.roles.has(role.id)) {
-                        return member.removeRole(role).then(resolve);
-                    }
-
-                    return resolve();
-                }
-
-                if (!member.roles.has(role.id)) {
-                    return member.addRole(role).then(resolve);
-                }
-
-                winston.verbose('Member', member.user.username ,'already has congress role');
-
-                return resolve();
-            });
+    async _addOrRemoveCongressRole(member, guild, remove = false) {
+        // Get or create the congress role
+        const role = await this.roleUtils.findOrCreateRole('congress', 'congress', guild, {
+            name: 'Congress',
+            color: '#0f81c9'
         });
+
+        if (remove) {
+            await member.removeRole(role);
+
+            return;
+        }
+
+        if (!member.roles.has(role.id)) {
+            await member.addRole(role);
+
+            return;
+        }
+
+        winston.verbose('Member', member.user.username, 'already has congress role');
     }
 
-    _addPartyRole(party, member, guild) {
-        return new Promise((resolve, reject) => {
-            this.roleUtils.getRolesWithKey('party').then(roleKeys => {
-                if (party) {
-                    return this.roleUtils.findOrCreateRole(slugify(party).toLowerCase(), 'party', guild, {
-                        name: party,
-                        color: '#923dff'
-                    }).then(role => {
-                        const otherParties = roleKeys.filter((key) => {
-                            return key != role.id;
-                        });
-
-                        // Remove other party roles
-                        member.removeRoles(otherParties).then(() => {
-                            if (!member.roles.has(role.id)) {
-                                member.addRole(role);
-                                winston.verbose('Attached role', role.name, 'to', member.user.username);
-                            } else {
-                                winston.verbose(member.user.username, 'already has role', role.name);
-                            }
-
-                            resolve();
-                        });
-                    });
-                } else {
-                    // Remove all party roles if not in a party
-                    member.removeRoles(roleKeys).then(resolve);
-                }
+    async _addPartyRole(party, member, guild) {
+        const roleKeys = this.roleUtils.getRolesWithKey('party');
+        if (party) {
+            const role = await this.roleUtils.findOrCreateRole(slugify(party).toLowerCase(), 'party', guild, {
+                name: party,
+                color: '#923dff'
             });
-        });
+
+            // Get all parties that the member does not belong to
+            const otherParties = roleKeys.filter(key => {
+                return key != role.id;
+            });
+
+            await member.removeRoles(otherParties);
+            await member.addRole(role);
+        } else {
+            // If not a member of any party, remove all party roles
+            await member.removeRoles(roleKeys);
+        }
     }
 
-    _processMember(member, guild) {
-        return new Promise((resolve, reject) => {
-            winston.verbose('Checking roles for user', member.user.username, member.user.id);
-            const Citizen = this.client.databases.citizens.table;
-            Citizen.findOne({where: {
+    async _processMember(member, guild) {
+        winston.verbose('Checking roles for user', member.user.username, member.user.id);
+        const Citizen = this.client.databases.citizens.table;
+        const dbUser = await Citizen.findOne({
+            where: {
                 discord_id: member.user.id
-            }}).then(dbUser => {
-                if (!dbUser) {
-                    winston.verbose('User', member.user.username, member.user.id, 'not registered');
-                    return this.roleUtils.removeAllRoles(member, guild).then(() => {
-                        winston.verbose('Removed ineligible roles for', member.user.username, member.user.id);
-                        resolve();
-                    });
-                }
+            }
+        });
 
-                if (!dbUser.verified) {
-                    winston.verbose('User', dbUser.id, 'is not verified');
-                    return this.roleUtils.removeAllRoles(member, guild).then(() => {
-                        winston.verbose('Removed ineligible roles for', member.user.username, member.user.id);
-                        resolve();
-                    });
-                }
+        if (!dbUser) {
+            winston.verbose('User', member.user.username, member.user.id, 'not registered');
+            await this.roleUtils.removeAllRoles(member, guild);
+            winston.verbose('Removed ineligible roles for', member.user.username, member.user.id);
+            return;
+        }
 
-                utils.getCitizenInfo(dbUser.id).then(data => {
-                    this._addPartyRole(data.party, member, guild).then(() => {
-                        const titles = [
-                            'Congress Member',
-                            'Prime Minister',
-                            'Governor',
-                            'Minister of Defense',
-                            'Minister of Foreign Affairs',
-                            'Minister of Education'
-                        ];
+        if (!dbUser.verified) {
+            winston.verbose('User', dbUser.id, 'is not verified');
+            await this.roleUtils.removeAllRoles(member, guild);
+            winston.verbose('Removed ineligible roles for', member.user.username, member.user.id);
+            return;
+        }
 
-                        const inCongress = titles.indexOf(data.partyRole) !== -1;
+        const citizenInfo = await utils.getCitizenInfo(dbUser.id);
+        await this._addPartyRole(citizenInfo.party, member, guild);
+        const titles = [
+            'Congress Member',
+            'Prime Minister',
+            'Governor',
+            'Minister of Defense',
+            'Minister of Foreign Affairs',
+            'Minister of Education'
+        ];
 
-                        if (inCongress) {
-                            winston.verbose('User', member.user.username, member.user.id, 'is in congress');
-                        } else {
-                            winston.verbose('User', member.user.username, member.user.id, 'is NOT in congress');
-                        }
+        const inCongress = titles.indexOf(citizenInfo.partyRole) !== -1;
 
-                        this._addOrRemoveCongressRole(member, guild, !inCongress).then(() => {
-                            setTimeout(resolve, 2000);
-                        });
-                    });
-                });
-            });
+        if (inCongress) {
+            winston.verbose('User', member.user.username, member.user.id, 'is in congress');
+        } else {
+            winston.verbose('User', member.user.username, member.user.id, 'is NOT in congress');
+        }
+
+        await this._addOrRemoveCongressRole(member, guild, !inCongress);
+        await new Promise(resolve => setTimeout(resolve, 2000));
+    }
+
+    async _processGuild(guild) {
+        await Promise.each(guild.members.array(), async member => {
+            await this._processMember(member, guild);
         });
     }
 
-    _processGuild(guild) {
-        return new Promise((resolve, reject) => {
-            async.eachSeries(guild.members.array(), (member, cb) => {
-                this._processMember(member, guild).then(cb);
-            }, resolve);
-        });
-    }
-
-    exec() {
-        async.eachSeries(this.client.guilds.array(), (guild, cb) => {
+    async exec() {
+        await Promise.each(this.client.guilds.array(), async guild => {
             winston.info('Setting party roles for guild', guild.name);
-            let timer = winston.startTimer();
-            this._processGuild(guild).then(() => {
-                timer.done(`Finished setting party roles for guild ${guild.name}`);
-                cb();
-            });
+            const timer = winston.startTimer();
+            await this._processGuild(guild);
+            timer.done(`Finished setting party roles for guild ${guild.name}`);
         });
     }
 };
