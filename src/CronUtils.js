@@ -29,23 +29,20 @@ module.exports = class CronUtils {
         return filtered;
     }
 
-    removeAllRoles(member, guild) {
-        return new Promise(resolve => {
-            const Role = this.client.databases.roles.table;
-
-            Role.findAll({
-                where: {
-                    guildId: guild.id
-                }
-            }).then(roles => {
-                const roleKeys = [];
-                for (const i in roles) {
-                    roleKeys.push(roles[i].id);
-                }
-
-                member.removeRoles(roleKeys).then(resolve).catch(resolve);
-            });
+    async removeAllRoles(member, guild) {
+        const Role = this.client.databases.roles.table;
+        const roles = await Role.findAll({
+            where: {
+                guildId: guild.id
+            }
         });
+
+        const roleKeys = [];
+        for (const i in roles) {
+            roleKeys.push(roles[i].id);
+        }
+
+        await member.removeRoles(roleKeys);
     }
 
     async getRolesWithGroup(group) {
