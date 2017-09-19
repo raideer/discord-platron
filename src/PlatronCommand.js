@@ -47,4 +47,4 @@ module.exports = class PlatronCommand extends Command {
             message.delete();
         }, timeout);
     }
-}
+};
