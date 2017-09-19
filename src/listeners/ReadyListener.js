@@ -1,7 +1,7 @@
 const { Listener } = require('discord-akairo');
 const winston = require('winston');
 
-const exec = () => {
+function exec() {
     if (this.client.cronHandler) {
         if (this.client.env('CRON_ENABLED', true)) {
             this.client.cronHandler.modules.forEach(module => {
@@ -12,7 +12,7 @@ const exec = () => {
             winston.warn('Cron module is disabled');
         }
     }
-};
+}
 
 module.exports = new Listener('ready', exec, {
     emitter: 'client',

@@ -1,6 +1,6 @@
 const { Inhibitor } = require('discord-akairo');
 
-const exec = async (message, command) => {
+async function exec(message, command) {
     const content = this.client.commandHandler._parseCommand(message, false).content;
     const args = await command.parse(content, message);
     let locale = 'en';
@@ -17,7 +17,7 @@ const exec = async (message, command) => {
 
     this.client.localize.setLocale(locale);
     message.locale = locale;
-};
+}
 
 module.exports = new Inhibitor('localizer', exec, {
     reason: 'localized'

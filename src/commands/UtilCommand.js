@@ -73,6 +73,10 @@ class UtilCommand extends Command {
             });
             break;
         }
+        case 'testNotificator': {
+            this.client.epicNotificator._notify(1, 'Taurida', 'https://www.erepublik.com/en/military/battlefield-new/107436', 42);
+            break;
+        }
         case 'updateRoles': {
             if (this.client.cronHandler && message.guild) {
                 const roleSetter = this.client.cronHandler.modules.get('manualRoleSetter');

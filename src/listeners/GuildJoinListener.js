@@ -1,7 +1,7 @@
 const { Listener } = require('discord-akairo');
 const winston = require('winston');
 
-const exec = async guild => {
+async function exec(guild) {
     winston.info('Joined guild', guild.name);
 
     const Guild = this.client.databases.guilds.table;
@@ -16,7 +16,7 @@ const exec = async guild => {
             locale: 'en'
         }
     });
-};
+}
 
 module.exports = new Listener('guildJoin', exec, {
     emitter: 'client',

@@ -27,7 +27,7 @@ class HelpCommand extends Command {
         if (command.usageExamples.length > 0) {
             a.push(`${this.client._('bot.command.examples')}:`);
 
-            for (let i in command.usageExamples) {
+            for (const i in command.usageExamples) {
                 a.push(`:white_small_square: \`${prefix}${command.usageExamples[i]}\``);
             }
 
@@ -35,17 +35,17 @@ class HelpCommand extends Command {
         }
 
         if (command.usageNote) {
-            let note = (typeof command.usageNote === 'function')?command.usageNote.call(this):command.usageNote;
+            const note = typeof command.usageNote === 'function' ? command.usageNote.call(this) : command.usageNote;
             a.push(note);
         }
 
         return a.join('\n');
     }
 
-    exec(message, args) {
-        let answers = [`__${this.client._('bot.command.list_of_commands')}__`];
+    exec(message) {
+        const answers = [`__${this.client._('bot.command.list_of_commands')}__`];
 
-        this.client.commandHandler.modules.forEach((command) => {
+        this.client.commandHandler.modules.forEach(command => {
             if (!command.showInHelp) {
                 return;
             }
