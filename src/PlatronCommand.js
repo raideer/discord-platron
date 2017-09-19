@@ -31,11 +31,11 @@ module.exports = class PlatronCommand extends Command {
 
         super(id, exec, options);
 
-        this.description = options.description || "";
-        this.usage = options.usage || "";
+        this.description = options.description || '';
+        this.usage = options.usage || '';
         this.usageExamples = options.usageExamples || [];
-        this.usageNote = options.usageNote || "";
-        this.showInHelp = (typeof options.showInHelp === 'undefined')?true:!!options.showInHelp;
+        this.usageNote = options.usageNote || '';
+        this.showInHelp = typeof options.showInHelp === 'undefined' ? true : !!options.showInHelp;
     }
 
     deleteMessage(message, timeout = 10000) {
