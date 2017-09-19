@@ -13,15 +13,6 @@ module.exports = (sequelize, DataTypes) => {
         locale: {
             type: DataTypes.STRING,
             defaultValue: 'en'
-        },
-        roleVerified: DataTypes.STRING,
-        roleVerifiedEnabled: {
-            type: DataTypes.BOOLEAN,
-            defaultValue: true
-        },
-        forceErepNames: {
-            type: DataTypes.BOOLEAN,
-            defaultValue: false
         }
     }, {
         classMethods: {
