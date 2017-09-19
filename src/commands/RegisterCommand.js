@@ -1,7 +1,7 @@
 const Command = require('../PlatronCommand');
-const { citizenNameToId } = require('../utils');
+// const { citizenNameToId } = require('../utils');
 const { Collection } = require('discord.js');
-const request = require('request');
+const request = require('request-promise');
 const cheerio = require('cheerio');
 const winston = require('winston');
 
@@ -35,9 +35,9 @@ class RegisterCommand extends Command {
             return null;
         }
 
-        let about_me = $('.about_message.profile_section').text();
-        let regex = new RegExp(`\\[tron\\=(${code})\\]`);
-        let match = about_me.match(regex);
+        const about_me = $('.about_message.profile_section').text();
+        const regex = new RegExp(`\\[tron\\=(${code})\\]`);
+        const match = about_me.match(regex);
 
         if (match) {
             return true;
@@ -46,11 +46,31 @@ class RegisterCommand extends Command {
         return false;
     }
 
-    generateCode(){
+    generateCode() {
         return (Math.random() + 1).toString(36).substr(2, 5);
     }
 
-    exec(message, args) {
+    _deleteMessageAndReply(message, reply, timeout = 20000) {
+        this.deleteMessage(message, timeout);
+        this.deleteMessage(reply, timeout);
+    }
+
+    async _addRoles(message, user) {
+        const roleSetter = this.client.cronHandler.modules.get('manualRoleSetter');
+        const apiroleSetter = this.client.cronHandler.modules.get('apiRoleSetter');
+
+        winston.info('Running manualRoleSetter module');
+        const fakeColl = new Collection();
+        fakeColl.set(user.id, {
+            citizen: user,
+            member: message.member
+        });
+
+        await roleSetter._processGuild(message.guild, fakeColl);
+        await apiroleSetter._processGuild(message.guild, fakeColl);
+    }
+
+    async exec(message, args) {
         if (!args.user) {
             return this.client.emit('invalidUsage', message, this);
         }
@@ -58,144 +78,101 @@ class RegisterCommand extends Command {
         if (Number.isInteger(args.user)) {
             winston.info('Attempting to register', args.user);
 
-            request.get(`https://www.erepublik.com/en/citizen/profile/${args.user}`, (error, response, body) => {
-                if (error) {
-                    winston.error('Received error when registering', args.user, error);
-                    return message.reply('Something went wrong while processing your request').then(reply => {
-                        this.deleteMessage(message);
-                        this.deleteMessage(reply);
-                    });
-                }
+            const body = await request.get(`https://www.erepublik.com/en/citizen/profile/${args.user}`);
+            const $ = cheerio.load(body);
 
-                if (response.statusCode == 404) {
-                    winston.warn('Didn\'t find a user with id', args.user);
-                    return message.reply(this.client._('user_not_found', `**${args.user}**`)).then(reply => {
-                        this.deleteMessage(message);
-                        this.deleteMessage(reply);
-                    });
-                }
+            const Citizen = this.client.databases.citizens.table;
 
-                const $ = cheerio.load(body);
+            // Finding citizen with the provided ID in the db
+            const user = await Citizen.findById(args.user);
+            // If the user was found
+            if (user) {
+                winston.verbose('Found citizen with id', user.id);
+                if ((user.verified === false && user.discord_id == message.author.id) || user.reclaiming == message.author.id) {
+                    const verify = this.verifyCode($, user.code);
 
-                const db = this.client.databases.citizens.table;
+                    // If code is in the about me page
+                    if (verify) {
+                        winston.verbose('Successfully verified code for', user.id);
+                        user.verified = true;
+                        user.code = null;
+                        user.discord_id = message.author.id;
+                        user.reclaiming = null;
 
-                // Finding citizen with the provided ID in the db
-                db.findById(args.user).then(user => {
-                    // If the user was found
-                    if (user) {
-                        winston.verbose('Found citizen with id', user.id);
-                        if ((user.verified === false && user.discord_id == message.author.id) || user.reclaiming == message.author.id) {
-                            const verify = this.verifyCode($, user.code);
+                        await user.save();
+                        await this._addRoles(message, user);
 
-                            // If code is in the about me page
-                            if (verify) {
-                                winston.verbose('Successfully verified code for', user.id);
-                                user.verified = true;
-                                user.code = null;
-                                user.discord_id = message.author.id;
-                                user.reclaiming = null;
+                        const l_verified = this.client._('command.register.verified', `**${args.user}**`);
+                        const l_verified1 = this.client._('command.register.verified1');
 
-                                return user.save().then(async () => {
-                                    if (this.client.cronHandler && message.guild) {
-                                        const roleSetter = this.client.cronHandler.modules.get('manualRoleSetter');
-                                        const apiroleSetter = this.client.cronHandler.modules.get('apiRoleSetter');
-
-                                        winston.info('Running manualRoleSetter module');
-                                        const fakeColl = new Collection();
-                                        fakeColl.set(user.id, {
-                                            citizen: user,
-                                            member: message.member
-                                        });
-
-                                        await roleSetter._processGuild(message.guild, fakeColl);
-                                        await apiroleSetter._processGuild(message.guild, fakeColl);
-                                    }
-
-                                    const l_verified = this.client._('command.register.verified', `**${args.user}**`);
-                                    const l_verified1 = this.client._('command.register.verified1');
-
-                                    message.reply(`:white_check_mark: ${l_verified}\n ${l_verified1} :thumbsup:`).then(reply => {
-                                        this.deleteMessage(message);
-                                        this.deleteMessage(reply);
-                                    });
-                                });
-                            } else if(verify === false) {
-                                winston.warn('Code didn\'t match for', args.user);
-                                //If code doesn't match
-                                return message.reply(this.client._('command.register.add_code', `**${args.user}**`, `\`[tron=${user.code}]\``)).then(reply => {
-                                    this.deleteMessage(message);
-                                    this.deleteMessage(reply);
-                                });
-                            } else {
-                                winston.warn('Code invalid for', args.user);
-                                //If invalid code
-                                const code = this.generateCode();
-                                user.code = code;
-                                user.discord_id = message.author.id;
-                                user.save().then(() => {
-                                    return message.reply(`:arrows_counterclockwise: Something went wrong! Please add \`[tron=${code}]\` to your **About me** section and try again`).then(reply => {
-                                        this.deleteMessage(message);
-                                        this.deleteMessage(reply);
-                                    });
-                                });
-                            }
-                        } else {
-                            const owner = this.client.util.resolveUser(user.discord_id, this.client.users);
-                            if (owner.id == message.author.id) {
-                                return message.reply(`:white_check_mark: ${this.client._('command.register.already_verified')}!`).then(reply => {
-                                    this.deleteMessage(message);
-                                    this.deleteMessage(reply);
-                                });
-                            }
-
-                            const l_already_claimed = this.client._('command.register.already_claimed', `\`${args.user}\``, `<@${owner.id}>\n:arrows_counterclockwise: __`);
-                            const l_options = this.client._('bot.prompt.options', `**yes**`, `**no**`);
-
-                            return this.client.util.prompt(
-                                message,
-                                `${l_already_claimed}?__ (${l_options})`,
-                                () => true,
-                                30000,
-                                {
-                                    reply: message.author
-                                }
-                            ).then((promt) => {
-                                if (promt.content.startsWith('y')) {
-                                    const code = this.generateCode();
-                                    user.reclaiming = message.author.id;
-                                    user.code = code;
-                                    user.save().then(() => {
-                                        message
-                                            .reply(`Ok :ok_hand:. ${this.client._('command.register.add_code', `**${args.user}**`, `\`[tron=${code}]\``)}`).then(reply => {
-                                                this.deleteMessage(message);
-                                                this.deleteMessage(reply);
-                                            });
-                                    });
-                                }
-                            }).catch((e) => {
-                                if (e == 'time') {
-                                    message.reply('Oops... reply time has ran out');
-                                }
-                            });
-                        }
-                    //If the user wasnt found in the database
+                        const reply = await message.reply(`:white_check_mark: ${l_verified}\n ${l_verified1} :thumbsup:`);
+                        this._deleteMessageAndReply(message, reply);
+                    } else if (verify === false) {
+                        winston.warn('Code didn\'t match for', args.user);
+                        // If code doesn't match
+                        const reply = await message.reply(this.client._('command.register.add_code', `**${args.user}**`, `\`[tron=${user.code}]\``));
+                        this._deleteMessageAndReply(message, reply);
                     } else {
-                        winston.verbose('Generating code for', args.user);
+                        winston.warn('Code invalid for', args.user);
+                        // If invalid code
                         const code = this.generateCode();
-                        db.create({
-                            id: args.user,
-                            discord_id: message.author.id,
-                            code: code
-                        }).then(() => {
-                            const l_add_code = this.client._('command.register.add_code', `**${args.user}**`, `\`[tron=${code}]\``);
-                            return message.reply(`:information_source: ${l_add_code}.`).then(reply => {
-                                this.deleteMessage(message);
-                                this.deleteMessage(reply);
-                            });
-                        });
+                        user.code = code;
+                        user.discord_id = message.author.id;
+                        await user.save();
+
+                        const reply = await message.reply(`:arrows_counterclockwise: Something went wrong! Please add \`[tron=${code}]\` to your **About me** section and try again`);
+                        this._deleteMessageAndReply(message, reply);
                     }
+                } else {
+                    const owner = this.client.util.resolveUser(user.discord_id, this.client.users);
+                    if (owner.id == message.author.id) {
+                        const reply = await message.reply(`:white_check_mark: ${this.client._('command.register.already_verified')}!`);
+                        this._deleteMessageAndReply(message, reply);
+                        return;
+                    }
+
+                    const l_already_claimed = this.client._('command.register.already_claimed', `\`${args.user}\``, `<@${owner.id}>\n:arrows_counterclockwise: __`);
+                    const l_options = this.client._('bot.prompt.options', '**yes**', '**no**');
+
+                    try {
+                        const prompt = await this.client.util.prompt(
+                            message,
+                            `${l_already_claimed}?__ (${l_options})`,
+                            () => true,
+                            30000,
+                            {
+                                reply: message.author
+                            }
+                        );
+
+                        if (prompt.content.startsWith('y')) {
+                            const code = this.generateCode();
+                            user.reclaiming = message.author.id;
+                            user.code = code;
+                            await user.save();
+                            const reply = await message.reply(`Ok :ok_hand:. ${this.client._('command.register.add_code', `**${args.user}**`, `\`[tron=${code}]\``)}`);
+                            this._deleteMessageAndReply(message, reply);
+                        }
+                    } catch (e) {
+                        if (e == 'time') {
+                            await message.reply('Oops... reply time has ran out');
+                        }
+                    }
+                }
+            // If the user wasnt found in the database
+            } else {
+                winston.verbose('Generating code for', args.user);
+                const code = this.generateCode();
+                await Citizen.create({
+                    id: args.user,
+                    discord_id: message.author.id,
+                    code: code
                 });
-            });
+
+                const l_add_code = this.client._('command.register.add_code', `**${args.user}**`, `\`[tron=${code}]\``);
+                const reply = await message.reply(`:information_source: ${l_add_code}.`);
+                this._deleteMessageAndReply(message, reply);
+            }
         }
     }
 }

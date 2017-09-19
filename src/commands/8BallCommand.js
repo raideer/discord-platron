@@ -8,7 +8,7 @@ class PingCommand extends Command {
     }
 
     exec(message) {
-        let options = [
+        const options = [
             this.client._('command.8ball.affirmative1'),
             this.client._('command.8ball.affirmative2'),
             this.client._('command.8ball.affirmative3'),
@@ -29,10 +29,10 @@ class PingCommand extends Command {
             this.client._('command.8ball.negative2'),
             this.client._('command.8ball.negative3'),
             this.client._('command.8ball.negative4'),
-            this.client._('command.8ball.negative5'),
+            this.client._('command.8ball.negative5')
         ];
 
-        let n = Math.floor(Math.random() * options.length);
+        const n = Math.floor(Math.random() * options.length);
         message.channel.send(`**${options[n]}**`);
     }
 }

@@ -27,10 +27,10 @@ class CombatOrdersCommand extends Command {
 
     respond(message, args, data) {
         if (data.status == 'ok') {
-            let battles = {};
+            const battles = {};
             let co;
 
-            for (let i in data.active) {
+            for (const i in data.active) {
                 co = data.active[i];
 
                 if (args.div == 'air') {
@@ -53,14 +53,14 @@ class CombatOrdersCommand extends Command {
             }
 
             if (Object.keys(battles).length === 0) {
-                let div = args.div?args.div:'any';
+                const div = args.div ? args.div : 'any';
                 return message.reply(this.client._('command.combatorders.not_found', `**${div}**`));
             }
 
-            let embeds = [];
+            const embeds = [];
 
-            for (let i in battles) {
-                let battle = battles[i];
+            for (const i in battles) {
+                const battle = battles[i];
                 let answer = '';
 
                 const l_budget = this.client._('command.combatorders.budget');
@@ -68,14 +68,15 @@ class CombatOrdersCommand extends Command {
                 const l_side = this.client._('command.combatorders.side');
                 const l_fight_for = this.client._('command.combatorders.fight_for');
 
-                for(let i in battle.cos){
-                    co = battle.cos[i];
+                for (const j in battle.cos) {
+                    co = battle.cos[j];
 
-                    answer += (co.division === 11)? `AIR BATTLE: `:`DIV **${co.division}**: `;
+                    answer += co.division === 11 ? 'AIR BATTLE: ' : `DIV **${co.division}**: `;
                     answer += ` __**${number(co.reward)}cc**__/m (${number(co.budget)} cc ${l_budget}) | ${getFlag(co.country.name)} **${co.country.name}** ${l_side}\n`;
                 }
 
-                embeds.push(new RichEmbed()
+                embeds.push(
+                    new RichEmbed()
                     .setTitle(`${getFlag(battle.attacker.name)} **${battle.attacker.name}** ${l_vs} ${getFlag(battle.defender.name)} **${battle.defender.name}** - ${l_fight_for} *${battle.region.name}*`)
                     .setURL(`https://www.erepublik.com/en/military/battlefield-new/${battle.battle_id}`)
                     .setDescription(answer)
@@ -83,7 +84,7 @@ class CombatOrdersCommand extends Command {
                 );
             }
 
-            for (let i in embeds) {
+            for (const i in embeds) {
                 message.channel.send({
                     embed: embeds[i]
                 });
@@ -93,18 +94,18 @@ class CombatOrdersCommand extends Command {
 
     exec(message, args) {
         const apiKey = this.client.env('EREP_API', () => {
-            throw "eRepublik Deutchland API key is not set!";
+            throw 'eRepublik Deutchland API key is not set!';
         });
 
         request
-            .get(`https://api.erepublik-deutschland.de/${apiKey}/battles/cos/active/`, (error, response, body) => {
-                if (error) {
-                    return message.reply(this.client._('bot.invalid_request'));
-                }
+        .get(`https://api.erepublik-deutschland.de/${apiKey}/battles/cos/active/`, (error, response, body) => {
+            if (error) {
+                return message.reply(this.client._('bot.invalid_request'));
+            }
 
-                let data = JSON.parse(body);
-                this.respond(message, args, data);
-            });
+            const data = JSON.parse(body);
+            this.respond(message, args, data);
+        });
     }
 }
 

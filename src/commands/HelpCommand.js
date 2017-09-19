@@ -10,12 +10,12 @@ class HelpCommand extends Command {
     }
 
     getHelp(message, command) {
-        let a = [];
-        let prefix = message.util.prefix;
-        let aliases = (_.rest(command.aliases).length > 0)? `(${_.rest(command.aliases).join(' | ')})` : '';
-        let description = (typeof command.description === 'function')?command.description.call(this):command.description;
+        const a = [];
+        const prefix = message.util.prefix;
+        const aliases = _.rest(command.aliases).length > 0 ? `(${_.rest(command.aliases).join(' | ')})` : '';
+        let description = typeof command.description === 'function' ? command.description.call(this) : command.description;
         if (description) {
-            description = '- ' + description;
+            description = `- ${description}`;
         }
 
         a.push(`:black_small_square: **${_.first(command.aliases)}** ${aliases} ${description}`);
