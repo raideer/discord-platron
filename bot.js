@@ -26,6 +26,7 @@ process.on('uncaughtException', error => {
 });
 
 const PlatronClient = require('./src/PlatronClient');
+const EpicNotificator = require('./src/EpicNotificator');
 const { SequelizeProvider } = require('discord-akairo');
 
 const db = require('./db/models/index');
@@ -91,14 +92,17 @@ Promise.all([
     db.Citizen.sync(),
     db.Role.sync(),
     db.GuildConfig.sync()
-]).then(() => {
+]).then(async () => {
     timer.done('Finished syncing database.');
     winston.info('Attempting to log in');
 
-    client.login(client.env('TOKEN', () => {
+    await client.login(client.env('TOKEN', () => {
         throw 'Bot TOKEN not provided!';
-    })).then(() => {
-        winston.info('Successfully logged in');
-        client.user.setGame('eRepublik');
-    }).catch(winston.error);
+    }));
+
+    client.epicNotificator = new EpicNotificator(client);
+    client.epicNotificator.run();
+
+    winston.info('Successfully logged in');
+    client.user.setGame('eRepublik');
 });
