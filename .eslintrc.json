@@ -57,6 +57,7 @@
     "no-sequences": "error",
     "no-unmodified-loop-condition": "error",
     "no-unused-expressions": "error",
+    "no-unused-vars": ["error", { "varsIgnorePattern": "^_" }],
     "no-useless-call": "error",
     "no-useless-concat": "error",
     "no-useless-escape": "error",
