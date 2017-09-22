@@ -101,7 +101,10 @@ Promise.all([
     }));
 
     client.epicNotificator = new EpicNotificator(client);
-    client.epicNotificator.run();
+
+    if (client.env('EPIC_NOTIFICATOR_ENABLED', true)) {
+        client.epicNotificator.run();
+    }
 
     winston.info('Successfully logged in');
     client.user.setGame('eRepublik');
