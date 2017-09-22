@@ -12,7 +12,7 @@ class HelpCommand extends Command {
     getHelp(message, command) {
         const a = [];
         const prefix = message.util.prefix;
-        const aliases = _.rest(command.aliases).length > 0 ? `(${_.rest(command.aliases).join(' | ')})` : '';
+        const aliases = _.drop(command.aliases).length > 0 ? `(${_.drop(command.aliases).join(' | ')})` : '';
         let description = typeof command.description === 'function' ? command.description.call(this) : command.description;
         if (description) {
             description = `- ${description}`;
