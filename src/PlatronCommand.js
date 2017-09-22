@@ -38,13 +38,13 @@ module.exports = class PlatronCommand extends Command {
         this.showInHelp = typeof options.showInHelp === 'undefined' ? true : !!options.showInHelp;
     }
 
-    deleteMessage(message, timeout = 10000) {
+    async deleteMessage(message, timeout = 10000) {
         if (!message.guild) {
             return;
         }
 
-        setTimeout(() => {
-            message.delete();
-        }, timeout);
+        await new Promise(resolve => setTimeout(() => {
+            message.delete().then(resolve);
+        }, timeout));
     }
 };

@@ -5,7 +5,6 @@ const request = require('request-promise');
 const uu = require('url-unshort')();
 const utils = require('./utils');
 const { RichEmbed } = require('discord.js');
-const AsciiTable = require('ascii-table');
 
 module.exports = class EpicNotificator {
     constructor(client) {
@@ -116,7 +115,7 @@ module.exports = class EpicNotificator {
         });
     }
 
-    async run() {
+    run() {
         const options = {
             consumer_key: this.client.env('TWITTER_CONSUMER_KEY'),
             consumer_secret: this.client.env('TWITTER_CONSUMER_SECRET'),
@@ -124,13 +123,13 @@ module.exports = class EpicNotificator {
             access_token_secret: this.client.env('TWITTER_SECRET')
         };
 
-        winston.verbose('Creating twitter stream', options);
+        winston.info('Creating twitter stream', options);
 
         const client = new Twitter(options);
-        // 3304107645
-        this.stream = client.stream('statuses/filter', { follow: 4219664914 });
+        // 3304107645 4219664914
+        this.stream = client.stream('statuses/filter', { follow: 3304107645 });
         this.stream.on('data', tweet => {
-            const [text, division, region, url, time] = this._parseTweet(tweet.text);
+            const [_text, division, region, url, time] = this._parseTweet(tweet.text);
 
             this._notify(division, region, url, time);
         });
