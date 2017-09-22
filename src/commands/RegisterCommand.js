@@ -50,23 +50,27 @@ class RegisterCommand extends Command {
         return (Math.random() + 1).toString(36).substr(2, 5);
     }
 
-    _deleteMessageAndReply(message, reply, timeout = 20000) {
-        this.deleteMessage(message, timeout);
-        this.deleteMessage(reply, timeout);
+    async _deleteMessageAndReply(message, reply, timeout = 20000) {
+        const del = await this.client.guildConfig(message.guild, 'autoDeleteMessages', true);
+        if (del) {
+            this.deleteMessage(message, timeout);
+            this.deleteMessage(reply, timeout);
+        }
     }
 
     async _addRoles(message, user) {
         const roleSetter = this.client.cronHandler.modules.get('manualRoleSetter');
         const apiroleSetter = this.client.cronHandler.modules.get('apiRoleSetter');
 
-        winston.info('Running manualRoleSetter module');
         const fakeColl = new Collection();
         fakeColl.set(user.id, {
             citizen: user,
             member: message.member
         });
 
+        winston.info('Running manualRoleSetter module');
         await roleSetter._processGuild(message.guild, fakeColl);
+        winston.info('Running apiRoleSetter module');
         await apiroleSetter._processGuild(message.guild, fakeColl);
     }
 
