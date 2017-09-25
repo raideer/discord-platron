@@ -1,4 +1,5 @@
 const winston = require('winston');
+const memwatch = require('memwatch-next');
 require('winston-daily-rotate-file');
 
 winston.configure({
@@ -23,6 +24,14 @@ winston.handleExceptions(new winston.transports.DailyRotateFile({
 
 process.on('uncaughtException', error => {
     winston.error(error);
+});
+
+memwatch.on('leak', leak => {
+    winston.error('Memory leak', leak);
+});
+
+memwatch.on('stats', stats => {
+    winston.info('Memory stats', stats);
 });
 
 const PlatronClient = require('./src/PlatronClient');
