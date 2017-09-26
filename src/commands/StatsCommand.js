@@ -121,6 +121,21 @@ class StatsCommand extends Command {
         if (Number.isInteger(Number(args.user))) {
             this.showStats(message, args.user);
         } else {
+            const user = this.client.util.resolveUser(args.user, this.client.users);
+
+            if (user) {
+                const Citizen = this.client.databases.citizens.table;
+                const citizen = await Citizen.findOne({
+                    where: {
+                        discord_id: user.id
+                    }
+                });
+
+                if (citizen) {
+                    return this.showStats(message, citizen.id);
+                }
+            }
+
             const id = await citizenNameToId(args.user);
             this.showStats(message, id);
         }
