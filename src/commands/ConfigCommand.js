@@ -21,7 +21,8 @@ class ConfigCommand extends Command {
                 }
             ],
             ownerOnly: true,
-            channelRestriction: 'guild'
+            channelRestriction: 'guild',
+            showInHelp: false
         });
     }
 
