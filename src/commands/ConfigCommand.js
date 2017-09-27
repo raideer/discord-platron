@@ -17,7 +17,8 @@ class ConfigCommand extends Command {
                 },
                 {
                     id: 'value',
-                    type: 'string'
+                    type: 'string',
+                    match: 'rest'
                 }
             ],
             ownerOnly: true,
