@@ -16,7 +16,7 @@ class ShowerCommand extends Command {
         const thoughts = await request({
             method: 'GET',
             json: true,
-            uri: 'https://www.reddit.com/r/showerthoughts/top.json?limit=100&t=week'
+            uri: 'https://www.reddit.com/r/showerthoughts/top.json?limit=50&t=week'
         });
 
         const i = Math.floor(Math.random() * thoughts.data.children.length);
