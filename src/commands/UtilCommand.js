@@ -50,8 +50,20 @@ class UtilCommand extends Command {
 
     runGet(message, args) {
         switch (args.command) {
-        case 'link':
+        case 'invite':
             return message.reply(`<https://discordapp.com/oauth2/authorize?client_id=${this.client.user.id}&scope=bot&permissions=268435464>`);
+        case 'cronStatus': {
+            if (!this.client.cronHandler) {
+                return message.reply('Cron is not enabled!');
+            }
+
+            const modules = this.client.cronHandler.modules.array();
+            const status = modules.map(module => {
+                return `${module.cron.running ? ':white_check_mark:' : ':x:'} Cron module **${module.id}** ${module.cron.running ? 'is' : 'isn\'t'} running`;
+            });
+
+            return message.channel.send(status.join('\n'));
+        }
         }
     }
 
@@ -73,8 +85,15 @@ class UtilCommand extends Command {
             });
             break;
         }
-        case 'testNotificator': {
-            this.client.epicNotificator._notify(1, 'Taurida', 'https://www.erepublik.com/en/military/battlefield-new/107436', 42);
+        case 'restartNotificator': {
+            if (this.client.epicNotificator.stream) {
+                this.client.epicNotificator.stream.destroy();
+
+                await new Promise(resolve => setTimeout(resolve, 10000));
+            }
+
+            this.client.epicNotificator.run();
+            message.reply(':white_check_mark: Done!');
             break;
         }
         case 'updateRoles': {

@@ -9,6 +9,15 @@ const { RichEmbed } = require('discord.js');
 module.exports = class EpicNotificator {
     constructor(client) {
         this.client = client;
+
+        const options = {
+            consumer_key: this.client.env('TWITTER_CONSUMER_KEY'),
+            consumer_secret: this.client.env('TWITTER_CONSUMER_SECRET'),
+            access_token_key: this.client.env('TWITTER_TOKEN'),
+            access_token_secret: this.client.env('TWITTER_SECRET')
+        };
+
+        this.twitter = new Twitter(options);
     }
 
     _parseTweet(tweet) {
@@ -116,18 +125,10 @@ module.exports = class EpicNotificator {
     }
 
     run() {
-        const options = {
-            consumer_key: this.client.env('TWITTER_CONSUMER_KEY'),
-            consumer_secret: this.client.env('TWITTER_CONSUMER_SECRET'),
-            access_token_key: this.client.env('TWITTER_TOKEN'),
-            access_token_secret: this.client.env('TWITTER_SECRET')
-        };
+        winston.info('Creating twitter stream');
 
-        winston.info('Creating twitter stream', options);
-
-        const client = new Twitter(options);
         // 3304107645 4219664914
-        this.stream = client.stream('statuses/filter', { follow: 3304107645 });
+        this.stream = this.twitter.stream('statuses/filter', { follow: 3304107645 });
         this.stream.on('data', tweet => {
             const [_text, division, region, url, time] = this._parseTweet(tweet.text);
 
