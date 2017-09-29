@@ -174,6 +174,7 @@ module.exports = class APIRoleSetter extends CronModule {
         const countryRoles = await this.utils.getRolesWithGroup('country');
 
         if (!citizen.citizen.verified) {
+            winston.verbose(citizen.citizen.id, 'Not verified');
             await citizen.member.removeRoles(countryRoles);
             return;
         }
@@ -187,10 +188,13 @@ module.exports = class APIRoleSetter extends CronModule {
             color: '#af900f'
         });
 
+        winston.verbose('Country role', role);
+
         const otherCountries = countryRoles.filter(key => {
             return key != role.id;
         });
 
+        winston.verbose('Removing other roles');
         await citizen.member.removeRoles(otherCountries);
         await citizen.member.addRole(role);
         winston.info('Added country role for', citizen.member.user.username);
