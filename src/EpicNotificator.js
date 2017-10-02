@@ -1,4 +1,4 @@
-const Twitter = require('twitter');
+const PushBullet = require('pushbullet');
 const winston = require('winston');
 const Promise = require('bluebird');
 const request = require('request-promise');
@@ -6,23 +6,28 @@ const uu = require('url-unshort')();
 const utils = require('./utils');
 const { RichEmbed } = require('discord.js');
 
+// Singleton
+let that;
 module.exports = class EpicNotificator {
+
     constructor(client) {
         this.client = client;
 
-        const options = {
-            consumer_key: this.client.env('TWITTER_CONSUMER_KEY'),
-            consumer_secret: this.client.env('TWITTER_CONSUMER_SECRET'),
-            access_token_key: this.client.env('TWITTER_TOKEN'),
-            access_token_secret: this.client.env('TWITTER_SECRET')
-        };
+        if (that) {
+            return that;
+        }
 
-        this.twitter = new Twitter(options);
+        winston.info('Creating pushbullet instance', this.client.env('PUSHBULLET_API_KEY'));
+
+        this.pusher = new PushBullet(this.client.env('PUSHBULLET_API_KEY'));
+
+        that = this;
     }
 
-    _parseTweet(tweet) {
+    _parseBody(title, body) {
+        const str = `${title} - ${body}`;
         const regex = new RegExp('Division ([1-4]) - Region: ([a-zA-Z ]+) - Battlefield: ([^ ]+) *- Timeleft: ([0-9]+) min');
-        return tweet.match(regex);
+        return str.match(regex);
     }
 
     _getBattleId(url) {
@@ -125,18 +130,45 @@ module.exports = class EpicNotificator {
     }
 
     run() {
-        winston.info('Creating twitter stream');
+        winston.info('Creating pushbullet stream');
 
-        // 3304107645 4219664914
-        this.stream = this.twitter.stream('statuses/filter', { follow: 3304107645 });
-        this.stream.on('data', tweet => {
-            const [_text, division, region, url, time] = this._parseTweet(tweet.text);
-
-            this._notify(division, region, url, time);
+        this.stream = this.pusher.stream();
+        this.stream.on('connect', () => {
+            winston.info('Connected to Pushbullet');
         });
 
-        this.stream.on('error', err => {
-            throw err;
+        this.stream.on('close', () => {
+            winston.error('Pushbullet stream closed');
         });
+
+        this.stream.on('error', e => {
+            winston.error('Pushbullet stream returned an error', e);
+        });
+
+        this.stream.on('tickle', async type => {
+            if (type !== 'push') return;
+            winston.info('Received a push tickle. Fetching latest push');
+            const data = await this._getLatestPush();
+            const push = data.pushes[0];
+
+            const [_text, division, region, url, time] = this._parseBody(push.title, push.body);
+            winston.info('Notifying push');
+            await this._notify(division, region, url, time);
+        });
+
+        this.stream.connect();
+    }
+
+    async _getLatestPush() {
+        const data = await request({
+            method: 'GET',
+            json: true,
+            uri: 'https://api.pushbullet.com/v2/pushes?limit=1',
+            headers: {
+                'Access-Token': this.client.env('PUSHBULLET_API_KEY')
+            }
+        });
+
+        return data;
     }
 };

@@ -85,7 +85,7 @@
     "comma-spacing": "error",
     "comma-style": "error",
     "computed-property-spacing": "error",
-    "consistent-this": ["error", "$this"],
+    "consistent-this": ["error", "that"],
     "eol-last": "error",
     "func-names": "error",
     "func-name-matching": "error",
