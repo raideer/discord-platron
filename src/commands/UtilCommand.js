@@ -12,12 +12,9 @@ class UtilCommand extends Command {
                     type: 'string'
                 },
                 {
-                    id: 'arg1',
-                    type: 'string'
-                },
-                {
-                    id: 'arg2',
-                    type: 'string'
+                    id: 'arg',
+                    type: 'string',
+                    match: 'rest'
                 }
             ],
             ownerOnly: true,
@@ -28,17 +25,17 @@ class UtilCommand extends Command {
     runSet(message, args) {
         switch (args.command) {
         case 'prefix': {
-            this.client.databases.guilds.set(message.guild.id, 'prefix', args.arg1);
-            return message.reply(this.client._('command.config.prefix_changed', `**${message.guild.name}**`, `\`${args.arg1}\``));
+            this.client.databases.guilds.set(message.guild.id, 'prefix', args.arg);
+            return message.reply(this.client._('command.config.prefix_changed', `**${message.guild.name}**`, `\`${args.arg}\``));
         }
         case 'locale': {
             const locales = ['en', 'lv'];
-            if (locales.indexOf(args.arg1) === -1) {
-                return message.reply(`Locale code \`${args.arg1}\` not recognised`);
+            if (locales.indexOf(args.arg) === -1) {
+                return message.reply(`Locale code \`${args.arg}\` not recognised`);
             }
 
-            this.client.databases.guilds.set(message.guild.id, 'locale', args.arg1);
-            this.client.localize.setLocale(args.arg1);
+            this.client.databases.guilds.set(message.guild.id, 'locale', args.arg);
+            this.client.localize.setLocale(args.arg);
 
             const reply_message = this.client._('command.config.locale_changed', `**${message.guild.name}**`);
             return message.reply(`:white_check_mark: ${reply_message}`);
@@ -63,6 +60,15 @@ class UtilCommand extends Command {
             });
 
             return message.channel.send(status.join('\n'));
+        }
+        case 'roleId': {
+            const roleResolvable = args.arg;
+            const role = this.client.util.resolveRole(roleResolvable, message.guild.roles);
+            if (role) {
+                return message.reply(`ID **${roleResolvable}**: \`${role.id}\``);
+            } else {
+                return message.reply(`Role **${roleResolvable}** not found`);
+            }
         }
         }
     }
@@ -101,7 +107,7 @@ class UtilCommand extends Command {
                 const roleSetter = this.client.cronHandler.modules.get('manualRoleSetter');
                 const apiRoleSetter = this.client.cronHandler.modules.get('apiRoleSetter');
 
-                if (roleSetter && (args.arg1 == 'manual' || !args.arg1)) {
+                if (roleSetter && (args.arg == 'manual' || !args.arg)) {
                     winston.info('Running manualRoleSetter module');
                     await roleSetter._processGuild(message.guild);
                     await message.reply('Finished setting manual roles');
@@ -109,7 +115,7 @@ class UtilCommand extends Command {
                     winston.error('Manual role setter not found');
                 }
 
-                if (apiRoleSetter && (args.arg1 == 'api' || !args.arg1)) {
+                if (apiRoleSetter && (args.arg == 'api' || !args.arg)) {
                     winston.info('Running apiRoleSetter module');
                     await apiRoleSetter._processGuild(message.guild);
                     await message.reply('Finished setting api roles');
