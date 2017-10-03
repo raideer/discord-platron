@@ -68,10 +68,10 @@ class RegisterCommand extends Command {
             member: message.member
         });
 
-        winston.info('Running manualRoleSetter module');
-        await roleSetter._processGuild(message.guild, fakeColl);
         winston.info('Running apiRoleSetter module');
         await apiroleSetter._processGuild(message.guild, fakeColl);
+        winston.info('Running manualRoleSetter module');
+        await roleSetter._processGuild(message.guild, fakeColl);
     }
 
     async exec(message, args) {
