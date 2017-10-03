@@ -62,6 +62,11 @@ module.exports = class APIRoleSetter extends CronModule {
         const countryRoleEnabled = await this.client.guildConfig(guild, 'setCountryRoles', false);
         const divisionRoleEnabled = await this.client.guildConfig(guild, 'setDivisionRoles', false);
         const muRoleEnabled = await this.client.guildConfig(guild, 'setMURoles', false);
+        let countryRole = await this.client.guildConfig(guild, 'countryRole', false);
+
+        if (countryRole == '0') {
+            countryRole = false;
+        }
 
         if (verifiedRoleEnabled == '1') {
             winston.verbose('Setting verified roles');
@@ -86,7 +91,7 @@ module.exports = class APIRoleSetter extends CronModule {
             winston.verbose('Setting division roles');
             await Promise.each(citizens.array(), async citizen => {
                 const player = data.players[citizen.citizen.id];
-                await this._addDivisionRole(guild, citizen, player);
+                await this._addDivisionRole(guild, citizen, player, countryRole);
             });
         } else {
             winston.info('Division roles are disabled in', guild.name);
@@ -95,8 +100,12 @@ module.exports = class APIRoleSetter extends CronModule {
         if (muRoleEnabled == '1') {
             winston.verbose('Setting MU roles');
             await Promise.each(citizens.array(), async citizen => {
+                if (countryRole && !citizen.member.roles.has(countryRole)) {
+                    return;
+                }
+
                 const player = data.players[citizen.citizen.id];
-                await this._addMURole(guild, citizen, player);
+                await this._addMURole(guild, citizen, player, countryRole);
             });
         } else {
             winston.info('MU roles are disabled in', guild.name);
@@ -118,10 +127,10 @@ module.exports = class APIRoleSetter extends CronModule {
         }
     }
 
-    async _addDivisionRole(guild, citizen, citizenInfo) {
+    async _addDivisionRole(guild, citizen, citizenInfo, countryRole = false) {
         const divisionRoles = await this.utils.getRolesWithGroup('division');
 
-        if (!citizen.citizen.verified) {
+        if (!citizen.citizen.verified || (countryRole && !citizen.member.roles.has(countryRole))) {
             await citizen.member.removeRoles(divisionRoles);
             return;
         }
@@ -144,10 +153,10 @@ module.exports = class APIRoleSetter extends CronModule {
         winston.info('Added division role for', citizen.member.user.username);
     }
 
-    async _addMURole(guild, citizen, citizenInfo) {
+    async _addMURole(guild, citizen, citizenInfo, countryRole) {
         const muRoles = await this.utils.getRolesWithGroup('mu');
 
-        if (!citizen.citizen.verified) {
+        if (!citizen.citizen.verified || (countryRole && !citizen.member.roles.has(countryRole))) {
             await citizen.member.removeRoles(muRoles);
             return;
         }

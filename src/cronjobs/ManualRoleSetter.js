@@ -13,7 +13,7 @@ module.exports = class ManualRoleSetter extends CronModule {
         });
     }
 
-    async _addCongressRole(citizen, guild, citizenInfo) {
+    async _addCongressRole(citizen, guild, citizenInfo, countryRole = false) {
         const titles = [
             'Congress Member',
             'Prime Minister',
@@ -34,9 +34,13 @@ module.exports = class ManualRoleSetter extends CronModule {
 
         winston.verbose(citizen.member.user.username, 'in congress', inCongress, citizenInfo.partyRole);
 
+        if (countryRole && !citizen.member.roles.has(countryRole)) {
+            await citizen.member.removeRole(role);
+            return;
+        }
+
         if (!inCongress || !citizen.citizen.verified) {
             await citizen.member.removeRole(role);
-
             return;
         }
 
@@ -44,8 +48,13 @@ module.exports = class ManualRoleSetter extends CronModule {
         winston.verbose('Added congress role to', citizen.member.user.username);
     }
 
-    async _addPartyRole(citizen, guild, citizenInfo) {
+    async _addPartyRole(citizen, guild, citizenInfo, countryRole = false) {
         const roleKeys = await this.utils.getRolesWithGroup('party');
+        if (countryRole && !citizen.member.roles.has(countryRole)) {
+            await citizen.member.removeRoles(roleKeys);
+            return;
+        }
+
         if (citizenInfo.party && citizen.citizen.verified) {
             const role = await this.utils.findOrCreateRole(slugify(citizenInfo.party).toLowerCase(), 'party', guild, {
                 name: citizenInfo.party,
@@ -72,6 +81,11 @@ module.exports = class ManualRoleSetter extends CronModule {
 
         const partyRoleEnabled = await this.client.guildConfig(guild, 'setPartyRoles', false);
         const congressRoleEnabled = await this.client.guildConfig(guild, 'setCongressRoles', false);
+        let countryRole = await this.client.guildConfig(guild, 'countryRole', false);
+
+        if (countryRole == '0') {
+            countryRole = false;
+        }
 
         // Temporary citizen info caching
         const citizenData = {};
@@ -90,7 +104,7 @@ module.exports = class ManualRoleSetter extends CronModule {
             winston.info('Adding party roles');
             await Promise.each(citizens.array(), async citizen => {
                 const citizenInfo = await getCitizenInfo(citizen.citizen.id);
-                await this._addPartyRole(citizen, guild, citizenInfo);
+                await this._addPartyRole(citizen, guild, citizenInfo, countryRole);
             });
         }
 
@@ -98,7 +112,7 @@ module.exports = class ManualRoleSetter extends CronModule {
             winston.info('Adding congress roles');
             await Promise.each(citizens.array(), async citizen => {
                 const citizenInfo = await getCitizenInfo(citizen.citizen.id);
-                await this._addCongressRole(citizen, guild, citizenInfo);
+                await this._addCongressRole(citizen, guild, citizenInfo, countryRole);
             });
         }
     }
