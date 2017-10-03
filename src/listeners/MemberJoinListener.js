@@ -10,7 +10,10 @@ async function exec(member) {
         return;
     }
 
-    const defaultMessage = await this.client.guildConfig(member.guild, 'greetMessage', false);
+    let defaultMessage = await this.client.guildConfig(member.guild, 'greetMessage', false);
+    if (defaultMessage == '0') {
+        defaultMessage = false;
+    }
 
     const channel = member.guild.channels.get(greetMembers);
     if (channel) {
