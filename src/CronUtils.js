@@ -64,8 +64,7 @@ module.exports = class CronUtils {
             where: {
                 name: roleName,
                 guildId: guild.id,
-                group: roleGroup,
-                mentionable: true
+                group: roleGroup
             }
         });
 
@@ -88,7 +87,8 @@ module.exports = class CronUtils {
             id: createdRole.id,
             name: roleName,
             guildId: guild.id,
-            group: roleGroup
+            group: roleGroup,
+            mentionable: true
         });
         winston.info('Role', createdRole.id, 'saved to database for guild', guild.id);
         return createdRole;
