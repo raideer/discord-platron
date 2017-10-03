@@ -130,7 +130,13 @@ module.exports = class APIRoleSetter extends CronModule {
     async _addDivisionRole(guild, citizen, citizenInfo, countryRole = false) {
         const divisionRoles = await this.utils.getRolesWithGroup('division');
 
-        if (!citizen.citizen.verified || (countryRole && !citizen.member.roles.has(countryRole))) {
+        if (!citizen.citizen.verified) {
+            await citizen.member.removeRoles(divisionRoles);
+            return;
+        }
+
+        if (countryRole && !citizen.member.roles.has(countryRole)) {
+            winston.verbose(`Citizen ${citizen.member.user.username} does not have countryrole ${countryRole}`);
             await citizen.member.removeRoles(divisionRoles);
             return;
         }
@@ -156,7 +162,13 @@ module.exports = class APIRoleSetter extends CronModule {
     async _addMURole(guild, citizen, citizenInfo, countryRole) {
         const muRoles = await this.utils.getRolesWithGroup('mu');
 
-        if (!citizen.citizen.verified || (countryRole && !citizen.member.roles.has(countryRole))) {
+        if (!citizen.citizen.verified) {
+            await citizen.member.removeRoles(muRoles);
+            return;
+        }
+
+        if (countryRole && !citizen.member.roles.has(countryRole)) {
+            winston.verbose(`Citizen ${citizen.member.user.username} does not have countryrole ${countryRole}`);
             await citizen.member.removeRoles(muRoles);
             return;
         }

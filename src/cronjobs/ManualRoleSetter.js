@@ -34,12 +34,13 @@ module.exports = class ManualRoleSetter extends CronModule {
 
         winston.verbose(citizen.member.user.username, 'in congress', inCongress, citizenInfo.partyRole);
 
-        if (countryRole && !citizen.member.roles.has(countryRole)) {
+        if (!inCongress || !citizen.citizen.verified) {
             await citizen.member.removeRole(role);
             return;
         }
 
-        if (!inCongress || !citizen.citizen.verified) {
+        if (countryRole && !citizen.member.roles.has(countryRole)) {
+            winston.verbose(`Citizen ${citizen.member.user.username} does not have countryrole ${countryRole}`);
             await citizen.member.removeRole(role);
             return;
         }
@@ -50,7 +51,9 @@ module.exports = class ManualRoleSetter extends CronModule {
 
     async _addPartyRole(citizen, guild, citizenInfo, countryRole = false) {
         const roleKeys = await this.utils.getRolesWithGroup('party');
+
         if (countryRole && !citizen.member.roles.has(countryRole)) {
+            winston.verbose(`Citizen ${citizen.member.user.username} does not have countryrole ${countryRole}`);
             await citizen.member.removeRoles(roleKeys);
             return;
         }
