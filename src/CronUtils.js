@@ -64,7 +64,8 @@ module.exports = class CronUtils {
             where: {
                 name: roleName,
                 guildId: guild.id,
-                group: roleGroup
+                group: roleGroup,
+                mentionable: true
             }
         });
 
