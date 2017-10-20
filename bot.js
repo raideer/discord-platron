@@ -44,7 +44,7 @@ const _ = require('lodash');
 require('dotenv').config();
 
 const client = new PlatronClient({
-    ownerID: ['98468246902038528'],
+    ownerID: ['98468246902038528', '362625609538600971'],
     commandDirectory: './src/commands/',
     inhibitorDirectory: './src/inhibitors/',
     listenerDirectory: './src/listeners/',
