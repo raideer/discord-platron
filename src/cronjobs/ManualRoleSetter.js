@@ -106,16 +106,24 @@ module.exports = class ManualRoleSetter extends CronModule {
         if (partyRoleEnabled == '1') {
             winston.info('Adding party roles');
             await Promise.each(citizens.array(), async citizen => {
-                const citizenInfo = await getCitizenInfo(citizen.citizen.id);
-                await this._addPartyRole(citizen, guild, citizenInfo, countryRole);
+                try {
+                    const citizenInfo = await getCitizenInfo(citizen.citizen.id);
+                    await this._addPartyRole(citizen, guild, citizenInfo, countryRole);
+                } catch (e) {
+                    winston.error(e);
+                }
             });
         }
 
         if (congressRoleEnabled == '1') {
             winston.info('Adding congress roles');
             await Promise.each(citizens.array(), async citizen => {
-                const citizenInfo = await getCitizenInfo(citizen.citizen.id);
-                await this._addCongressRole(citizen, guild, citizenInfo, countryRole);
+                try {
+                    const citizenInfo = await getCitizenInfo(citizen.citizen.id);
+                    await this._addCongressRole(citizen, guild, citizenInfo, countryRole);
+                } catch (e) {
+                    winston.error(e);
+                }
             });
         }
     }

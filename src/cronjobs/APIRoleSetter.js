@@ -71,7 +71,11 @@ module.exports = class APIRoleSetter extends CronModule {
         if (verifiedRoleEnabled == '1') {
             winston.verbose('Setting verified roles');
             await Promise.each(citizens.array(), async citizen => {
-                await this._addVerifiedRole(guild, citizen);
+                try {
+                    await this._addVerifiedRole(guild, citizen);
+                } catch (e) {
+                    winston.error(e);
+                }
             });
         } else {
             winston.info('Verified roles are disabled in', guild.name);
@@ -80,8 +84,12 @@ module.exports = class APIRoleSetter extends CronModule {
         if (countryRoleEnabled == '1') {
             winston.verbose('Setting country roles');
             await Promise.each(citizens.array(), async citizen => {
-                const player = data.players[citizen.citizen.id];
-                await this._addCountryRole(guild, citizen, player);
+                try {
+                    const player = data.players[citizen.citizen.id];
+                    await this._addCountryRole(guild, citizen, player);
+                } catch (e) {
+                    winston.error(e);
+                }
             });
         } else {
             winston.info('Country roles are disabled in', guild.name);
@@ -90,8 +98,12 @@ module.exports = class APIRoleSetter extends CronModule {
         if (divisionRoleEnabled == '1') {
             winston.verbose('Setting division roles');
             await Promise.each(citizens.array(), async citizen => {
-                const player = data.players[citizen.citizen.id];
-                await this._addDivisionRole(guild, citizen, player, countryRole);
+                try {
+                    const player = data.players[citizen.citizen.id];
+                    await this._addDivisionRole(guild, citizen, player, countryRole);
+                } catch (e) {
+                    winston.error(e);
+                }
             });
         } else {
             winston.info('Division roles are disabled in', guild.name);
@@ -100,12 +112,16 @@ module.exports = class APIRoleSetter extends CronModule {
         if (muRoleEnabled == '1') {
             winston.verbose('Setting MU roles');
             await Promise.each(citizens.array(), async citizen => {
-                if (countryRole && !citizen.member.roles.has(countryRole)) {
-                    return;
-                }
+                try {
+                    if (countryRole && !citizen.member.roles.has(countryRole)) {
+                        return;
+                    }
 
-                const player = data.players[citizen.citizen.id];
-                await this._addMURole(guild, citizen, player, countryRole);
+                    const player = data.players[citizen.citizen.id];
+                    await this._addMURole(guild, citizen, player, countryRole);
+                } catch (e) {
+                    winston.error(e);
+                }
             });
         } else {
             winston.info('MU roles are disabled in', guild.name);

@@ -69,12 +69,13 @@ module.exports = {
         };
 
         const intToRGB = i => {
-            var c = (i & 0x00FFFFFF)
-                .toString(16)
-                .toUpperCase();
-
+            var c = (i & 0x00FFFFFF).toString(16).toUpperCase();
             return '00000'.substring(0, 6 - c.length) + c;
         };
+
+        if (!str || str == '') {
+            return 'ffffff';
+        }
 
         return intToRGB(hashCode(str)).toLowerCase().split('')
         .reduce((result, ch) => (result * 16) + '0123456789abcdefgh'.indexOf(ch), 0);
