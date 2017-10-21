@@ -19,6 +19,10 @@ class InfoCommand extends Command {
     }
 
     exec(message, args) {
+        if (!args.citizenId) {
+            return message.reply('Sorry, didn\'t find anything');
+        }
+
         return message.reply(`https://www.erepublik.com/en/citizen/profile/${args.citizenId}`);
     }
 }
