@@ -1,5 +1,6 @@
 const winston = require('winston');
 const memwatch = require('memwatch-next');
+const { citizenNameToId } = require('./src/utils');
 require('winston-daily-rotate-file');
 
 winston.configure({
@@ -28,10 +29,6 @@ process.on('uncaughtException', error => {
 
 memwatch.on('leak', leak => {
     winston.error('Memory leak', leak);
-});
-
-memwatch.on('stats', stats => {
-    winston.info('Memory stats', stats);
 });
 
 const PlatronClient = require('./src/PlatronClient');
@@ -92,6 +89,39 @@ client.guildConfig = async (guild, key, defaultValue = null) => {
 
     return _.first(val).value;
 };
+
+client.build();
+
+client.commandHandler.resolver.addType('citizenId', async word => {
+    if (!word) return null;
+
+    if (Number.isInteger(Number(word))) {
+        return word;
+    } else {
+        const user = client.util.resolveUser(word, client.users);
+
+        if (user) {
+            const Citizen = client.databases.citizens.table;
+            const citizen = await Citizen.findOne({
+                where: {
+                    discord_id: user.id
+                }
+            });
+
+            if (citizen) {
+                return citizen.id;
+            }
+        }
+
+        const id = await citizenNameToId(word);
+
+        if (id) {
+            return id;
+        }
+    }
+
+    return null;
+});
 
 const timer = winston.startTimer();
 

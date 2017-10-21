@@ -1,5 +1,5 @@
 const Command = require('../PlatronCommand');
-const { getFlag, citizenNameToId } = require('../utils');
+const { getFlag } = require('../utils');
 const request = require('request-promise');
 const { RichEmbed } = require('discord.js');
 
@@ -23,8 +23,8 @@ class HistoryCommand extends Command {
                     default: null
                 },
                 {
-                    id: 'citizen',
-                    type: 'string',
+                    id: 'citizenId',
+                    type: 'citizenId',
                     match: 'rest'
                 }
             ]
@@ -36,40 +36,17 @@ class HistoryCommand extends Command {
             throw 'eRepublik Deutchland API key is not set!';
         });
 
-        let playerId;
-
-        if (Number.isInteger(Number(args.citizen))) {
-            playerId = args.citizen;
-        } else {
-            const user = this.client.util.resolveUser(args.citizen, this.client.users);
-
-            if (user) {
-                const Citizen = this.client.databases.citizens.table;
-                const citizen = await Citizen.findOne({
-                    where: {
-                        discord_id: user.id
-                    }
-                });
-
-                if (citizen) {
-                    playerId = citizen.id;
-                }
-            }
-
-            playerId = await citizenNameToId(args.citizen);
-        }
-
         const data = await request({
             method: 'GET',
             json: true,
-            uri: `https://api.erepublik-deutschland.de/${apiKey}/players/history/${args.type}/${playerId}`
+            uri: `https://api.erepublik-deutschland.de/${apiKey}/players/history/${args.type}/${args.citizenId}`
         });
 
         if (data.status != 'ok') {
             return message.reply(this.client._('bot.invalid_request'));
         }
 
-        const playerData = data.history[playerId];
+        const playerData = data.history[args.citizenId];
 
         if (!playerData) {
             return message.reply('Something went wrong. Try again later');
@@ -83,7 +60,7 @@ class HistoryCommand extends Command {
 
         switch (args.type) {
         case 'party': {
-            embed.setTitle(`Party history for ${playerId}`);
+            embed.setTitle(`Party history for ${args.citizenId}`);
             const text = [];
             for (const i in playerData.party) {
                 const historyData = playerData.party[i];
@@ -96,7 +73,7 @@ class HistoryCommand extends Command {
             break;
         }
         case 'name': {
-            embed.setTitle(`Name history for ${playerId}`);
+            embed.setTitle(`Name history for ${args.citizenId}`);
             const text = [];
             for (const i in playerData.name) {
                 const historyData = playerData.name[i];
@@ -109,7 +86,7 @@ class HistoryCommand extends Command {
             break;
         }
         case 'mu': {
-            embed.setTitle(`Military Unit history for ${playerId}`);
+            embed.setTitle(`Military Unit history for ${args.citizenId}`);
             const text = [];
             for (const i in playerData.mu) {
                 const historyData = playerData.mu[i];
@@ -122,7 +99,7 @@ class HistoryCommand extends Command {
             break;
         }
         case 'cs': {
-            embed.setTitle(`Citizenship history for ${playerId}`);
+            embed.setTitle(`Citizenship history for ${args.citizenId}`);
             const text = [];
             for (const i in playerData.cs) {
                 const historyData = playerData.cs[i];
