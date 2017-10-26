@@ -7,6 +7,12 @@ const winston = require('winston');
 const path = require('path');
 
 class PlatronClient extends AkairoClient {
+    constructor(options, clientOptions) {
+        super(options, clientOptions);
+
+        this.databases = {};
+    }
+
     build() {
         const translations = JSON.parse(fs.readFileSync(path.join(__dirname, '/../translations.json')));
         if (!translations) {
@@ -25,6 +31,14 @@ class PlatronClient extends AkairoClient {
         return super.build();
     }
 
+    setDatabase(name, provider) {
+        this.databases[name] = provider;
+    }
+
+    getDatabase(name) {
+        return this.databases[name];
+    }
+
     loadAll() {
         super.loadAll();
 
@@ -38,6 +52,7 @@ class PlatronClient extends AkairoClient {
     }
 
     _(...args) {
+        if (!this.localize) return;
         return this.localize.translate.apply(null, args);
     }
 
