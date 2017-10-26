@@ -41,7 +41,7 @@ const _ = require('lodash');
 require('dotenv').config();
 
 const options = {
-    ownerID: ['98468246902038528', '362625609538600971'],
+    ownerID: ['362625609538600971'],
     commandDirectory: './src/commands/',
     inhibitorDirectory: './src/inhibitors/',
     listenerDirectory: './src/listeners/',
