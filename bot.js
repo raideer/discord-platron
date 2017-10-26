@@ -1,7 +1,13 @@
 const winston = require('winston');
 const memwatch = require('memwatch-next');
 require('winston-daily-rotate-file');
+const PlatronClient = require('./src/PlatronClient');
+const EpicNotificator = require('./src/EpicNotificator');
+const { SequelizeProvider } = require('discord-akairo');
+require('dotenv').config();
 
+
+// Configuring logger
 winston.configure({
     transports: [
         new winston.transports.Console(),
@@ -29,15 +35,9 @@ process.on('uncaughtException', error => {
 memwatch.on('leak', leak => {
     winston.error('Memory leak', leak);
 });
-
-const PlatronClient = require('./src/PlatronClient');
-const EpicNotificator = require('./src/EpicNotificator');
-const { SequelizeProvider } = require('discord-akairo');
+// END Configuring logger
 
 const db = require('./db/models/index');
-const _ = require('lodash');
-
-require('dotenv').config();
 
 const options = {
     ownerID: ['362625609538600971'],
@@ -76,21 +76,6 @@ client.setDatabase('blacklist', new SequelizeProvider(db.Blacklist));
 client.setDatabase('citizens', new SequelizeProvider(db.Citizen));
 client.setDatabase('roles', new SequelizeProvider(db.Role));
 client.setDatabase('config', new SequelizeProvider(db.GuildConfig));
-
-client.guildConfig = async (guild, key, defaultValue = null) => {
-    const Config = client.databases.config.table;
-    const val = await Config.findOrCreate({
-        where: {
-            field: key,
-            guild_id: guild.id
-        },
-        defaults: {
-            value: defaultValue
-        }
-    });
-
-    return _.first(val).value;
-};
 
 const timer = winston.startTimer();
 

@@ -5,6 +5,7 @@ const Localize = require('localize');
 const fs = require('fs');
 const winston = require('winston');
 const path = require('path');
+const _ = require('lodash');
 const { citizenNameToId } = require('./utils');
 
 class PlatronClient extends AkairoClient {
@@ -34,6 +35,21 @@ class PlatronClient extends AkairoClient {
         this._addCitizenIdType();
 
         return this;
+    }
+
+    async guildConfig(guild, key, defaultValue = null) {
+        const Config = this.databases.config.table;
+        const val = await Config.findOrCreate({
+            where: {
+                field: key,
+                guild_id: guild.id
+            },
+            defaults: {
+                value: defaultValue
+            }
+        });
+
+        return _.first(val).value;
     }
 
     _addCitizenIdType() {
