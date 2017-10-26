@@ -5,6 +5,7 @@ const Localize = require('localize');
 const fs = require('fs');
 const winston = require('winston');
 const path = require('path');
+const { citizenNameToId } = require('./utils');
 
 class PlatronClient extends AkairoClient {
     constructor(options, clientOptions) {
@@ -28,7 +29,51 @@ class PlatronClient extends AkairoClient {
             winston.warn('Cron module is not set up');
         }
 
-        return super.build();
+        super.build();
+
+        this._addCitizenIdType();
+
+        return this;
+    }
+
+    _addCitizenIdType() {
+        this.commandHandler.resolver.addType('citizenId', async (word, message) => {
+            const Citizen = this.databases.citizens.table;
+            if (!word) {
+                const citizen = await Citizen.findOne({
+                    where: {
+                        discord_id: message.author.id
+                    }
+                });
+                if (citizen) {
+                    return citizen.id;
+                }
+                return null;
+            }
+            if (Number.isInteger(Number(word))) {
+                return word;
+            } else {
+                const member = this.util.resolveMember(word, message.guild.members);
+                if (member) {
+                    const citizen = await Citizen.findOne({
+                        where: {
+                            discord_id: member.user.id
+                        }
+                    });
+
+                    if (citizen) {
+                        return citizen.id;
+                    }
+                }
+
+                const id = await citizenNameToId(word);
+                if (id) {
+                    return id;
+                }
+            }
+
+            return null;
+        });
     }
 
     setDatabase(name, provider) {
