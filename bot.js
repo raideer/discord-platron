@@ -40,13 +40,12 @@ const _ = require('lodash');
 
 require('dotenv').config();
 
-const client = new PlatronClient({
+const options = {
     ownerID: ['98468246902038528', '362625609538600971'],
     commandDirectory: './src/commands/',
     inhibitorDirectory: './src/inhibitors/',
     listenerDirectory: './src/listeners/',
     cronDirectory: './src/cronjobs/',
-    rolesDirectory: './src/roles/',
     handleEdits: false,
     defaultCooldown: 1000,
     commandUtil: true,
@@ -65,15 +64,19 @@ const client = new PlatronClient({
 
         return prefix;
     }
-}, {
-    disableEveryone: true
-});
+};
 
-client.addDatabase('guilds', new SequelizeProvider(db.Guild));
-client.addDatabase('blacklist', new SequelizeProvider(db.Blacklist));
-client.addDatabase('citizens', new SequelizeProvider(db.Citizen));
-client.addDatabase('roles', new SequelizeProvider(db.Role));
-client.addDatabase('config', new SequelizeProvider(db.GuildConfig));
+const clientOptions = {
+    disableEveryone: true
+};
+
+const client = new PlatronClient(options, clientOptions);
+
+client.setDatabase('guilds', new SequelizeProvider(db.Guild));
+client.setDatabase('blacklist', new SequelizeProvider(db.Blacklist));
+client.setDatabase('citizens', new SequelizeProvider(db.Citizen));
+client.setDatabase('roles', new SequelizeProvider(db.Role));
+client.setDatabase('config', new SequelizeProvider(db.GuildConfig));
 
 client.guildConfig = async (guild, key, defaultValue = null) => {
     const Config = client.databases.config.table;
@@ -92,8 +95,22 @@ client.guildConfig = async (guild, key, defaultValue = null) => {
 
 client.build();
 
-client.commandHandler.resolver.addType('citizenId', async word => {
-    if (!word) return null;
+client.commandHandler.resolver.addType('citizenId', async (word, message) => {
+    const Citizen = client.databases.citizens.table;
+
+    if (!word) {
+        const citizen = await Citizen.findOne({
+            where: {
+                discord_id: message.author.id
+            }
+        });
+
+        if (citizen) {
+            return citizen.id;
+        }
+
+        return null;
+    }
 
     if (Number.isInteger(Number(word))) {
         return word;
@@ -101,7 +118,6 @@ client.commandHandler.resolver.addType('citizenId', async word => {
         const user = client.util.resolveUser(word, client.users);
 
         if (user) {
-            const Citizen = client.databases.citizens.table;
             const citizen = await Citizen.findOne({
                 where: {
                     discord_id: user.id
