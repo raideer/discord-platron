@@ -45,10 +45,6 @@ class PlatronClient extends AkairoClient {
         if (this.cronHandler) {
             this.cronHandler.loadAll();
         }
-
-        if (this.roleHandler) {
-            this.roleHandler.loadAll();
-        }
     }
 
     _(...args) {
@@ -67,7 +63,7 @@ class PlatronClient extends AkairoClient {
             return process.env[key];
         }
 
-        if (typeof defaultValue == 'function') {
+        if (typeof defaultValue === 'function') {
             return defaultValue.call(this);
         }
 
