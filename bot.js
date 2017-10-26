@@ -115,12 +115,12 @@ client.commandHandler.resolver.addType('citizenId', async (word, message) => {
     if (Number.isInteger(Number(word))) {
         return word;
     } else {
-        const user = client.util.resolveUser(word, client.users);
+        const member = client.util.resolveMember(word, message.guild.members);
 
-        if (user) {
+        if (member) {
             const citizen = await Citizen.findOne({
                 where: {
-                    discord_id: user.id
+                    discord_id: member.user.id
                 }
             });
 
