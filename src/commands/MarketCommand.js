@@ -14,6 +14,7 @@ class MarketCommand extends Command {
                 'bo food 5',
                 'bo wrm'
             ],
+            usageNote: 'Products: `weapons`, `food`, `houses`, `aircraft`, `tickets`',
             args: [
                 {
                     id: 'product',

@@ -1,5 +1,4 @@
 const Command = require('../PlatronCommand');
-// const { citizenNameToId } = require('../utils');
 const { Collection } = require('discord.js');
 const request = require('request-promise');
 const cheerio = require('cheerio');
@@ -19,9 +18,8 @@ class RegisterCommand extends Command {
             description: () => {
                 return this.client._('command.register.description');
             },
-            usage: 'register YOUR_CITIZEN_ID',
-            usageNote: () => {
-                return this.client._('command.register.usage_note');
+            usage: () => {
+                return `register ${this.client._('command.register.usage_note')}`;
             }
         });
     }

@@ -8,7 +8,7 @@ class GifCommand extends Command {
             description: () => {
                 return 'Returns a random gif';
             },
-            usage: 'thinking'
+            usage: 'gif'
         });
     }
 

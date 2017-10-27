@@ -7,7 +7,6 @@ class HistoryCommand extends Command {
         super('history', {
             aliases: ['history', 'h'],
             description: () => {
-                // return this.client._('command.market.description');
                 return 'Get player history';
             },
             usage: 'history (name|mu|party|cs) (PLAYER_NAME|PLAYER_ID)',

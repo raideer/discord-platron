@@ -4,7 +4,8 @@ const request = require('request-promise');
 class SalaryCommand extends Command {
     constructor() {
         super('salary', {
-            aliases: ['jobs', 'salary', 'j']
+            aliases: ['jobs', 'salary', 'j'],
+            usage: 'salary'
         });
     }
 

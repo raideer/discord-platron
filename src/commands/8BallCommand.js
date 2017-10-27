@@ -3,7 +3,10 @@ const Command = require('../PlatronCommand');
 class PingCommand extends Command {
     constructor() {
         super('8ball', {
-            aliases: ['8ball']
+            aliases: ['8ball'],
+            usage: () => {
+                return `8ball (${this.client._('command.8ball.yesnoquestion')})`;
+            }
         });
     }
 
