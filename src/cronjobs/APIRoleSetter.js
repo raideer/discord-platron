@@ -26,7 +26,7 @@ module.exports = class APIRoleSetter extends CronModule {
     async _processGuild(guild, citizens) {
         const apiKey = this.client.env('EREP_API');
         if (!citizens) {
-            citizens = await this.utils.getCitizensInGuild(guild);
+            citizens = await this.client.platron_utils.getCitizensInGuild(guild);
         }
 
         const ids = citizens.array().map(ob => {
@@ -129,7 +129,7 @@ module.exports = class APIRoleSetter extends CronModule {
     }
 
     async _addVerifiedRole(guild, citizen) {
-        const role = await this.utils.findOrCreateRole('roleVerified', 'roleVerified', guild, {
+        const role = await this.client.platron_utils.findOrCreateRole('roleVerified', 'roleVerified', guild, {
             name: 'Registered',
             color: '#5e9e11'
         });
@@ -144,7 +144,7 @@ module.exports = class APIRoleSetter extends CronModule {
     }
 
     async _addDivisionRole(guild, citizen, citizenInfo, countryRole = false) {
-        const divisionRoles = await this.utils.getRolesWithGroup('division');
+        const divisionRoles = await this.client.platron_utils.getRolesWithGroup('division');
 
         if (!citizen.citizen.verified) {
             await citizen.member.removeRoles(divisionRoles);
@@ -161,7 +161,7 @@ module.exports = class APIRoleSetter extends CronModule {
             return winston.warn('No citizenInfo for', citizen.member.user.username, '(divisionrole)');
         }
 
-        const role = await this.utils.findOrCreateRole(`div${citizenInfo.military.division}`, 'division', guild, {
+        const role = await this.client.platron_utils.findOrCreateRole(`div${citizenInfo.military.division}`, 'division', guild, {
             name: `DIV ${citizenInfo.military.division}`,
             color: '#0faf8d'
         });
@@ -176,7 +176,7 @@ module.exports = class APIRoleSetter extends CronModule {
     }
 
     async _addMURole(guild, citizen, citizenInfo, countryRole) {
-        const muRoles = await this.utils.getRolesWithGroup('mu');
+        const muRoles = await this.client.platron_utils.getRolesWithGroup('mu');
 
         if (!citizen.citizen.verified) {
             await citizen.member.removeRoles(muRoles);
@@ -193,7 +193,7 @@ module.exports = class APIRoleSetter extends CronModule {
             return winston.warn('No citizenInfo for', citizen.member.user.username, '(mu)');
         }
 
-        const role = await this.utils.findOrCreateRole(slugify(citizenInfo.military_unit.name).toLowerCase(), 'mu', guild, {
+        const role = await this.client.platron_utils.findOrCreateRole(slugify(citizenInfo.military_unit.name).toLowerCase(), 'mu', guild, {
             name: citizenInfo.military_unit.name,
             color: '#212121'
         });
@@ -208,7 +208,7 @@ module.exports = class APIRoleSetter extends CronModule {
     }
 
     async _addCountryRole(guild, citizen, citizenInfo) {
-        const countryRoles = await this.utils.getRolesWithGroup('country');
+        const countryRoles = await this.client.platron_utils.getRolesWithGroup('country');
 
         if (!citizen.citizen.verified) {
             winston.verbose(citizen.citizen.id, 'Not verified');
@@ -220,7 +220,7 @@ module.exports = class APIRoleSetter extends CronModule {
             return winston.warn('No citizenInfo for', citizen.member.user.username, '(countryrole)');
         }
 
-        const role = await this.utils.findOrCreateRole(slugify(citizenInfo.citizenship.country_name).toLowerCase(), 'country', guild, {
+        const role = await this.client.platron_utils.findOrCreateRole(slugify(citizenInfo.citizenship.country_name).toLowerCase(), 'country', guild, {
             name: citizenInfo.citizenship.country_name,
             color: '#af900f'
         });

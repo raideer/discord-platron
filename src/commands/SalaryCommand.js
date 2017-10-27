@@ -1,5 +1,4 @@
 const Command = require('../PlatronCommand');
-const { getFlag, number } = require('../utils');
 const request = require('request-promise');
 
 class SalaryCommand extends Command {
@@ -34,7 +33,7 @@ class SalaryCommand extends Command {
         let answer = '**Best job offers:**\n\n';
         for (let i = 0; i < limit; i++) {
             const offer = data.bestoffers[i];
-            answer += `**${number(offer.salary)} cc** (${number(offer.netto)} NET) @ ${getFlag(offer.country_name)} __${offer.country_name}__ (${offer.citizen_name})\n`;
+            answer += `**${this.client.platron_utils.number(offer.salary)} cc** (${this.client.platron_utils.number(offer.netto)} NET) @ ${this.client.platron_utils.getFlag(offer.country_name)} __${offer.country_name}__ (${offer.citizen_name})\n`;
         }
 
         message.reply(answer);

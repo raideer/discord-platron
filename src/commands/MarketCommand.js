@@ -1,5 +1,4 @@
 const Command = require('../PlatronCommand');
-const { getFlag, number } = require('../utils');
 const request = require('request');
 const { RichEmbed } = require('discord.js');
 
@@ -160,9 +159,9 @@ class MarketCommand extends Command {
                     if (args.product == 'food') {
                         var hp = this.getHpRestored(args.quality);
                         var hpcc = Math.round((offer.price / hp) * 10000) / 10000;
-                        answer += `**${number(offer.amount)}** ${l_for} **${number(offer.price)} cc** (${hpcc} cc/hp) in ${getFlag(offer.country_name)} ${offer.country_name} | [${l_go_to_offer}](https://www.erepublik.com/en/economy/marketplace/offer/${offer.offer_id})\n`;
+                        answer += `**${this.client.platron_utils.number(offer.amount)}** ${l_for} **${this.client.platron_utils.number(offer.price)} cc** (${hpcc} cc/hp) in ${this.client.platron_utils.getFlag(offer.country_name)} ${offer.country_name} | [${l_go_to_offer}](https://www.erepublik.com/en/economy/marketplace/offer/${offer.offer_id})\n`;
                     } else {
-                        answer += `**${number(offer.amount)}** ${l_for} **${number(offer.price)} cc** in ${getFlag(offer.country_name)} ${offer.country_name} | [${l_go_to_offer}](https://www.erepublik.com/en/economy/marketplace/offer/${offer.offer_id}) \n`;
+                        answer += `**${this.client.platron_utils.number(offer.amount)}** ${l_for} **${this.client.platron_utils.number(offer.price)} cc** in ${this.client.platron_utils.getFlag(offer.country_name)} ${offer.country_name} | [${l_go_to_offer}](https://www.erepublik.com/en/economy/marketplace/offer/${offer.offer_id}) \n`;
                     }
                 }
 

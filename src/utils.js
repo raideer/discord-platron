@@ -1,40 +1,31 @@
 const countries_json = require('./countryCodes.json');
 const { Collection } = require('discord.js');
+const { ClientUtil } = require('discord-akairo');
 const cheerio = require('cheerio');
 const request = require('request-promise');
+const winston = require('winston');
 
-const countries = (() => {
-    const col = new Collection();
+module.exports = class Utils extends ClientUtil {
+    get countries() {
+        const col = new Collection();
 
-    for (const c in countries_json) {
-        col.set(c, countries_json[c]);
+        for (const c in countries_json) {
+            col.set(c, countries_json[c]);
+        }
+
+        return col;
     }
 
-    return col;
-})();
-
-module.exports = {
-    // List of countries
-    countries: countries,
-    /**
-     * Converts an object to a discord.js Collection
-     * @param  {Object} object Object to convert
-     * @returns {Collection}
-     */
-    objectToCollection: object => {
+    objectToCollection(object) {
         const col = new Collection();
         for (const id in object) {
             col.set(id, object[id]);
         }
         return col;
-    },
-    /**
-     * Returns an emoji flag of the given country
-     * @param  {string} countryName Country
-     * @returns {string}
-     */
-    getFlag: countryName => {
-        const country = countries.find(c => {
+    }
+
+    getFlag(countryName) {
+        const country = this.countries.find(c => {
             return c.countryName.toLowerCase() == countryName.toLowerCase();
         });
 
@@ -43,23 +34,13 @@ module.exports = {
         }
 
         return '';
-    },
-    /**
-     * Converts a number to a localized number string
-     * eg. 100000 will convert to 100'000
-     * @param  {number/string} number Number to convert
-     * @returns {string} Localized number string
-     */
-    number: number => {
+    }
+
+    number(number) {
         return Number(number).toLocaleString();
-    },
-    /**
-     * Converts any string to a color
-     * Two identical strings will return the same color
-     * @param  {string} str Any string
-     * @returns {string/hexcolor}
-     */
-    strToColor: str => {
+    }
+
+    strToColor(str) {
         const hashCode = s => {
             let hash = 0;
             for (var i = 0; i < str.length; i++) {
@@ -79,14 +60,9 @@ module.exports = {
 
         return intToRGB(hashCode(str)).toLowerCase().split('')
         .reduce((result, ch) => (result * 16) + '0123456789abcdefgh'.indexOf(ch), 0);
-    },
-    /**
-     * Scrapes basic citizen information
-     * **Under construction**
-     * @param  {integer}  id  ID of the citizen
-     * @returns {Promise}
-     */
-    getCitizenInfo: async id => {
+    }
+
+    async getCitizenInfo(id) {
         const body = await request.get(`https://www.erepublik.com/en/citizen/profile/${id}`);
         const $ = cheerio.load(body);
         const data = {};
@@ -100,13 +76,9 @@ module.exports = {
         data.partyRole = prettify($ca.first().find('h3').text());
 
         return data;
-    },
-    /**
-     * Converts citizen name to ID
-     * @param  {string}  name Citizen name
-     * @returns {Promise} Promise with the citizen id as a parameter
-     */
-    citizenNameToId: async name => {
+    }
+
+    async citizenNameToId(name) {
         const body = await request.get(`https://www.erepublik.com/en/main/search/?q=${encodeURIComponent(name)}`);
         const $ = cheerio.load(body);
 
@@ -123,5 +95,93 @@ module.exports = {
                 }
             }
         }
+    }
+
+    get client() {
+        return this.module.client;
+    }
+
+    async getCitizensInGuild(guild) {
+        const Citizen = this.client.databases.citizens.table;
+        const citizens = await Citizen.all();
+        const filtered = new Collection();
+
+        for (const i in citizens) {
+            const citizen = citizens[i];
+
+            if (guild.members.has(citizen.discord_id)) {
+                filtered.set(citizen.id, {
+                    citizen: citizen,
+                    member: guild.members.get(citizen.discord_id)
+                });
+            }
+        }
+
+        return filtered;
+    }
+
+    async removeAllRoles(member, guild) {
+        const Role = this.client.databases.roles.table;
+        const roles = await Role.findAll({
+            where: {
+                guildId: guild.id
+            }
+        });
+
+        const roleKeys = [];
+        for (const i in roles) {
+            roleKeys.push(roles[i].id);
+        }
+
+        await member.removeRoles(roleKeys);
+    }
+
+    async getRolesWithGroup(group) {
+        const Role = this.client.databases.roles.table;
+        const roles = await Role.findAll({
+            where: {
+                group: group
+            }
+        });
+
+        return roles.map(role => {
+            return role.id;
+        });
+    }
+
+    async findOrCreateRole(roleName, roleGroup, guild, defaults) {
+        const Role = this.client.databases.roles.table;
+        const roleItem = await Role.findOne({
+            where: {
+                name: roleName,
+                guildId: guild.id,
+                group: roleGroup
+            }
+        });
+
+        if (roleItem) {
+            winston.verbose('Found role in db with name', roleName);
+
+            if (guild.roles.has(roleItem.id)) {
+                winston.verbose('Found role in the collection');
+                return guild.roles.get(roleItem.id);
+            } else {
+                winston.warn('Role', roleItem.id, 'was not valid. Deleting from database');
+                await roleItem.destroy();
+            }
+        }
+
+        const createdRole = await guild.createRole(defaults);
+        winston.info('Created role', createdRole.name, 'with id', createdRole.id);
+
+        await Role.create({
+            id: createdRole.id,
+            name: roleName,
+            guildId: guild.id,
+            group: roleGroup,
+            mentionable: true
+        });
+        winston.info('Role', createdRole.id, 'saved to database for guild', guild.id);
+        return createdRole;
     }
 };

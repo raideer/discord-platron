@@ -1,6 +1,5 @@
 const Command = require('../PlatronCommand');
 const request = require('request');
-const { getFlag, number, strToColor } = require('../utils');
 const { RichEmbed } = require('discord.js');
 
 class CombatOrdersCommand extends Command {
@@ -72,15 +71,15 @@ class CombatOrdersCommand extends Command {
                     co = battle.cos[j];
 
                     answer += co.division === 11 ? 'AIR BATTLE: ' : `DIV **${co.division}**: `;
-                    answer += ` __**${number(co.reward)}cc**__/m (${number(co.budget)} cc ${l_budget}) | ${getFlag(co.country.name)} **${co.country.name}** ${l_side}\n`;
+                    answer += ` __**${this.client.platron_utils.number(co.reward)}cc**__/m (${this.client.platron_utils.number(co.budget)} cc ${l_budget}) | ${this.client.platron_utils.getFlag(co.country.name)} **${co.country.name}** ${l_side}\n`;
                 }
 
                 embeds.push(
                     new RichEmbed()
-                    .setTitle(`${getFlag(battle.attacker.name)} **${battle.attacker.name}** ${l_vs} ${getFlag(battle.defender.name)} **${battle.defender.name}** - ${l_fight_for} *${battle.region.name}*`)
+                    .setTitle(`${this.client.platron_utils.getFlag(battle.attacker.name)} **${battle.attacker.name}** ${l_vs} ${this.client.platron_utils.getFlag(battle.defender.name)} **${battle.defender.name}** - ${l_fight_for} *${battle.region.name}*`)
                     .setURL(`https://www.erepublik.com/en/military/battlefield-new/${battle.battle_id}`)
                     .setDescription(answer)
-                    .setColor(strToColor(battle.attacker.name))
+                    .setColor(this.client.platron_utils.strToColor(battle.attacker.name))
                 );
             }
 

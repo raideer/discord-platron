@@ -6,13 +6,13 @@ const fs = require('fs');
 const winston = require('winston');
 const path = require('path');
 const _ = require('lodash');
-const { citizenNameToId } = require('./utils');
-
+const PlatronUtils = require('./utils');
 class PlatronClient extends AkairoClient {
     constructor(options, clientOptions) {
         super(options, clientOptions);
 
         this.databases = {};
+        this.platron_utils = new PlatronUtils(this);
     }
 
     build() {
@@ -82,7 +82,7 @@ class PlatronClient extends AkairoClient {
                     }
                 }
 
-                const id = await citizenNameToId(word);
+                const id = await this.utils.citizenNameToId(word);
                 if (id) {
                     return id;
                 }

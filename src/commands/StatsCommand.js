@@ -1,5 +1,4 @@
 const Command = require('../PlatronCommand');
-const { getFlag, number, strToColor } = require('../utils');
 const request = require('request');
 const { RichEmbed } = require('discord.js');
 const AsciiTable = require('ascii-table');
@@ -51,9 +50,9 @@ class StatsCommand extends Command {
                 embed.setURL(`https://www.erepublik.com/en/citizen/profile/${player.citizen_id}`);
                 embed.setFooter(this.client._('command.stats.last_update', new Date(player.general.lastupdate).toLocaleString()));
                 embed.addField(this.client._('command.stats.level'), player.general.level, true);
-                embed.addField('XP', number(player.general.experience_points), true);
-                embed.addField(this.client._('command.stats.citizenship'), `${getFlag(player.citizenship.country_name)} ${player.citizenship.country_name}`, true);
-                embed.addField(this.client._('command.stats.location'), `${getFlag(player.residence.country_name)} ${player.residence.region_name} (${player.residence.country_name})`, true);
+                embed.addField('XP', this.client.platron_utils.number(player.general.experience_points), true);
+                embed.addField(this.client._('command.stats.citizenship'), `${this.client.platron_utils.getFlag(player.citizenship.country_name)} ${player.citizenship.country_name}`, true);
+                embed.addField(this.client._('command.stats.location'), `${this.client.platron_utils.getFlag(player.residence.country_name)} ${player.residence.region_name} (${player.residence.country_name})`, true);
                 if (player.party.id) {
                     embed.addField(this.client._('command.stats.party'), `[${player.party.name}](https://www.erepublik.com/en/party/${player.party.id})`, true);
                 }
@@ -66,11 +65,11 @@ class StatsCommand extends Command {
                     embed.addField(this.client._('command.stats.mu'), `[${player.military_unit.name}](https://www.erepublik.com/en/military/military-unit/${player.military_unit.id})`, true);
                 }
                 embed.addField(this.client._('command.stats.division'), player.military.division, true);
-                embed.addField(this.client._('command.stats.strength'), number(player.military.strength), true);
-                embed.addField(this.client._('command.stats.perception'), number(player.military.perception), true);
-                embed.addField(this.client._('command.stats.rank'), `__${player.military.rank_name}__ (${number(player.military.rank_points)} points)`, true);
-                embed.addField(this.client._('command.stats.air_rank'), `__${player.military.rank_name_aircraft}__ (${number(player.military.rank_points_aircraft)} points)`, true);
-                embed.addField(this.client._('command.stats.max_hit'), `${number(player.military.maxhit)} | ${number(player.military.maxhit_aircraft)} (air)`, true);
+                embed.addField(this.client._('command.stats.strength'), this.client.platron_utils.number(player.military.strength), true);
+                embed.addField(this.client._('command.stats.perception'), this.client.platron_utils.number(player.military.perception), true);
+                embed.addField(this.client._('command.stats.rank'), `__${player.military.rank_name}__ (${this.client.platron_utils.number(player.military.rank_points)} points)`, true);
+                embed.addField(this.client._('command.stats.air_rank'), `__${player.military.rank_name_aircraft}__ (${this.client.platron_utils.number(player.military.rank_points_aircraft)} points)`, true);
+                embed.addField(this.client._('command.stats.max_hit'), `${this.client.platron_utils.number(player.military.maxhit)} | ${this.client.platron_utils.number(player.military.maxhit_aircraft)} (air)`, true);
 
                 const tableLeft = new AsciiTable();
                 const tableRight = new AsciiTable();
@@ -95,7 +94,7 @@ class StatsCommand extends Command {
                 embed.addField(this.client._('command.stats.achievements'), `\`${tableLeft.toString()}\``, true);
                 embed.addField(this.client._('command.stats.achievements'), `\`${tableRight.toString()}\``, true);
 
-                embed.setColor(strToColor(player.citizenship.country_name));
+                embed.setColor(this.client.platron_utils.strToColor(player.citizenship.country_name));
 
                 embed.setThumbnail(`https://www.erepublik-deutschland.de/api/playerapi.php?p=pidavatar&s=${player.citizen_id}`);
 

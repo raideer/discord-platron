@@ -1,6 +1,5 @@
 const CronModule = require('../CronModule');
 const slugify = require('slugify');
-const utils = require('../utils');
 const winston = require('winston');
 const Promise = require('bluebird');
 
@@ -25,7 +24,7 @@ module.exports = class ManualRoleSetter extends CronModule {
         ];
 
         // Get or create the congress role
-        const role = await this.utils.findOrCreateRole('congress', 'congress', guild, {
+        const role = await this.client.platron_utils.findOrCreateRole('congress', 'congress', guild, {
             name: 'Congress',
             color: '#0f81c9'
         });
@@ -50,7 +49,7 @@ module.exports = class ManualRoleSetter extends CronModule {
     }
 
     async _addPartyRole(citizen, guild, citizenInfo, countryRole = false) {
-        const roleKeys = await this.utils.getRolesWithGroup('party');
+        const roleKeys = await this.client.platron_utils.getRolesWithGroup('party');
 
         if (countryRole && !citizen.member.roles.has(countryRole)) {
             winston.verbose(`Citizen ${citizen.member.user.username} does not have countryrole ${countryRole}`);
@@ -59,7 +58,7 @@ module.exports = class ManualRoleSetter extends CronModule {
         }
 
         if (citizenInfo.party && citizen.citizen.verified) {
-            const role = await this.utils.findOrCreateRole(slugify(citizenInfo.party).toLowerCase(), 'party', guild, {
+            const role = await this.client.platron_utils.findOrCreateRole(slugify(citizenInfo.party).toLowerCase(), 'party', guild, {
                 name: citizenInfo.party,
                 color: '#923dff'
             });
@@ -79,7 +78,7 @@ module.exports = class ManualRoleSetter extends CronModule {
 
     async _processGuild(guild, citizens) {
         if (!citizens) {
-            citizens = await this.utils.getCitizensInGuild(guild);
+            citizens = await this.client.platron_utils.getCitizensInGuild(guild);
         }
 
         const partyRoleEnabled = await this.client.guildConfig(guild, 'setPartyRoles', false);
@@ -97,7 +96,7 @@ module.exports = class ManualRoleSetter extends CronModule {
                 return citizenData[id];
             }
 
-            citizenData[id] = await utils.getCitizenInfo(id);
+            citizenData[id] = await this.client.platron_utils.getCitizenInfo(id);
             // Spacing out requests
             await new Promise(resolve => setTimeout(resolve, 2000));
             return citizenData[id];

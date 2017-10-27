@@ -1,5 +1,4 @@
 const Command = require('../PlatronCommand');
-const { getFlag } = require('../utils');
 const request = require('request-promise');
 const { RichEmbed } = require('discord.js');
 
@@ -103,8 +102,8 @@ class HistoryCommand extends Command {
             const text = [];
             for (const i in playerData.cs) {
                 const historyData = playerData.cs[i];
-                text.push(`From ${getFlag(historyData.country_name_from)} **${historyData.country_name_from}**`);
-                text.push(`To ${getFlag(historyData.country_name_to)} **${historyData.country_name_to}** (${historyData.added})`);
+                text.push(`From ${this.client.platron_utils.getFlag(historyData.country_name_from)} **${historyData.country_name_from}**`);
+                text.push(`To ${this.client.platron_utils.getFlag(historyData.country_name_to)} **${historyData.country_name_to}** (${historyData.added})`);
                 text.push('');
             }
 

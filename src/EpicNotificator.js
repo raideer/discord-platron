@@ -3,13 +3,11 @@ const winston = require('winston');
 const Promise = require('bluebird');
 const request = require('request-promise');
 const uu = require('url-unshort')();
-const utils = require('./utils');
 const { RichEmbed } = require('discord.js');
 
 // Singleton
 let that;
 module.exports = class EpicNotificator {
-
     constructor(client) {
         this.client = client;
 
@@ -95,15 +93,15 @@ module.exports = class EpicNotificator {
                 const battle = data.details[Object.keys(data.details)[0]];
 
                 embed.setTitle(`:gem: Division ${division} Epic battle`);
-                embed.addField('Attacker', `${utils.getFlag(battle.attacker.name)} **${battle.attacker.name}**`, true);
-                embed.addField('Defender', `${utils.getFlag(battle.defender.name)} **${battle.defender.name}**`, true);
+                embed.addField('Attacker', `${this.client.platron_utils.getFlag(battle.attacker.name)} **${battle.attacker.name}**`, true);
+                embed.addField('Defender', `${this.client.platron_utils.getFlag(battle.defender.name)} **${battle.defender.name}**`, true);
                 embed.addField('Region', `:map: ${region}`, true);
                 embed.addField('Time left', `:alarm_clock: ${time} minutes`, true);
                 embed.addField('Battle type', `${battle.general.type}`, true);
                 embed.addField('Round', `${battle.general.round}`, true);
                 embed.addField('URL', `<${link}>`);
                 embed.setURL(link);
-                embed.setColor(utils.strToColor(division));
+                embed.setColor(this.client.platron_utils.strToColor(division));
 
                 if (battle.combat_orders) {
                     const cos = [];
@@ -116,7 +114,7 @@ module.exports = class EpicNotificator {
                             continue;
                         }
 
-                        cos.push(`${utils.getFlag(co.country.name)} ${co.country.name} | **${co.reward} cc/m** under **${co.wall}%** wall (${co.budget}cc budget)`);
+                        cos.push(`${this.client.platron_utils.getFlag(co.country.name)} ${co.country.name} | **${co.reward} cc/m** under **${co.wall}%** wall (${co.budget}cc budget)`);
                     }
 
                     if (cos.length > 0) {
