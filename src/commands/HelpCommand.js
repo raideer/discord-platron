@@ -5,7 +5,9 @@ class HelpCommand extends Command {
     constructor() {
         super('help', {
             aliases: ['help'],
-            usage: 'help (command)',
+            usage: () => {
+                return `help ${this.client._('bot.command.command')}`;
+            },
             args: [
                 {
                     id: 'command',

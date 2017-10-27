@@ -31,6 +31,10 @@
         "en": "Usage",
         "lv": "Pielietojums"
     },
+    "bot.command.command": {
+        "en": "command",
+        "lv": "komanda"
+    },
     "bot.command.examples": {
         "en": "Examples",
         "lv": "Piemēri"
