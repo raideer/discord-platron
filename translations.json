@@ -120,8 +120,8 @@
         "lv": "Pievieno savu eRepublik kontu, lai saņemtu papildus iespējas"
     },
     "command.register.usage_note": {
-        "en": "Citizen ID is the number at the end of your profile URL",
-        "lv": "Citizen ID ir ciparu kombinācija tava profila linka beigās"
+        "en": "Your Citizen name or ID",
+        "lv": "Tavs profila vārds vai ID"
     },
     "command.register.user_not_found": {
         "en": "Citizen with ID $[1] was not found",
@@ -214,6 +214,10 @@
     "command.stats.achievements": {
         "en": "Achievements",
         "lv": "Sasniegumi"
+    },
+    "command.8ball.yesnoquestion": {
+        "en": "yes/no question",
+        "lv": "jā/nē jautājums"
     },
     "command.8ball.affirmative1": {
         "en": "It is certain",
