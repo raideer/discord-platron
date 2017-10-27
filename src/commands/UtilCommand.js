@@ -116,20 +116,20 @@ class UtilCommand extends Command {
                 const roleSetter = this.client.cronHandler.modules.get('manualRoleSetter');
                 const apiRoleSetter = this.client.cronHandler.modules.get('apiRoleSetter');
 
-                if (roleSetter && (args.arg == 'manual' || !args.arg)) {
-                    winston.info('Running manualRoleSetter module');
-                    await roleSetter._processGuild(message.guild);
-                    await message.reply('Finished setting manual roles');
-                } else {
-                    winston.error('Manual role setter not found');
-                }
-
                 if (apiRoleSetter && (args.arg == 'api' || !args.arg)) {
                     winston.info('Running apiRoleSetter module');
                     await apiRoleSetter._processGuild(message.guild);
                     await message.reply('Finished setting api roles');
                 } else {
                     winston.error('API role setter not found');
+                }
+
+                if (roleSetter && (args.arg == 'manual' || !args.arg)) {
+                    winston.info('Running manualRoleSetter module');
+                    await roleSetter._processGuild(message.guild);
+                    await message.reply('Finished setting manual roles');
+                } else {
+                    winston.error('Manual role setter not found');
                 }
             } else {
                 return message.reply('Invalid environment');
