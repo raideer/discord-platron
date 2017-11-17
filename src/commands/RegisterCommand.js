@@ -162,6 +162,40 @@ class RegisterCommand extends Command {
             }
         // If the user wasnt found in the database
         } else {
+            const exists = await Citizen.findOne({
+                where: {
+                    discord_id: message.author.id
+                }
+            });
+
+            if (exists) {
+                const l_options = this.client._('bot.prompt.options', '**yes**', '**no**');
+
+                try {
+                    const prompt = await this.client.util.prompt(
+                        message,
+                        `You already own ${exists.id}. Would you like to remove it? (${l_options})`,
+                        () => true,
+                        30000,
+                        {
+                            reply: message.author
+                        }
+                    );
+
+                    if (prompt.content.startsWith('y')) {
+                        await Citizen.destoy({
+                            where: {
+                                discord_id: message.author.id
+                            }
+                        });
+                    }
+                } catch (e) {
+                    if (e == 'time') {
+                        await message.reply('Oops... reply time has ran out');
+                    }
+                }
+            }
+
             winston.verbose('Generating code for', args.user);
             const code = this.generateCode();
             await Citizen.create({
