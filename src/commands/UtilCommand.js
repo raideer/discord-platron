@@ -49,6 +49,38 @@ class UtilCommand extends Command {
             }
             break;
         }
+        case 'registered': {
+            // !set registered Industrials|myid
+            const [username, citizen_id] = args.arg.split('|');
+            const member = this.client.util.resolveMember(username, message.guild.members);
+            if (member) {
+                const Citizen = this.client.databases.citizens.table;
+                await Citizen.findOrCreate({
+                    where: {
+                        discord_id: member.user.id
+                    },
+                    defaults: {
+                        id: citizen_id,
+                        discord_id: member.user.id,
+                        verified: 1
+                    }
+                }).spread(async (citizen, created) => {
+                    if (created) {
+                        citizen.verified = true;
+                        await citizen.save();
+                    }
+
+                    if (citizen.id != citizen_id) {
+                        citizen.id = citizen_id;
+                        await citizen.save();
+                    }
+
+                    await this.client.platron_utils.addRoles(member, citizen, message.guild);
+                    await message.reply(`${member.user.username} registered as ${citizen.id}`);
+                });
+            }
+            break;
+        }
         default:
             return message.reply(this.client._('bot.invalid_request'));
         }
@@ -98,6 +130,17 @@ class UtilCommand extends Command {
             }, () => {
                 message.reply('Done');
             });
+            break;
+        }
+        case 'purgeCitizen': {
+            const citizen = await this.client.platron_utils.resolveCitizen(args.arg, message.author.id, message.guild);
+            if (citizen) {
+                await citizen.destroy();
+                await message.reply('Citizen purged');
+                return;
+            }
+
+            await message.reply('Citizen not found');
             break;
         }
         case 'restartNotificator': {

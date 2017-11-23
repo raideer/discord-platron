@@ -40,6 +40,72 @@ module.exports = class Utils extends ClientUtil {
         return Number(number).toLocaleString();
     }
 
+    async resolveCitizen(name, discord_id, guild) {
+        const member = this.client.util.resolveMember(name, guild.members);
+        if (member) {
+            const Citizen = this.client.databases.citizens.table;
+            const citizen = await Citizen.findOne({
+                where: {
+                    discord_id: member.user.id
+                }
+            });
+
+            return citizen;
+        }
+
+        return null;
+    }
+
+    async addRoles(member, citizen, guild) {
+        const roleSetter = this.client.cronHandler.modules.get('manualRoleSetter');
+        const apiroleSetter = this.client.cronHandler.modules.get('apiRoleSetter');
+
+        const fakeColl = new Collection();
+        fakeColl.set(citizen.id, {
+            citizen: citizen,
+            member: member
+        });
+
+        winston.info('Running apiRoleSetter module');
+        await apiroleSetter._processGuild(guild, fakeColl);
+        winston.info('Running manualRoleSetter module');
+        await roleSetter._processGuild(guild, fakeColl);
+    }
+
+    async resolveCitizenId(input, discord_id, guild = null) {
+        const Citizen = this.client.databases.citizens.table;
+        if (!input) {
+            const citizen = await Citizen.findOne({
+                where: {
+                    discord_id: discord_id
+                }
+            });
+
+            if (citizen) {
+                return citizen.id;
+            }
+            return null;
+        }
+
+        if (Number.isInteger(Number(input))) {
+            return input;
+        }
+
+        if (guild) {
+            const citizen = await this.resolveCitizen(input, discord_id, guild);
+            if (citizen) {
+                return citizen.id;
+            }
+        }
+
+        const id = await this.citizenNameToId(input);
+        if (id) {
+            return id;
+        }
+
+        return null;
+    }
+
     strToColor(str) {
         const hashCode = s => {
             let hash = 0;

@@ -1,5 +1,4 @@
 const Command = require('../PlatronCommand');
-const { Collection } = require('discord.js');
 const request = require('request-promise');
 const cheerio = require('cheerio');
 const winston = require('winston');
@@ -56,22 +55,6 @@ class RegisterCommand extends Command {
         }
     }
 
-    async _addRoles(message, user) {
-        const roleSetter = this.client.cronHandler.modules.get('manualRoleSetter');
-        const apiroleSetter = this.client.cronHandler.modules.get('apiRoleSetter');
-
-        const fakeColl = new Collection();
-        fakeColl.set(user.id, {
-            citizen: user,
-            member: message.member
-        });
-
-        winston.info('Running apiRoleSetter module');
-        await apiroleSetter._processGuild(message.guild, fakeColl);
-        winston.info('Running manualRoleSetter module');
-        await roleSetter._processGuild(message.guild, fakeColl);
-    }
-
     async exec(message, args) {
         if (!args.user) {
             return this.client.emit('invalidUsage', message, this);
@@ -101,7 +84,7 @@ class RegisterCommand extends Command {
                     user.reclaiming = null;
 
                     await user.save();
-                    await this._addRoles(message, user);
+                    await this.client.platron_utils.addRoles(message.member, user, message.guild);
 
                     const l_verified = this.client._('command.register.verified', `**${args.user}**`);
                     const l_verified1 = this.client._('command.register.verified1');
