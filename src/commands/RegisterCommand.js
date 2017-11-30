@@ -84,7 +84,7 @@ class RegisterCommand extends Command {
                     user.reclaiming = null;
 
                     await user.save();
-                    await this.client.platron_utils.addRoles(message.member, user, message.guild);
+                    this.client.platron_utils.addRoles(message.member, user, message.guild);
 
                     const l_verified = this.client._('command.register.verified', `**${args.user}**`);
                     const l_verified1 = this.client._('command.register.verified1');
