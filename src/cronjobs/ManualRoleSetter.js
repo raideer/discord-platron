@@ -98,7 +98,7 @@ module.exports = class ManualRoleSetter extends CronModule {
 
             citizenData[id] = await this.client.platron_utils.getCitizenInfo(id);
             // Spacing out requests
-            await new Promise(resolve => setTimeout(resolve, 2000));
+            await new Promise(resolve => setTimeout(resolve, 200));
             return citizenData[id];
         };
 
