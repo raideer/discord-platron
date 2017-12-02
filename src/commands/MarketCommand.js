@@ -19,36 +19,33 @@ class MarketCommand extends Command {
                 {
                     id: 'product',
                     type: product => {
-                        switch (product) {
-                        case 'weapon':
-                        case 'weapons':
-                        case 'wep':
-                        case 'guns':
-                        case 'gun':
-                            product = 'weapons';
-                            break;
-                        case 'food':
-                        case 'foods':
-                        case 'bread':
-                            product = 'food';
-                            break;
-                        case 'house':
-                        case 'houses':
-                        case 'home':
-                            product = 'houses';
-                            break;
-                        case 'aircraft':
-                        case 'aircrafts':
-                        case 'air':
-                        case 'rocket':
-                        case 'rockets':
-                            product = 'aircraft';
-                            break;
-                        case 'ticket':
-                        case 'tickets':
-                            product = 'tickets';
-                            break;
-                        }
+                        const weapons = [
+                            'weapon', 'weapons', 'wep', 'weps', 'guns', 'gun',
+                            'w', 'tank', 'tanks'
+                        ];
+
+                        const food = [
+                            'food', 'foods', 'bread', 'f'
+                        ];
+
+                        const houses = [
+                            'house', 'houses', 'home', 'h'
+                        ];
+
+                        const aircraft = [
+                            'aircraft', 'aircrafts', 'air', 'airplane', 'plane',
+                            'rocket', 'rockets', 'missile', 'missiles', 'a'
+                        ];
+
+                        const tickets = [
+                            'ticket', 'tickets', 't'
+                        ];
+
+                        if (weapons.indexOf(product) !== -1) return 'weapons';
+                        if (food.indexOf(product) !== -1) return 'food';
+                        if (houses.indexOf(product) !== -1) return 'houses';
+                        if (aircraft.indexOf(product) !== -1) return 'aircraft';
+                        if (tickets.indexOf(product) !== -1) return 'tickets';
 
                         return product;
                     },
