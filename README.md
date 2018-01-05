@@ -2,7 +2,7 @@
 Multi purpose discord bot running on discord-akairo and node 8
 
 ## Configuration
-This command required `ADMINISTRATOR` permissions!
+This command requires `ADMINISTRATOR` permissions!
 `!config set [field] [value]`
 
 1. autoDeleteMessages: *boolean* (default:true)   
