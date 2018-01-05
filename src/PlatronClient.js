@@ -37,7 +37,7 @@ class PlatronClient extends AkairoClient {
         return this;
     }
 
-    async guildConfig(guild, key, defaultValue = null) {
+    async guildConfig(guild, key, defaultValue = null, isBoolean = false) {
         const Config = this.databases.config.table;
         const val = await Config.findOrCreate({
             where: {
@@ -48,6 +48,10 @@ class PlatronClient extends AkairoClient {
                 value: defaultValue
             }
         });
+
+        if (isBoolean) {
+            return _.first(val).value == 1;
+        }
 
         return _.first(val).value;
     }
