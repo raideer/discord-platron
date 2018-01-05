@@ -27,6 +27,7 @@ async function exec(message, command) {
 
     this.client.localize.setLocale(locale);
     message.locale = locale;
+    return false;
 }
 
 module.exports = new Inhibitor('localizer', exec, {
