@@ -1,4 +1,8 @@
+# Discord PlaTRON
+Multi purpose discord bot running on discord-akairo and node 8
+
 ## Configuration
+This command required `ADMINISTRATOR` permissions!
 `!config set [field] [value]`
 
 1. autoDeleteMessages: *boolean* (default:true)   
@@ -13,3 +17,5 @@ Automatically deletes registration messages to clear up spam
 9. epicNotificator: *channel/false* (default:false)   
 10. greetMembers: *boolean* (default:false)   
 11. greetMessage: *string/false* (default:false)   
+Use `{user}` and `{guild}` for string interpolation
+12. enableCommands: *boolean* (default:true)
