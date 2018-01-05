@@ -4,7 +4,8 @@ class PingCommand extends Command {
     constructor() {
         super('ping', {
             aliases: ['ping', 'hello'],
-            showInHelp: false
+            showInHelp: false,
+            userPermissions: ['ADMINISTRATOR']
         });
     }
 
