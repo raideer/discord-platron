@@ -35,6 +35,7 @@ module.exports = class PlatronCommand extends Command {
         this.usage = options.usage || '';
         this.usageExamples = options.usageExamples || [];
         this.usageNote = options.usageNote || '';
+        this.allowWhenDisabled = !!options.allowWhenDisabled;
         this.showInHelp = typeof options.showInHelp === 'undefined' ? true : !!options.showInHelp;
     }
 

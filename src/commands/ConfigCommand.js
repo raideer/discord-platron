@@ -21,9 +21,10 @@ class ConfigCommand extends Command {
                     match: 'rest'
                 }
             ],
-            ownerOnly: true,
+            userPermissions: ['ADMINISTRATOR'],
             channelRestriction: 'guild',
-            showInHelp: false
+            showInHelp: false,
+            allowWhenDisabled: true
         });
     }
 

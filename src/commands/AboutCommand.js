@@ -8,7 +8,8 @@ class AboutCommand extends Command {
             description: () => {
                 return this.client._('command.about.description');
             },
-            usage: 'about'
+            usage: 'about',
+            allowWhenDisabled: true
         });
     }
 

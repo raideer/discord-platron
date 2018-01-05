@@ -17,8 +17,9 @@ class UtilCommand extends Command {
                     match: 'rest'
                 }
             ],
-            ownerOnly: true,
-            channelRestriction: 'guild'
+            userPermissions: ['ADMINISTRATOR'],
+            channelRestriction: 'guild',
+            allowWhenDisabled: true
         });
     }
 
@@ -154,29 +155,37 @@ class UtilCommand extends Command {
             message.reply(':white_check_mark: Done!');
             break;
         }
+        case 'fakeNotification': {
+            this.client.epicNotificator._notify(3, 'Test region', 'https://www.erepublik.com/en/military/battlefield/116213', 99);
+            break;
+        }
         case 'updateRoles': {
-            if (this.client.cronHandler && message.guild) {
-                const roleSetter = this.client.cronHandler.modules.get('manualRoleSetter');
-                const apiRoleSetter = this.client.cronHandler.modules.get('apiRoleSetter');
+            // console.log(message);
+            const Citizen = this.client.databases.citizens.table;
+            const user = await Citizen.findById(4807855);
+            this.client.platron_utils.addRoles(message.member, user, message.guild);
+            // if (this.client.cronHandler && message.guild) {
+            //     const roleSetter = this.client.cronHandler.modules.get('manualRoleSetter');
+            //     const apiRoleSetter = this.client.cronHandler.modules.get('apiRoleSetter');
 
-                if (apiRoleSetter && (args.arg == 'api' || !args.arg)) {
-                    winston.info('Running apiRoleSetter module');
-                    await apiRoleSetter._processGuild(message.guild);
-                    await message.reply('Finished setting api roles');
-                } else {
-                    winston.error('API role setter not found');
-                }
+            //     if (apiRoleSetter && (args.arg == 'api' || !args.arg)) {
+            //         winston.info('Running apiRoleSetter module');
+            //         await apiRoleSetter._processGuild(message.guild);
+            //         await message.reply('Finished setting api roles');
+            //     } else {
+            //         winston.error('API role setter not found');
+            //     }
 
-                if (roleSetter && (args.arg == 'manual' || !args.arg)) {
-                    winston.info('Running manualRoleSetter module');
-                    await roleSetter._processGuild(message.guild);
-                    await message.reply('Finished setting manual roles');
-                } else {
-                    winston.error('Manual role setter not found');
-                }
-            } else {
-                return message.reply('Invalid environment');
-            }
+            //     if (roleSetter && (args.arg == 'manual' || !args.arg)) {
+            //         winston.info('Running manualRoleSetter module');
+            //         await roleSetter._processGuild(message.guild);
+            //         await message.reply('Finished setting manual roles');
+            //     } else {
+            //         winston.error('Manual role setter not found');
+            //     }
+            // } else {
+            //     return message.reply('Invalid environment');
+            // }
             break;
         }
         }
