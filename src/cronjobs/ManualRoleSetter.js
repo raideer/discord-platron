@@ -29,6 +29,11 @@ module.exports = class ManualRoleSetter extends CronModule {
             color: '#0f81c9'
         });
 
+        if (!citizenInfo.partyRole) {
+            winston.verboselog('No party info received. Skipping');
+            return;
+        }
+
         const inCongress = titles.indexOf(citizenInfo.partyRole) !== -1;
 
         winston.verbose(citizen.member.user.username, 'in congress', inCongress, citizenInfo.partyRole);
@@ -81,8 +86,8 @@ module.exports = class ManualRoleSetter extends CronModule {
             citizens = await this.client.platron_utils.getCitizensInGuild(guild);
         }
 
-        const partyRoleEnabled = await this.client.guildConfig(guild, 'setPartyRoles', false);
-        const congressRoleEnabled = await this.client.guildConfig(guild, 'setCongressRoles', false);
+        const partyRoleEnabled = await this.client.guildConfig(guild, 'setPartyRoles', false, true);
+        const congressRoleEnabled = await this.client.guildConfig(guild, 'setCongressRoles', false, true);
         let countryRole = await this.client.guildConfig(guild, 'countryRole', false);
 
         if (countryRole == '0') {
@@ -102,7 +107,7 @@ module.exports = class ManualRoleSetter extends CronModule {
             return citizenData[id];
         };
 
-        if (partyRoleEnabled == '1') {
+        if (partyRoleEnabled) {
             winston.info('Adding party roles');
             await Promise.each(citizens.array(), async citizen => {
                 try {
@@ -114,7 +119,7 @@ module.exports = class ManualRoleSetter extends CronModule {
             });
         }
 
-        if (congressRoleEnabled == '1') {
+        if (congressRoleEnabled) {
             winston.info('Adding congress roles');
             await Promise.each(citizens.array(), async citizen => {
                 try {
