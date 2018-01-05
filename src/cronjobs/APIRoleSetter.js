@@ -56,7 +56,7 @@ module.exports = class APIRoleSetter extends CronModule {
             }
         });
 
-        winston.info('Collected data for', Object.keys(data).length, 'players');
+        winston.info('Collected data for', Object.keys(data.players).length, 'players');
 
         const verifiedRoleEnabled = await this.client.guildConfig(guild, 'setVerifiedRoles', false);
         const countryRoleEnabled = await this.client.guildConfig(guild, 'setCountryRoles', false);
