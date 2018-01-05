@@ -53,10 +53,9 @@ module.exports = class EpicNotificator {
             const channel = await this.client.guildConfig(guild, 'epicNotificator', false);
 
             const guildChannel = guild.channels.get(channel);
+            if (!guildChannel) return;
 
-            if (!guildChannel) {
-                return;
-            }
+            const maveric = await this.client.guildConfig(guild, 'notifyMaverics', false);
 
             if (guildChannel.type != 'text') {
                 return;
@@ -69,10 +68,16 @@ module.exports = class EpicNotificator {
                 }
             });
 
-            let divText = `**Division ${division}**`;
-
-            if (role) {
-                divText = `<@&${role.id}>`;
+            let divText = '';
+            if (role || maveric != 0) {
+                if (role) {
+                    divText += ` <@&${role.id}>`;
+                }
+                if (maveric != 0) {
+                    divText += ` <@&${maveric}>`;
+                }
+            } else {
+                divText = `**Division ${division}**`;
             }
 
             const battleId = this._getBattleId(link);
@@ -122,7 +127,7 @@ module.exports = class EpicNotificator {
                     }
                 }
 
-                await guildChannel.send(role ? `<@&${role.id}>` : '', { embed });
+                await guildChannel.send(divText, { embed });
             }
         });
     }
