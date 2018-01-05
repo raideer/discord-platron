@@ -2,11 +2,12 @@ const winston = require('winston');
 const request = require('request-promise');
 const crypto = require('crypto');
 const cheerio = require('cheerio');
+const { Collection } = require('discord.js');
 
 class BattleEye {
     async loadStats(battleId, round = 1) {
-        const leftData = new Map();
-        const rightData = new Map();
+        const leftData = new Collection();
+        const rightData = new Collection();
         let leftId = null;
         let rightId = null;
 
@@ -58,10 +59,11 @@ class BattleEye {
         };
     }
 
-    async getNbpStats(battleId, division) {
+    async getNbpStats(battleId) {
         const data = await request({
-            uri: `https://www.erepublik.com/en/military/nbp-stats/${battleId}/${division}`,
-            json: true
+            uri: `https://www.erepublik.com/en/military/nbp-stats/${battleId}`,
+            json: true,
+            jar: this.jar
         });
         winston.verbose('Retrieved nbp stats');
         return data;
