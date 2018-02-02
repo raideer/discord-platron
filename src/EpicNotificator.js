@@ -24,8 +24,14 @@ module.exports = class EpicNotificator {
 
     _parseBody(title, body) {
         const str = `${title} - ${body}`;
-        const regex = new RegExp('Division ([1-4]) - Region: ([a-zA-Z ]+) - Battlefield: ([^ ]+) *- Timeleft: ([0-9]+) min');
-        return str.match(regex);
+        const regex = new RegExp('Division ([1-4]) - Region: (.+?) - Battlefield: ([^ ]+) *- Timeleft: ([0-9]+) min');
+        const match = str.match(regex);
+        if (!match) {
+            winston.error('Invalid push body', body);
+            return null;
+        }
+
+        return match;
     }
 
     _getBattleId(url) {
@@ -154,7 +160,9 @@ module.exports = class EpicNotificator {
             const data = await this._getLatestPush();
             const push = data.pushes[0];
 
-            const [_text, division, region, url, time] = this._parseBody(push.title, push.body);
+            const _pushBody = this._parseBody(push.title, push.body);
+            if (!_pushBody) return;
+            const [_text, division, region, url, time] = _pushBody;
             winston.info('Notifying push');
             await this._notify(division, region, url, time);
         });
