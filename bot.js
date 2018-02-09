@@ -103,5 +103,5 @@ Promise.all([
     }
 
     winston.info('Successfully logged in');
-    client.user.setGame('eRepublik');
+    client.user.setActivity('eRepublik');
 });
