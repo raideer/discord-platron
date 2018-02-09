@@ -114,7 +114,7 @@ module.exports = class ManualRoleSetter extends CronModule {
                     const citizenInfo = await getCitizenInfo(citizen.citizen.id);
                     await this._addPartyRole(citizen, guild, citizenInfo, countryRole);
                 } catch (e) {
-                    winston.error(e);
+                    winston.error('Error adding party role for', citizen.citizen.id);
                 }
             });
         }
@@ -126,7 +126,7 @@ module.exports = class ManualRoleSetter extends CronModule {
                     const citizenInfo = await getCitizenInfo(citizen.citizen.id);
                     await this._addCongressRole(citizen, guild, citizenInfo, countryRole);
                 } catch (e) {
-                    winston.error(e);
+                    winston.error('Error adding congress role for', citizen.citizen.id);
                 }
             });
         }
