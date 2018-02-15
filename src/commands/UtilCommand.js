@@ -1,6 +1,6 @@
 const Command = require('../PlatronCommand');
 const async = require('async');
-const winston = require('winston');
+// const winston = require('winston');
 
 class UtilCommand extends Command {
     constructor() {
@@ -102,6 +102,17 @@ class UtilCommand extends Command {
             });
 
             return message.channel.send(status.join('\n'));
+        }
+        case 'congress': {
+            const countryId = parseInt(args.arg);
+            this.client.api(`congress/${countryId}/members`).then(members => {
+                const memberString = members.map(member => {
+                    return member.name;
+                }).join(', ');
+
+                message.reply(`**Congress member list:**\n ${memberString}`);
+            });
+            break;
         }
         case 'roleId': {
             const roleResolvable = args.arg;
