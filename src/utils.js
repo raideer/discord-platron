@@ -128,22 +128,6 @@ module.exports = class Utils extends ClientUtil {
         .reduce((result, ch) => (result * 16) + '0123456789abcdefgh'.indexOf(ch), 0);
     }
 
-    async getCitizenInfo(id) {
-        const body = await request.get(`https://www.erepublik.com/en/citizen/profile/${id}`);
-        const $ = cheerio.load(body);
-        const data = {};
-        const $ca = $('.citizen_activity').children();
-
-        const prettify = text => {
-            return String(text).replace(/[\t\n\r]/g, '').replace(/\s+/g, ' ').trim();
-        };
-
-        data.party = prettify($ca.first().find('.noborder span a').text());
-        data.partyRole = prettify($ca.first().find('h3').text());
-
-        return data;
-    }
-
     async citizenNameToId(name) {
         const body = await request.get(`https://www.erepublik.com/en/main/search/?q=${encodeURIComponent(name)}`);
         const $ = cheerio.load(body);
