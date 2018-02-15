@@ -93,7 +93,7 @@ class PlatronClient extends AkairoClient {
         });
 
         const apiPORT = this.env('API_PORT', 80);
-        
+
         const body = await request({
             uri: `http://${apiIP}:${apiPORT}/${query}.json`,
             json: true
