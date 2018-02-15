@@ -5,7 +5,6 @@ const PlatronClient = require('./src/PlatronClient');
 const EpicNotificator = require('./src/EpicNotificator');
 const { SequelizeProvider } = require('discord-akairo');
 require('dotenv').config();
-const BattleEye = require('./src/BattleEye');
 const ErepublikData = require('./src/ErepublikData');
 
 // Configuring logger
@@ -86,7 +85,6 @@ Promise.all([
     db.Citizen.sync(),
     db.Role.sync(),
     db.GuildConfig.sync(),
-    BattleEye.authenticate(),
     ErepublikData._initDb()
 ]).then(async () => {
     timer.done('Finished syncing database.');
