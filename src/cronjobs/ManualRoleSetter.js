@@ -1,5 +1,4 @@
 const CronModule = require('../CronModule');
-const slugify = require('slugify');
 const winston = require('winston');
 const Promise = require('bluebird');
 
@@ -53,40 +52,11 @@ module.exports = class ManualRoleSetter extends CronModule {
         winston.verbose('Added congress role to', citizen.member.user.username);
     }
 
-    async _addPartyRole(citizen, guild, citizenInfo, countryRole = false) {
-        const roleKeys = await this.client.platron_utils.getRolesWithGroup('party');
-
-        if (countryRole && !citizen.member.roles.has(countryRole)) {
-            winston.verbose(`Citizen ${citizen.member.user.username} does not have countryrole ${countryRole}`);
-            await citizen.member.removeRoles(roleKeys);
-            return;
-        }
-
-        if (citizenInfo.party && citizen.citizen.verified) {
-            const role = await this.client.platron_utils.findOrCreateRole(slugify(citizenInfo.party).toLowerCase(), 'party', guild, {
-                name: citizenInfo.party,
-                color: '#923dff'
-            });
-
-            // Get all parties that the member does not belong to
-            const otherParties = roleKeys.filter(key => {
-                return key != role.id;
-            });
-
-            await citizen.member.removeRoles(otherParties);
-            await citizen.member.addRole(role);
-        } else {
-            // If not a member of any party, remove all party roles
-            await citizen.member.removeRoles(roleKeys);
-        }
-    }
-
     async _processGuild(guild, citizens) {
         if (!citizens) {
             citizens = await this.client.platron_utils.getCitizensInGuild(guild);
         }
 
-        const partyRoleEnabled = await this.client.guildConfig(guild, 'setPartyRoles', false, true);
         const congressRoleEnabled = await this.client.guildConfig(guild, 'setCongressRoles', false, true);
         let countryRole = await this.client.guildConfig(guild, 'countryRole', false);
 
@@ -106,18 +76,6 @@ module.exports = class ManualRoleSetter extends CronModule {
             await new Promise(resolve => setTimeout(resolve, 200));
             return citizenData[id];
         };
-
-        if (partyRoleEnabled) {
-            winston.info('Adding party roles');
-            await Promise.each(citizens.array(), async citizen => {
-                try {
-                    const citizenInfo = await getCitizenInfo(citizen.citizen.id);
-                    await this._addPartyRole(citizen, guild, citizenInfo, countryRole);
-                } catch (e) {
-                    winston.error('Error adding party role for', citizen.citizen.id);
-                }
-            });
-        }
 
         if (congressRoleEnabled) {
             winston.info('Adding congress roles');

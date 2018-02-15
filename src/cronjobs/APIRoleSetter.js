@@ -58,10 +58,12 @@ module.exports = class APIRoleSetter extends CronModule {
 
         winston.info('Collected data for', Object.keys(data.players).length, 'players');
 
+        const partyRoleEnabled = await this.client.guildConfig(guild, 'setPartyRoles', false, true);
         const verifiedRoleEnabled = await this.client.guildConfig(guild, 'setVerifiedRoles', false, true);
         const countryRoleEnabled = await this.client.guildConfig(guild, 'setCountryRoles', false, true);
         const divisionRoleEnabled = await this.client.guildConfig(guild, 'setDivisionRoles', false, true);
         const muRoleEnabled = await this.client.guildConfig(guild, 'setMURoles', false, true);
+
         let countryRole = await this.client.guildConfig(guild, 'countryRole', false);
 
         if (countryRole == '0') {
@@ -107,6 +109,21 @@ module.exports = class APIRoleSetter extends CronModule {
             });
         } else {
             winston.info('Division roles are disabled in', guild.name);
+        }
+
+        if (partyRoleEnabled) {
+            winston.info('Adding party roles');
+            await Promise.each(citizens.array(), async citizen => {
+                try {
+                    const player = data.players[citizen.citizen.id];
+                    // console.log(player);
+                    await this._addPartyRole(guild, citizen, player, countryRole);
+                } catch (e) {
+                    winston.error('Error adding party role for', citizen.citizen.id);
+                }
+            });
+        } else {
+            winston.info('Party roles are disabled in', guild.name);
         }
 
         if (muRoleEnabled) {
@@ -173,6 +190,34 @@ module.exports = class APIRoleSetter extends CronModule {
         await citizen.member.removeRoles(otherDivisions);
         await citizen.member.addRole(role);
         winston.info('Added division role for', citizen.member.user.username);
+    }
+
+    async _addPartyRole(guild, citizen, citizenInfo, countryRole = false) {
+        const roleKeys = await this.client.platron_utils.getRolesWithGroup('party');
+
+        if (countryRole && !citizen.member.roles.has(countryRole)) {
+            winston.verbose(`Citizen ${citizen.member.user.username} does not have countryrole ${countryRole}`);
+            await citizen.member.removeRoles(roleKeys);
+            return;
+        }
+
+        if (citizenInfo.party && citizen.citizen.verified) {
+            const role = await this.client.platron_utils.findOrCreateRole(slugify(citizenInfo.party.name).toLowerCase(), 'party', guild, {
+                name: citizenInfo.party.name,
+                color: '#923dff'
+            });
+
+            // Get all parties that the member does not belong to
+            const otherParties = roleKeys.filter(key => {
+                return key != role.id;
+            });
+
+            await citizen.member.removeRoles(otherParties);
+            await citizen.member.addRole(role);
+        } else {
+            // If not a member of any party, remove all party roles
+            await citizen.member.removeRoles(roleKeys);
+        }
     }
 
     async _addMURole(guild, citizen, citizenInfo, countryRole) {
