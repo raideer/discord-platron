@@ -7,7 +7,6 @@ const winston = require('winston');
 const path = require('path');
 const _ = require('lodash');
 const PlatronUtils = require('./utils');
-const request = require('request-promise');
 
 class PlatronClient extends AkairoClient {
     constructor(options, clientOptions) {
@@ -85,21 +84,6 @@ class PlatronClient extends AkairoClient {
     _(...args) {
         if (!this.localize) return;
         return this.localize.translate.apply(null, args);
-    }
-
-    async api(query) {
-        const apiIP = this.env('API_IP', () => {
-            throw 'API IP NOT SET!';
-        });
-
-        const apiPORT = this.env('API_PORT', 80);
-
-        const body = await request({
-            uri: `http://${apiIP}:${apiPORT}/${query}.json`,
-            json: true
-        });
-
-        return body;
     }
 
     env(key, defaultValue = null) {

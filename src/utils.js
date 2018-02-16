@@ -151,6 +151,34 @@ module.exports = class Utils extends ClientUtil {
         return this.module.client;
     }
 
+    async deutchlandApi(query) {
+        const apiKey = this.client.env('EREP_API', () => {
+            throw 'eRepublik Deutchland API key is not set!';
+        });
+
+        const body = await request({
+            uri: `https://api.erepublik-deutschland.de/${apiKey}/${query}`,
+            json: true
+        });
+
+        return body;
+    }
+
+    async privateApi(query) {
+        const apiIP = this.client.env('API_IP', () => {
+            throw 'API IP NOT SET!';
+        });
+
+        const apiPORT = this.client.env('API_PORT', 80);
+
+        const body = await request({
+            uri: `http://${apiIP}:${apiPORT}/${query}.json`,
+            json: true
+        });
+
+        return body;
+    }
+
     async getCitizensInGuild(guild) {
         const Citizen = this.client.databases.citizens.table;
         const citizens = await Citizen.all();
