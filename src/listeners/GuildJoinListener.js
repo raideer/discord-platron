@@ -1,24 +1,28 @@
 const { Listener } = require('discord-akairo');
 const winston = require('winston');
 
-async function exec(guild) {
-    winston.info('Joined guild', guild.name);
+module.exports = class GuildJoinListener extends Listener {
+    constructor() {
+        super('guildJoin', {
+            emitter: 'client',
+            eventName: 'guildCreate'
+        });
+    }
 
-    const Guild = this.client.databases.guilds.table;
+    async exec(guild) {
+        winston.info('Joined guild', guild.name);
 
-    await Guild.findOrCreate({
-        where: {
-            id: guild.id
-        },
-        defaults: {
-            id: guild.id,
-            prefix: '!',
-            locale: 'en'
-        }
-    });
-}
+        const Guild = this.client.databases.guilds.table;
 
-module.exports = new Listener('guildJoin', exec, {
-    emitter: 'client',
-    eventName: 'guildCreate'
-});
+        await Guild.findOrCreate({
+            where: {
+                id: guild.id
+            },
+            defaults: {
+                id: guild.id,
+                prefix: '!',
+                locale: 'en'
+            }
+        });
+    }
+};
