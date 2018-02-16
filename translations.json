@@ -20,8 +20,8 @@
         "lv": "Raksti $[1] vai $[2]"
     },
     "bot.invalid_request": {
-        "en": "Request not recognised",
-        "lv": "Pieprasījums netika atpazīts"
+        "en": "Something went wrong processing this request. Check if everything is correct and try again",
+        "lv": "Kaut kas nogāja greizi. Pārbaudi vai visu uzrakstīji pareizi un mēģini vēlreiz"
     },
     "bot.command.list_of_commands": {
         "en": "List of commands",
