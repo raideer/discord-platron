@@ -72,7 +72,6 @@ const clientOptions = {
 const client = new PlatronClient(options, clientOptions);
 
 client.setDatabase('guilds', new SequelizeProvider(db.Guild));
-client.setDatabase('blacklist', new SequelizeProvider(db.Blacklist));
 client.setDatabase('citizens', new SequelizeProvider(db.Citizen));
 client.setDatabase('roles', new SequelizeProvider(db.Role));
 client.setDatabase('config', new SequelizeProvider(db.GuildConfig));
@@ -81,7 +80,6 @@ const timer = winston.startTimer();
 
 Promise.all([
     db.Guild.sync(),
-    db.Blacklist.sync(),
     db.Citizen.sync(),
     db.Role.sync(),
     db.GuildConfig.sync(),
