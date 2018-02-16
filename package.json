@@ -18,6 +18,7 @@
     "localize": "^0.4.7",
     "lodash": "^4.17.5",
     "memwatch-next": "^0.3.0",
+    "moment": "^2.20.1",
     "moment-timezone": "^0.5.14",
     "pushbullet": "^2.1.0",
     "request-promise": "^4.2.2",

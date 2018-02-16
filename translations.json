@@ -298,5 +298,29 @@
     "command.8ball.negative5": {
         "en": "Only in your dreams",
         "lv": "Tikai tavos sapņos"
+    },
+    "command.battle.finished": {
+        "en": "Finished",
+        "lv": "Beigusies"
+    },
+    "command.battle.active": {
+        "en": "Active",
+        "lv": "Aktīva"
+    },
+    "command.battle.status": {
+        "en": "Battle status",
+        "lv": "Kaujas statuss"
+    },
+    "command.battle.round": {
+        "en": "Round",
+        "lv": "Raunds"
+    },
+    "command.battle.started": {
+        "en": "Started",
+        "lv": "Sākās"
+    },
+    "command.battle.last_round_started": {
+        "en": "Last round started",
+        "lv": "Pēdējais raunds sākās"
     }
 }
