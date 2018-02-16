@@ -1,5 +1,4 @@
 const Command = require('../PlatronCommand');
-const request = require('request-promise');
 const { RichEmbed } = require('discord.js');
 
 class HistoryCommand extends Command {
@@ -30,15 +29,11 @@ class HistoryCommand extends Command {
     }
 
     async exec(message, args) {
-        const apiKey = this.client.env('EREP_API', () => {
-            throw 'eRepublik Deutchland API key is not set!';
-        });
+        if (!args.type || !args.citizenId) {
+            return this.client.platron_utils.invalidCommand(message, this);
+        }
 
-        const data = await request({
-            method: 'GET',
-            json: true,
-            uri: `https://api.erepublik-deutschland.de/${apiKey}/players/history/${args.type}/${args.citizenId}`
-        });
+        const data = await this.client.platron_utils.deutchlandApi(`players/history/${args.type}/${args.citizenId}`);
 
         if (data.status != 'ok') {
             return message.reply(this.client._('bot.invalid_request'));

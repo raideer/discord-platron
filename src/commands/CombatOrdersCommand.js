@@ -1,5 +1,4 @@
 const Command = require('../PlatronCommand');
-const request = require('request');
 const { RichEmbed } = require('discord.js');
 
 class CombatOrdersCommand extends Command {
@@ -91,20 +90,9 @@ class CombatOrdersCommand extends Command {
         }
     }
 
-    exec(message, args) {
-        const apiKey = this.client.env('EREP_API', () => {
-            throw 'eRepublik Deutchland API key is not set!';
-        });
-
-        request
-        .get(`https://api.erepublik-deutschland.de/${apiKey}/battles/cos/active/`, (error, response, body) => {
-            if (error) {
-                return message.reply(this.client._('bot.invalid_request'));
-            }
-
-            const data = JSON.parse(body);
-            this.respond(message, args, data);
-        });
+    async exec(message, args) {
+        const data = await this.client.platron_utils.deutchlandApi('battles/cos/active');
+        this.respond(message, args, data);
     }
 }
 

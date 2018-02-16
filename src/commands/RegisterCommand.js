@@ -57,7 +57,7 @@ class RegisterCommand extends Command {
 
     async exec(message, args) {
         if (!args.user) {
-            return this.client.emit('invalidUsage', message, this);
+            return this.client.platron_utils.invalidCommand(message, this);
         }
 
         winston.info('Attempting to register', args.user);

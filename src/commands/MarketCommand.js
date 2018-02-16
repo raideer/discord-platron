@@ -1,5 +1,4 @@
 const Command = require('../PlatronCommand');
-const request = require('request');
 const { RichEmbed } = require('discord.js');
 
 class MarketCommand extends Command {
@@ -129,63 +128,52 @@ class MarketCommand extends Command {
         return `https://www.erepublik.net/images/icons/industry/${industry}/q${quality}.png`;
     }
 
-    exec(message, args) {
-        const apiKey = this.client.env('EREP_API', () => {
-            throw 'eRepublik Deutchland API key is not set!';
-        });
-
+    async exec(message, args) {
         if (!args.product) {
-            return message.reply(this.client._('bot.invalid_request'));
+            return this.client.platron_utils.invalidCommand(message, this);
         }
 
-        request
-        .get(`https://api.erepublik-deutschland.de/${apiKey}/market/bestoffers/${args.product}/${args.quality}`, (error, response, body) => {
-            if (error) {
-                return message.reply(this.client._('bot.invalid_request'));
+        const data = await this.client.platron_utils.deutchlandApi(`market/bestoffers/${args.product}/${args.quality}`);
+        let answer = '';
+
+        const l_for = this.client._('command.market.for');
+        const l_go_to_offer = this.client._('command.market.go_to_offer');
+        const l_bestoffers = this.client._('command.market.best_offers');
+
+        if (data.status == 'ok') {
+            for (let i = 0; i < Math.min(5, data.bestoffers.length); i++) {
+                const offer = data.bestoffers[i];
+                if (args.product == 'food') {
+                    var hp = this.getHpRestored(args.quality);
+                    var hpcc = Math.round((offer.price / hp) * 10000) / 10000;
+                    answer += `**${this.client.platron_utils.number(offer.amount)}** ${l_for} **${this.client.platron_utils.number(offer.price)} cc** (${hpcc} cc/hp) in ${this.client.platron_utils.getFlag(offer.country_name)} ${offer.country_name} | [${l_go_to_offer}](https://www.erepublik.com/en/economy/marketplace/offer/${offer.offer_id})\n`;
+                } else {
+                    answer += `**${this.client.platron_utils.number(offer.amount)}** ${l_for} **${this.client.platron_utils.number(offer.price)} cc** in ${this.client.platron_utils.getFlag(offer.country_name)} ${offer.country_name} | [${l_go_to_offer}](https://www.erepublik.com/en/economy/marketplace/offer/${offer.offer_id}) \n`;
+                }
             }
 
-            const data = JSON.parse(body);
-            let answer = '';
+            const embed = new RichEmbed()
+            .setTitle(`${l_bestoffers} ${args.product} Q${args.quality}`)
+            .setThumbnail(this.getIcon(args.product, args.quality))
+            .setColor(2551405)
+            .setDescription(answer);
 
-            const l_for = this.client._('command.market.for');
-            const l_go_to_offer = this.client._('command.market.go_to_offer');
-            const l_bestoffers = this.client._('command.market.best_offers');
-
-            if (data.status == 'ok') {
-                for (let i = 0; i < Math.min(5, data.bestoffers.length); i++) {
-                    const offer = data.bestoffers[i];
-                    if (args.product == 'food') {
-                        var hp = this.getHpRestored(args.quality);
-                        var hpcc = Math.round((offer.price / hp) * 10000) / 10000;
-                        answer += `**${this.client.platron_utils.number(offer.amount)}** ${l_for} **${this.client.platron_utils.number(offer.price)} cc** (${hpcc} cc/hp) in ${this.client.platron_utils.getFlag(offer.country_name)} ${offer.country_name} | [${l_go_to_offer}](https://www.erepublik.com/en/economy/marketplace/offer/${offer.offer_id})\n`;
-                    } else {
-                        answer += `**${this.client.platron_utils.number(offer.amount)}** ${l_for} **${this.client.platron_utils.number(offer.price)} cc** in ${this.client.platron_utils.getFlag(offer.country_name)} ${offer.country_name} | [${l_go_to_offer}](https://www.erepublik.com/en/economy/marketplace/offer/${offer.offer_id}) \n`;
-                    }
-                }
-
-                const embed = new RichEmbed()
-                .setTitle(`${l_bestoffers} ${args.product} Q${args.quality}`)
-                .setThumbnail(this.getIcon(args.product, args.quality))
-                .setColor(2551405)
-                .setDescription(answer);
-
-                message.channel.send({ embed });
-            } else {
-                switch (data.message) {
-                case 'E_INVALID_ITEM_QUALITY_COMBINATION':
-                    answer = this.client._('command.market.invalid_combination');
-                    break;
-                case 'E_INVALID_ITEM':
-                    answer = this.client._('command.market.invalid_product');
-                    break;
-                default:
-                    answer = data.message;
-                    break;
-                }
-
-                message.reply(answer);
+            message.channel.send({ embed });
+        } else {
+            switch (data.message) {
+            case 'E_INVALID_ITEM_QUALITY_COMBINATION':
+                answer = this.client._('command.market.invalid_combination');
+                break;
+            case 'E_INVALID_ITEM':
+                answer = this.client._('command.market.invalid_product');
+                break;
+            default:
+                answer = data.message;
+                break;
             }
-        });
+
+            message.reply(answer);
+        }
     }
 }
 
