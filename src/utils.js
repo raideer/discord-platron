@@ -151,6 +151,10 @@ module.exports = class Utils extends ClientUtil {
         return this.module.client;
     }
 
+    invalidCommand(message, command) {
+        return this.client.emit('invalidUsage', message, command);
+    }
+
     async deutchlandApi(query) {
         const apiKey = this.client.env('EREP_API', () => {
             throw 'eRepublik Deutchland API key is not set!';
