@@ -8,7 +8,7 @@ const path = require('path');
 const _ = require('lodash');
 const PlatronUtils = require('./utils');
 
-class PlatronClient extends AkairoClient {
+module.exports = class PlatronClient extends AkairoClient {
     constructor(options, clientOptions) {
         super(options, clientOptions);
 
@@ -75,10 +75,7 @@ class PlatronClient extends AkairoClient {
 
     loadAll() {
         super.loadAll();
-
-        if (this.cronHandler) {
-            this.cronHandler.loadAll();
-        }
+        if (this.cronHandler) this.cronHandler.loadAll();
     }
 
     _(...args) {
@@ -103,6 +100,4 @@ class PlatronClient extends AkairoClient {
 
         return defaultValue;
     }
-}
-
-module.exports = PlatronClient;
+};

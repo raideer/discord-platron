@@ -1,7 +1,7 @@
 const { AkairoModule } = require('discord-akairo');
 const { CronJob } = require('cron');
 
-class CronModule extends AkairoModule {
+module.exports = class CronModule extends AkairoModule {
     constructor(id, exec, options) {
         super(id, exec, options);
 
@@ -26,5 +26,4 @@ class CronModule extends AkairoModule {
 
         super.disable();
     }
-}
-module.exports = CronModule;
+};
