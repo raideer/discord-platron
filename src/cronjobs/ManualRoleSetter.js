@@ -20,8 +20,7 @@ module.exports = class ManualRoleSetter extends CronModule {
                 return winston.error(`Congress country not set in guild ${guild.name}`);
             }
 
-            const data = await this.client.api(`congress/${congressCountry}/members`);
-            const members = data.map(member => member.id);
+            const members = await this.client.api(`congress/${congressCountry}/members`);
 
             const role = await this.client.platron_utils.findOrCreateRole('congress', 'congress', guild, {
                 name: 'Congress',
