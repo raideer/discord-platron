@@ -105,7 +105,7 @@ class UtilCommand extends Command {
         }
         case 'congress': {
             const countryId = parseInt(args.arg);
-            this.client.api(`congress/${countryId}/members`).then(members => {
+            this.client.privateApi(`congress/${countryId}/members`).then(members => {
                 const memberString = members.join(', ');
 
                 message.reply(`**Congress member list:**\n ${memberString}`);
