@@ -174,9 +174,10 @@ module.exports = class Utils extends ClientUtil {
         });
 
         const apiPORT = this.client.env('API_PORT', 80);
+        const apiSUFFIX = this.client.env('API_SUFFIX', '/');
 
         const body = await request({
-            uri: `http://${apiIP}:${apiPORT}/${query}.json`,
+            uri: `http://${apiIP}:${apiPORT}${apiSUFFIX}${query}.json`,
             json: true
         });
 
