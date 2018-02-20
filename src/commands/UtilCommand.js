@@ -153,21 +153,6 @@ class UtilCommand extends Command {
             await message.reply('Citizen not found');
             break;
         }
-        case 'restartNotificator': {
-            if (this.client.epicNotificator.stream) {
-                this.client.epicNotificator.stream.destroy();
-
-                await new Promise(resolve => setTimeout(resolve, 10000));
-            }
-
-            this.client.epicNotificator.run();
-            message.reply(':white_check_mark: Done!');
-            break;
-        }
-        case 'fakeNotification': {
-            this.client.epicNotificator._notify(3, 'Test region', 'https://www.erepublik.com/en/military/battlefield/116213', 99);
-            break;
-        }
         case 'updateRoles': {
             if (this.client.cronHandler && message.guild) {
                 const roleSetter = this.client.cronHandler.modules.get('manualRoleSetter');
