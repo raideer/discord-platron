@@ -2,7 +2,6 @@ const winston = require('winston');
 const memwatch = require('memwatch-next');
 require('winston-daily-rotate-file');
 const PlatronClient = require('./src/PlatronClient');
-const EpicNotificator = require('./src/EpicNotificator');
 const { SequelizeProvider } = require('discord-akairo');
 require('dotenv').config();
 const ErepublikData = require('./src/ErepublikData');
@@ -75,6 +74,7 @@ client.setDatabase('guilds', new SequelizeProvider(db.Guild));
 client.setDatabase('citizens', new SequelizeProvider(db.Citizen));
 client.setDatabase('roles', new SequelizeProvider(db.Role));
 client.setDatabase('config', new SequelizeProvider(db.GuildConfig));
+client.setDatabase('push', new SequelizeProvider(db.Push));
 
 const timer = winston.startTimer();
 
@@ -83,6 +83,7 @@ Promise.all([
     db.Citizen.sync(),
     db.Role.sync(),
     db.GuildConfig.sync(),
+    db.Push.sync(),
     ErepublikData._initDb()
 ]).then(async () => {
     timer.done('Finished syncing database.');
@@ -91,12 +92,6 @@ Promise.all([
     await client.login(client.env('TOKEN', () => {
         throw 'Bot TOKEN not provided!';
     }));
-
-    client.epicNotificator = new EpicNotificator(client);
-
-    if (client.env('EPIC_NOTIFICATOR_ENABLED', true)) {
-        client.epicNotificator.run();
-    }
 
     winston.info('Successfully logged in');
     client.user.setActivity('eRepublik');
