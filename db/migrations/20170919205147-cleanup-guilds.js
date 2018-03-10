@@ -2,7 +2,6 @@
 
 module.exports = {
     up: async queryInterface => {
-        await queryInterface.removeColumn('Guilds', 'logging');
         await queryInterface.removeColumn('Guilds', 'roleVerified');
         await queryInterface.removeColumn('Guilds', 'roleVerifiedEnabled');
         await queryInterface.removeColumn('Guilds', 'forceErepNames');

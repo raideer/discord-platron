@@ -25,7 +25,6 @@
     "sequelize": "^4.33.4",
     "sequelize-cli": "^2.8.0",
     "slugify": "^1.2.9",
-    "sqlite3": "^3.1.13",
     "twitter": "^1.7.1",
     "url-unshort": "^5.0.0",
     "winston": "^2.4.0",
