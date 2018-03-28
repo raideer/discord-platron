@@ -126,7 +126,7 @@ module.exports = class APIRoleSetter extends CronModule {
 
                     if (player.party) {
                         await this._addPartyRole(guild, citizen, player, countryRole);
-                    }            
+                    }
                 } catch (e) {
                     winston.error('Error adding party role for', citizen.citizen.id);
                 }
