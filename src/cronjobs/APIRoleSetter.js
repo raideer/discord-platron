@@ -173,13 +173,13 @@ module.exports = class APIRoleSetter extends CronModule {
         const divisionRoles = await this.client.platron_utils.getRolesWithGroup('division');
 
         if (!citizen.citizen.verified) {
-            await citizen.member.removeRoles(divisionRoles);
+            citizen.member.removeRoles(divisionRoles);
             return;
         }
 
         if (countryRole && !citizen.member.roles.has(countryRole)) {
             winston.verbose(`Citizen ${citizen.member.user.username} does not have countryrole ${countryRole}`);
-            await citizen.member.removeRoles(divisionRoles);
+            citizen.member.removeRoles(divisionRoles);
             return;
         }
 
@@ -196,8 +196,8 @@ module.exports = class APIRoleSetter extends CronModule {
             return key != role.id;
         });
 
-        await citizen.member.removeRoles(otherDivisions);
-        await citizen.member.addRole(role);
+        citizen.member.removeRoles(otherDivisions);
+        citizen.member.addRole(role);
         winston.info('Added division role for', citizen.member.user.username);
     }
 
@@ -206,7 +206,7 @@ module.exports = class APIRoleSetter extends CronModule {
 
         if (countryRole && !citizen.member.roles.has(countryRole)) {
             winston.verbose(`Citizen ${citizen.member.user.username} does not have countryrole ${countryRole}`);
-            await citizen.member.removeRoles(roleKeys);
+            citizen.member.removeRoles(roleKeys);
             return;
         }
 
@@ -221,11 +221,11 @@ module.exports = class APIRoleSetter extends CronModule {
                 return key != role.id;
             });
 
-            await citizen.member.removeRoles(otherParties);
-            await citizen.member.addRole(role);
+            citizen.member.removeRoles(otherParties);
+            citizen.member.addRole(role);
         } else {
             // If not a member of any party, remove all party roles
-            await citizen.member.removeRoles(roleKeys);
+            citizen.member.removeRoles(roleKeys);
         }
     }
 
@@ -233,13 +233,13 @@ module.exports = class APIRoleSetter extends CronModule {
         const muRoles = await this.client.platron_utils.getRolesWithGroup('mu');
 
         if (!citizen.citizen.verified) {
-            await citizen.member.removeRoles(muRoles);
+            citizen.member.removeRoles(muRoles);
             return;
         }
 
         if (countryRole && !citizen.member.roles.has(countryRole)) {
             winston.verbose(`Citizen ${citizen.member.user.username} does not have countryrole ${countryRole}`);
-            await citizen.member.removeRoles(muRoles);
+            citizen.member.removeRoles(muRoles);
             return;
         }
 
@@ -256,8 +256,8 @@ module.exports = class APIRoleSetter extends CronModule {
             return key != role.id;
         });
 
-        await citizen.member.removeRoles(otherMUs);
-        await citizen.member.addRole(role);
+        citizen.member.removeRoles(otherMUs);
+        citizen.member.addRole(role);
         winston.info('Added MU role for', citizen.member.user.username);
     }
 
@@ -266,7 +266,7 @@ module.exports = class APIRoleSetter extends CronModule {
 
         if (!citizen.citizen.verified) {
             winston.verbose(citizen.citizen.id, 'Not verified');
-            await citizen.member.removeRoles(countryRoles);
+            citizen.member.removeRoles(countryRoles);
             return;
         }
 
@@ -284,8 +284,8 @@ module.exports = class APIRoleSetter extends CronModule {
         });
 
         winston.verbose('Removing other roles');
-        await citizen.member.removeRoles(otherCountries);
-        await citizen.member.addRole(role);
+        citizen.member.removeRoles(otherCountries);
+        citizen.member.addRole(role);
         winston.info('Added country role for', citizen.member.user.username);
     }
 };
