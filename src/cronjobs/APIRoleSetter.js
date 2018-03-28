@@ -123,8 +123,10 @@ module.exports = class APIRoleSetter extends CronModule {
             await Promise.each(citizens.array(), async citizen => {
                 try {
                     const player = data.players[citizen.citizen.id];
-                    // console.log(player);
-                    await this._addPartyRole(guild, citizen, player, countryRole);
+
+                    if (player.party) {
+                        await this._addPartyRole(guild, citizen, player, countryRole);
+                    }            
                 } catch (e) {
                     winston.error('Error adding party role for', citizen.citizen.id);
                 }
@@ -142,7 +144,10 @@ module.exports = class APIRoleSetter extends CronModule {
                     }
 
                     const player = data.players[citizen.citizen.id];
-                    await this._addMURole(guild, citizen, player, countryRole);
+
+                    if (player.military_unit) {
+                        await this._addMURole(guild, citizen, player, countryRole);
+                    }
                 } catch (e) {
                     winston.error(e);
                 }
@@ -276,8 +281,6 @@ module.exports = class APIRoleSetter extends CronModule {
             name: citizenInfo.citizenship.country_name,
             color: '#af900f'
         });
-
-        winston.verbose('Country role', role);
 
         const otherCountries = countryRoles.filter(key => {
             return key != role.id;
