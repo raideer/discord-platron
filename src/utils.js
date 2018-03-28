@@ -162,7 +162,8 @@ module.exports = class Utils extends ClientUtil {
 
         const body = await request({
             uri: `https://api.erepublik-deutschland.de/${apiKey}/${query}`,
-            json: true
+            json: true,
+            timeout: 3000
         });
 
         return body;
@@ -178,7 +179,8 @@ module.exports = class Utils extends ClientUtil {
 
         const body = await request({
             uri: `http://${apiIP}:${apiPORT}${apiSUFFIX}${query}.json`,
-            json: true
+            json: true,
+            timeout: 3000
         });
 
         return body;
