@@ -285,7 +285,7 @@ module.exports = class APIRoleSetter extends CronModule {
 
         winston.verbose('Removing other roles');
         citizen.member.removeRoles(otherCountries);
-        citizen.member.addRole(role);
+        await citizen.member.addRole(role);
         winston.info('Added country role for', citizen.member.user.username);
     }
 };
