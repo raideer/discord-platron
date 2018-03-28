@@ -16,10 +16,10 @@ module.exports = class APIRoleSetter extends CronModule {
 
     async exec() {
         await Promise.each(this.client.guilds.array(), async guild => {
-            winston.info('Setting accessory roles for guild', guild.name);
+            winston.info('Setting API roles for guild', guild.name);
             const timer = winston.startTimer();
             await this._processGuild(guild);
-            timer.done(`Finished setting accessory roles for guild ${guild.name}`);
+            timer.done(`Finished setting API roles for guild ${guild.name}`);
         });
     }
 
@@ -35,6 +35,19 @@ module.exports = class APIRoleSetter extends CronModule {
 
         if (ids.length <= 0) {
             return winston.info('No citizens in guild', guild.name);
+        }
+
+        // guild, configKey, default value, is value boolean
+        const partyRoleEnabled = await this.client.guildConfig(guild, 'setPartyRoles', false, true);
+        const verifiedRoleEnabled = await this.client.guildConfig(guild, 'setVerifiedRoles', false, true);
+        const countryRoleEnabled = await this.client.guildConfig(guild, 'setCountryRoles', false, true);
+        const divisionRoleEnabled = await this.client.guildConfig(guild, 'setDivisionRoles', false, true);
+        const muRoleEnabled = await this.client.guildConfig(guild, 'setMURoles', false, true);
+
+        const allDisabled = [partyRoleEnabled, verifiedRoleEnabled, countryRoleEnabled, divisionRoleEnabled, muRoleEnabled].every(setting => !setting);
+
+        if (allDisabled) {
+            return winston.info('All roles disabled in guild', guild.name);
         }
 
         const chunks = _.chunk(ids, 10);
@@ -57,12 +70,6 @@ module.exports = class APIRoleSetter extends CronModule {
         });
 
         winston.info('Collected data for', Object.keys(data.players).length, 'players');
-
-        const partyRoleEnabled = await this.client.guildConfig(guild, 'setPartyRoles', false, true);
-        const verifiedRoleEnabled = await this.client.guildConfig(guild, 'setVerifiedRoles', false, true);
-        const countryRoleEnabled = await this.client.guildConfig(guild, 'setCountryRoles', false, true);
-        const divisionRoleEnabled = await this.client.guildConfig(guild, 'setDivisionRoles', false, true);
-        const muRoleEnabled = await this.client.guildConfig(guild, 'setMURoles', false, true);
 
         let countryRole = await this.client.guildConfig(guild, 'countryRole', false);
 
