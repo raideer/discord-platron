@@ -44,7 +44,15 @@ module.exports = class APIRoleSetter extends CronModule {
         const divisionRoleEnabled = await this.client.guildConfig(guild, 'setDivisionRoles', false, true);
         const muRoleEnabled = await this.client.guildConfig(guild, 'setMURoles', false, true);
 
-        const allDisabled = [partyRoleEnabled, verifiedRoleEnabled, countryRoleEnabled, divisionRoleEnabled, muRoleEnabled].every(setting => !setting);
+        let countryRole = await this.client.guildConfig(guild, 'countryRole', false);
+
+        if (countryRole == '0') {
+            countryRole = false;
+        }
+
+        const roles = { partyRoleEnabled, verifiedRoleEnabled, countryRoleEnabled, divisionRoleEnabled, muRoleEnabled, countryRole };
+
+        const allDisabled = Object.keys(roles).every(role => !roles[role]);
 
         if (allDisabled) {
             return winston.info('All roles disabled in guild', guild.name);
@@ -71,12 +79,6 @@ module.exports = class APIRoleSetter extends CronModule {
 
         winston.info('Collected data for', Object.keys(data.players).length, 'players');
 
-        let countryRole = await this.client.guildConfig(guild, 'countryRole', false);
-
-        if (countryRole == '0') {
-            countryRole = false;
-        }
-
         if (verifiedRoleEnabled) {
             winston.verbose('Setting verified roles');
             await Promise.each(citizens.array(), async citizen => {
@@ -90,72 +92,23 @@ module.exports = class APIRoleSetter extends CronModule {
             winston.info('Verified roles are disabled in', guild.name);
         }
 
-        if (countryRoleEnabled) {
-            winston.verbose('Setting country roles');
-            await Promise.each(citizens.array(), async citizen => {
-                try {
-                    const player = data.players[citizen.citizen.id];
-                    await this._addCountryRole(guild, citizen, player);
-                } catch (e) {
-                    winston.error(e);
-                }
+        const citizenChunks = _.chunk(citizens.array(), parseInt(this.client.env('RS_CHUNKS', 5)));
+
+        await Promise.each(citizenChunks, chunk => {
+            const citizenIds = chunk.map(playerData => {
+                return playerData.citizen.id;
             });
-        } else {
-            winston.info('Country roles are disabled in', guild.name);
-        }
 
-        if (divisionRoleEnabled) {
-            winston.verbose('Setting division roles');
-            await Promise.each(citizens.array(), async citizen => {
-                try {
-                    const player = data.players[citizen.citizen.id];
-                    await this._addDivisionRole(guild, citizen, player, countryRole);
-                } catch (e) {
-                    winston.error(e);
-                }
+            winston.verbose('Adding roles for', citizenIds.join(', '), 'in guild', guild.name);
+            const promises = [];
+            chunk.forEach(playerData => {
+                promises.push(this._addRoles(guild, playerData, data, roles));
             });
-        } else {
-            winston.info('Division roles are disabled in', guild.name);
-        }
 
-        if (partyRoleEnabled) {
-            winston.info('Adding party roles');
-            await Promise.each(citizens.array(), async citizen => {
-                try {
-                    const player = data.players[citizen.citizen.id];
-
-                    if (player.party) {
-                        await this._addPartyRole(guild, citizen, player, countryRole);
-                    }
-                } catch (e) {
-                    winston.error('Error adding party role for', citizen.citizen.id);
-                }
-            });
-        } else {
-            winston.info('Party roles are disabled in', guild.name);
-        }
-
-        if (muRoleEnabled) {
-            winston.verbose('Setting MU roles');
-            await Promise.each(citizens.array(), async citizen => {
-                try {
-                    if (countryRole && !citizen.member.roles.has(countryRole)) {
-                        return;
-                    }
-
-                    const player = data.players[citizen.citizen.id];
-
-                    if (player.military_unit) {
-                        await this._addMURole(guild, citizen, player, countryRole);
-                    }
-                } catch (e) {
-                    winston.error(e);
-                }
-            });
-        } else {
-            winston.info('MU roles are disabled in', guild.name);
-        }
+            return Promise.all(promises);
+        });
     }
+    // end processGuilds
 
     async _addVerifiedRole(guild, citizen) {
         const role = await this.client.platron_utils.findOrCreateRole('roleVerified', 'roleVerified', guild, {
@@ -169,6 +122,50 @@ module.exports = class APIRoleSetter extends CronModule {
         } else {
             await citizen.member.removeRole(role);
             winston.info('Removed verified role from', citizen.member.user.username);
+        }
+    }
+
+    async _addRoles(guild, citizen, apiData, roles) {
+        const player = apiData.players[citizen.citizen.id];
+
+        // Add country role
+        if (roles.countryRoleEnabled) {
+            try {
+                await this._addCountryRole(guild, citizen, player);
+            } catch (e) {
+                winston.error(e);
+            }
+        }
+
+        // Add division role
+        if (roles.divisionRoleEnabled) {
+            try {
+                await this._addDivisionRole(guild, citizen, player, roles.countryRole);
+            } catch (e) {
+                winston.error(e);
+            }
+        }
+
+        // Add party role
+        if (roles.partyRoleEnabled) {
+            try {
+                if (player.party) {
+                    await this._addPartyRole(guild, citizen, player, roles.countryRole);
+                }
+            } catch (e) {
+                winston.error('Error adding party role for', citizen.citizen.id);
+            }
+        }
+
+        // Add MU role
+        if (roles.muRoleEnabled) {
+            try {
+                if (player.military_unit) {
+                    await this._addMURole(guild, citizen, player, roles.countryRole);
+                }
+            } catch (e) {
+                winston.error(e);
+            }
         }
     }
 
