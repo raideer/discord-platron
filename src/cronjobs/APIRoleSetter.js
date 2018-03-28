@@ -196,10 +196,8 @@ module.exports = class APIRoleSetter extends CronModule {
             return key != role.id;
         });
 
-        await Promise.all([
-            citizen.member.removeRoles(otherDivisions),
-            citizen.member.addRole(role)
-        ]);
+        citizen.member.removeRoles(otherDivisions);
+        citizen.member.addRole(role);
         winston.info('Added division role for', citizen.member.user.username);
     }
 
@@ -223,11 +221,8 @@ module.exports = class APIRoleSetter extends CronModule {
                 return key != role.id;
             });
 
-
-            await Promise.all([
-                citizen.member.removeRoles(otherParties),
-                citizen.member.addRole(role)
-            ]);
+            citizen.member.removeRoles(otherParties);
+            citizen.member.addRole(role);
         } else {
             // If not a member of any party, remove all party roles
             await citizen.member.removeRoles(roleKeys);
@@ -261,10 +256,8 @@ module.exports = class APIRoleSetter extends CronModule {
             return key != role.id;
         });
 
-        await Promise.all([
-            citizen.member.removeRoles(otherMUs),
-            citizen.member.addRole(role)
-        ]);
+        citizen.member.removeRoles(otherMUs);
+        citizen.member.addRole(role);
 
         winston.info('Added MU role for', citizen.member.user.username);
     }
@@ -293,10 +286,8 @@ module.exports = class APIRoleSetter extends CronModule {
 
         winston.verbose('Removing other roles');
 
-        await Promise.all([
-            citizen.member.removeRoles(otherCountries),
-            citizen.member.addRole(role)
-        ]);
+        citizen.member.removeRoles(otherCountries);
+        citizen.member.addRole(role);
 
         winston.info('Added country role for', citizen.member.user.username);
     }
