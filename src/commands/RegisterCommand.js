@@ -23,7 +23,7 @@ class RegisterCommand extends Command {
         });
     }
 
-    verifyCode($, code) {
+    async verifyCode(citizenId, code) {
         if (!code) {
             return null;
         }
@@ -32,27 +32,15 @@ class RegisterCommand extends Command {
             return null;
         }
 
-        const about_me = $('.about_message.profile_section').text();
+        const body = await request.get(`https://www.erepublik.com/en/citizen/profile/${citizenId}`);
+        const about_me = cheerio.load(body)('.about_message.profile_section').text();
         const regex = new RegExp(`\\[tron\\=(${code})\\]`);
-        const match = about_me.match(regex);
 
-        if (match) {
-            return true;
-        }
-
-        return false;
+        return !!about_me.match(regex);
     }
 
     generateCode() {
         return (Math.random() + 1).toString(36).substr(2, 5);
-    }
-
-    async _deleteMessageAndReply(message, reply, timeout = 20000) {
-        const del = await this.client.guildConfig(message.guild, 'autoDeleteMessages', true);
-        if (del) {
-            this.deleteMessage(message, timeout);
-            this.deleteMessage(reply, timeout);
-        }
     }
 
     async exec(message, args) {
@@ -62,9 +50,6 @@ class RegisterCommand extends Command {
 
         winston.info('Attempting to register', args.user);
 
-        const body = await request.get(`https://www.erepublik.com/en/citizen/profile/${args.user}`);
-        const $ = cheerio.load(body);
-
         const Citizen = this.client.databases.citizens.table;
 
         // Finding citizen with the provided ID in the db
@@ -73,7 +58,7 @@ class RegisterCommand extends Command {
         if (user) {
             winston.verbose('Found citizen with id', user.id);
             if ((user.verified === false && user.discord_id == message.author.id) || user.reclaiming == message.author.id) {
-                const verify = this.verifyCode($, user.code);
+                const verify = await this.verifyCode(user.id, user.code);
 
                 // If code is in the about me page
                 if (verify) {
@@ -89,13 +74,11 @@ class RegisterCommand extends Command {
                     const l_verified = this.client._('command.register.verified', `**${args.user}**`);
                     const l_verified1 = this.client._('command.register.verified1');
 
-                    const reply = await message.reply(`:white_check_mark: ${l_verified}\n ${l_verified1} :thumbsup:`);
-                    this._deleteMessageAndReply(message, reply);
+                    await message.reply(`:white_check_mark: ${l_verified}\n ${l_verified1} :thumbsup:`);
                 } else if (verify === false) {
                     winston.warn('Code didn\'t match for', args.user);
                     // If code doesn't match
-                    const reply = await message.reply(this.client._('command.register.add_code', `**${args.user}**`, `\`[tron=${user.code}]\``));
-                    this._deleteMessageAndReply(message, reply);
+                    await message.reply(this.client._('command.register.add_code', `**${args.user}**`, `\`[tron=${user.code}]\``));
                 } else {
                     winston.warn('Code invalid for', args.user);
                     // If invalid code
@@ -104,14 +87,19 @@ class RegisterCommand extends Command {
                     user.discord_id = message.author.id;
                     await user.save();
 
-                    const reply = await message.reply(`:arrows_counterclockwise: Something went wrong! Please add \`[tron=${code}]\` to your **About me** section and try again`);
-                    this._deleteMessageAndReply(message, reply);
+                    await message.reply(`:arrows_counterclockwise: Something went wrong! Please add \`[tron=${code}]\` to your **About me** section and try again`);
                 }
             } else {
                 const owner = this.client.util.resolveUser(user.discord_id, this.client.users);
+
+                if (!owner) {
+                    winston.warn(`Did not find user with ID ${user.discord_id} when registering ${args.user}. Deleting this record`);
+                    await user.destroy();
+                    return this.exec(message, args);
+                }
+
                 if (owner.id == message.author.id) {
-                    const reply = await message.reply(`:white_check_mark: ${this.client._('command.register.already_verified')}!`);
-                    this._deleteMessageAndReply(message, reply);
+                    await message.reply(`:white_check_mark: ${this.client._('command.register.already_verified')}!`);
                     return;
                 }
 
@@ -134,8 +122,7 @@ class RegisterCommand extends Command {
                         user.reclaiming = message.author.id;
                         user.code = code;
                         await user.save();
-                        const reply = await message.reply(`Ok :ok_hand:. ${this.client._('command.register.add_code', `**${args.user}**`, `\`[tron=${code}]\``)}`);
-                        this._deleteMessageAndReply(message, reply);
+                        await message.reply(`Ok :ok_hand:. ${this.client._('command.register.add_code', `**${args.user}**`, `\`[tron=${code}]\``)}`);
                     }
                 } catch (e) {
                     if (e == 'time') {
@@ -188,8 +175,7 @@ class RegisterCommand extends Command {
             });
 
             const l_add_code = this.client._('command.register.add_code', `**${args.user}**`, `\`[tron=${code}]\``);
-            const reply = await message.reply(`:information_source: ${l_add_code}.`);
-            this._deleteMessageAndReply(message, reply);
+            await message.reply(`:information_source: ${l_add_code}.`);
         }
     }
 }
