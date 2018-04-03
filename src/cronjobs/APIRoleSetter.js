@@ -199,9 +199,13 @@ module.exports = class APIRoleSetter extends CronModule {
             }
         }
 
-        console.log(actions);
-        await citizen.member.removeRoles(actions.remove);
-        await citizen.member.addRoles(actions.add);
+        if (actions.remove.length > 0) {
+            await citizen.member.removeRoles(actions.remove);
+        }
+
+        if (actions.add.length > 0) {
+            await citizen.member.addRoles(actions.add);
+        }
     }
 
     async _addDivisionRole(guild, citizen, citizenInfo, countryRole = false) {
