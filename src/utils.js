@@ -246,9 +246,7 @@ module.exports = class Utils extends ClientUtil {
 
         if (roleItem) {
             winston.verbose('Found role in db with name', roleName);
-
             if (guild.roles.has(roleItem.id)) {
-                winston.verbose('Found role in the collection');
                 return guild.roles.get(roleItem.id);
             } else {
                 winston.warn('Role', roleItem.id, 'was not valid. Deleting from database');
