@@ -65,6 +65,8 @@ class HelpCommand extends Command {
                 return `\`${_.first(command.aliases)}\``;
             });
 
+            answers.push('```Append `-en` or `-lv` for bot to respond in a specific language');
+            answers.push('For example: `!help -en` ```');
             answers.push(this.getHelp(message, this));
             answers.push(`${this.client._('bot.command.list_of_commands')}: ${command_list.join(', ')}`);
         }
