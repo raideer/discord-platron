@@ -62,6 +62,17 @@ class RegisterCommand extends Command {
 
                 // If code is in the about me page
                 if (verify) {
+                    const exists = await Citizen.findOne({
+                        where: {
+                            discord_id: message.author.id
+                        }
+                    });
+
+                    if (exists) {
+                        winston.verbose('User', user.id, 'already registered. Deleting old account');
+                        await exists.destroy();
+                    }
+
                     winston.verbose('Successfully verified code for', user.id);
                     user.verified = true;
                     user.code = null;
