@@ -1,5 +1,4 @@
 const Command = require('../PlatronCommand');
-const async = require('async');
 const winston = require('winston');
 
 class UtilCommand extends Command {
@@ -126,22 +125,6 @@ class UtilCommand extends Command {
 
     async runRun(message, args) {
         switch (args.command) {
-        case 'deleteRoles': {
-            async.eachSeries(message.guild.roles.array(), (role, cb) => {
-                if (!role.name.startsWith('@') && role.name != 'Bot') {
-                    role.delete().then(() => {
-                        cb();
-                    });
-                } else {
-                    return cb();
-                }
-
-                // role.delete().then(cb);
-            }, () => {
-                message.reply('Done');
-            });
-            break;
-        }
         case 'purgeCitizen': {
             const citizen = await this.client.platron_utils.resolveCitizen(args.arg, message.author.id, message.guild);
             if (citizen) {
