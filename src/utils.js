@@ -245,7 +245,6 @@ module.exports = class Utils extends ClientUtil {
         });
 
         if (roleItem) {
-            winston.verbose('Found role in db with name', roleName);
             if (guild.roles.has(roleItem.id)) {
                 return guild.roles.get(roleItem.id);
             } else {
@@ -255,8 +254,7 @@ module.exports = class Utils extends ClientUtil {
         }
 
         const createdRole = await guild.createRole(defaults);
-        winston.info('Created role', createdRole.name, 'with id', createdRole.id);
-
+        
         await Role.create({
             id: createdRole.id,
             name: roleName,
@@ -264,7 +262,8 @@ module.exports = class Utils extends ClientUtil {
             group: roleGroup,
             mentionable: true
         });
-        winston.info('Role', createdRole.id, 'saved to database for guild', guild.id);
+        
+        winston.info('Created role', createdRole.name, 'with id', createdRole.id);
         return createdRole;
     }
 };
