@@ -1,12 +1,12 @@
-const winston = require('winston');
-const memwatch = require('memwatch-next');
-require('winston-daily-rotate-file');
-const PlatronClient = require('./src/PlatronClient');
 const { SequelizeProvider } = require('discord-akairo');
-require('dotenv').config();
+const PlatronClient = require('./src/PlatronClient');
 const ErepublikData = require('./src/ErepublikData');
+const spawn = require('child_process').spawn;
+require('winston-daily-rotate-file');
+const winston = require('winston');
+const path = require('path');
+require('dotenv').config();
 
-// Configuring logger
 winston.configure({
     transports: [
         new winston.transports.Console(),
@@ -24,11 +24,6 @@ winston.cli();
 process.on('uncaughtException', error => {
     winston.error(error);
 });
-
-memwatch.on('leak', leak => {
-    winston.error('Memory leak', leak);
-});
-// END Configuring logger
 
 const db = require('./db/models/index');
 
@@ -89,4 +84,13 @@ Promise.all([
 
     winston.info('Successfully logged in');
     client.user.setActivity('eRepublik');
+
+    winston.info('Spawning `notifyEpics` childprocess');
+    const child = spawn('node', [path.resolve('./src/subprocess/notifyEpics.js')], {
+        stdio: ['pipe', 'pipe', 'pipe', 'ipc']
+    });
+
+    child.on('message', payload => {
+        client.notifyEpic(payload);
+    });
 });
