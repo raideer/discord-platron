@@ -18,15 +18,8 @@ winston.configure({
     ]
 });
 
-winston.level = 'verbose';
 winston.exitOnError = false;
 winston.cli();
-
-winston.handleExceptions(new winston.transports.DailyRotateFile({
-    name: 'error-file',
-    filename: './logs/error',
-    level: 'error'
-}));
 
 process.on('uncaughtException', error => {
     winston.error(error);
