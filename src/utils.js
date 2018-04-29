@@ -254,7 +254,7 @@ module.exports = class Utils extends ClientUtil {
         }
 
         const createdRole = await guild.createRole(defaults);
-        
+
         await Role.create({
             id: createdRole.id,
             name: roleName,
@@ -262,7 +262,7 @@ module.exports = class Utils extends ClientUtil {
             group: roleGroup,
             mentionable: true
         });
-        
+
         winston.info('Created role', createdRole.name, 'with id', createdRole.id);
         return createdRole;
     }
