@@ -128,7 +128,7 @@ async function notify(division, region, shortUrl, time) {
 }
 
 Push.sync().then(() => {
-    const _c = new CronJob('* * * * *', () => {
+    const _c = new CronJob(process.env.EPIC_NOTIFICATOR_CRON ? process.env.EPIC_NOTIFICATOR_CRON : '* * * * *', () => {
         checkForEpics();
     }, null, true, null);
 });
