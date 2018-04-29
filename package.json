@@ -17,6 +17,7 @@
     "lodash": "^4.17.10",
     "moment": "^2.22.1",
     "moment-timezone": "^0.5.16",
+    "request": "^2.85.0",
     "request-promise": "^4.2.2",
     "sequelize": "^4.37.6",
     "sequelize-cli": "^2.8.0",
