@@ -33,7 +33,7 @@ let cron = new CronJob({
     runOnInit: false
 });
 
-function getTimeLeft(battle) {
+function getTimeLeft(battle, getDiv = null) {
     // eRepublik only returns 7 digit unix timestamp, so we're extending to 9
     const battleStart = moment.tz(battle.start * 1000, TIME_ZONE);
     const now = moment();
@@ -64,6 +64,10 @@ function getTimeLeft(battle) {
         return 1;
     }
 
+    if (getDiv) {
+        return getDivTimeLeft(getDiv);
+    }
+
     for(let div in battle.div) {
         const division = battle.div[div];
         const time = getDivTimeLeft(division);
@@ -84,6 +88,8 @@ function getEpicsAndFS(battles) {
 
         for (let division in battle.div) {
             const div = battle.div[division];
+
+            if (getTimeLeft(battle, division) < 1) continue;
 
             if (div.epic === C.BATTLE_TYPE.EPIC) {
                 data.epic.push(battle);
