@@ -2,6 +2,7 @@ const { AkairoClient } = require('discord-akairo');
 const CronHandler = require('./CronHandler');
 const { RichEmbed } = require('discord.js');
 const PlatronUtils = require('./utils');
+const ErepublikData = require('./ErepublikData');
 const Localize = require('localize');
 const Promise = require('bluebird');
 const winston = require('winston');
@@ -103,7 +104,8 @@ module.exports = class PlatronClient extends AkairoClient {
     }
 
     async notifyEpic(data) {
-        winston.info('Notifying', data.division, 'epic');
+        winston.info('Notifying', data.div, 'epic');
+
         await Promise.each(this.guilds.array(), async guild => {
             const Role = this.databases.roles.table;
             const channel = await this.guildConfig(guild, 'epicNotificator', false);
@@ -120,7 +122,7 @@ module.exports = class PlatronClient extends AkairoClient {
             const role = await Role.findOne({
                 where: {
                     guildId: guild.id,
-                    name: `div${data.division}`
+                    name: `div${data.div}`
                 }
             });
 
@@ -133,47 +135,26 @@ module.exports = class PlatronClient extends AkairoClient {
                     divText += ` <@&${maveric}>`;
                 }
             } else {
-                divText = `**Division ${data.division}**`;
+                divText = `**Division ${data.div}**`;
             }
 
             const embed = new RichEmbed();
 
-            if (!data.details) {
-                await guildChannel.send(`:gem: ${divText} Epic battle in **${data.region}** :alarm_clock: ${data.time} min left :link: <${data.url}>`);
-                return;
-            }
+            embed.setTitle(`:gem: Division ${data.div} Epic battle`);
+            const attackerName = ErepublikData.countryIdToName(data.battle.inv.id);
+            const defenderName = ErepublikData.countryIdToName(data.battle.def.id);
+            embed.addField('Attacker', `${this.platron_utils.getFlag(attackerName)} **${attackerName}**`, true);
+            embed.addField('Defender', `${this.platron_utils.getFlag(defenderName)} **${defenderName}**`, true);
+            embed.addField('Region', `:map: ${data.battle.region.name}`, true);
+            embed.addField('Time left', `:alarm_clock: ~${data.timeLeft} minutes`, true);
+            embed.addField('Battle type', `${data.battle.war_type}`, true);
+            embed.addField('Round', `${data.battle.zone_id}`, true);
+            const battleUrl = `https://www.erepublik.com/en/military/battlefield/${data.battle.id}`;
+            embed.addField('URL', battleUrl);
+            embed.setURL(battleUrl);
+            embed.setColor(this.platron_utils.strToColor(data.div));
 
-            embed.setTitle(`:gem: Division ${data.division} Epic battle`);
-            embed.addField('Attacker', `${this.platron_utils.getFlag(data.details.attacker.name)} **${data.details.attacker.name}**`, true);
-            embed.addField('Defender', `${this.platron_utils.getFlag(data.details.defender.name)} **${data.details.defender.name}**`, true);
-            embed.addField('Region', `:map: ${data.region}`, true);
-            embed.addField('Time left', `:alarm_clock: ${data.time} minutes`, true);
-            embed.addField('Battle type', `${data.details.general.type}`, true);
-            embed.addField('Round', `${data.details.general.round}`, true);
-            embed.addField('URL', `<${data.url}>`);
-            embed.setURL(data.url);
-            embed.setColor(this.platron_utils.strToColor(data.division));
-
-            if (data.details.combat_orders) {
-                const cos = [];
-
-                for (const i in data.details.combat_orders) {
-                    let co = data.details.combat_orders[i];
-                    co = co[Object.keys(co)[0]];
-
-                    if (co.division != data.division) {
-                        continue;
-                    }
-
-                    cos.push(`${this.platron_utils.getFlag(co.country.name)} ${co.country.name} | **${co.reward} cc/m** under **${co.wall}%** wall (${co.budget}cc budget)`);
-                }
-
-                if (cos.length > 0) {
-                    embed.addField('Combat orders', cos.join('\n'));
-                }
-            }
-
-            winston.info('Notified div', data.division, 'epic');
+            winston.info('Notified div', data.div, 'epic');
             await guildChannel.send(divText, { embed });
         });
     }
