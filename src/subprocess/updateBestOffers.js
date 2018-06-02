@@ -51,6 +51,8 @@ async function update() {
             try {
                 const data = await callApi(`market/bestoffers/${i.id}/${quality}.json`);
 
+                if (!data || typeof data !== 'object') continue;
+
                 await BestOffer.findOrCreate({
                     where: { industry: i.id, quality },
                     defaults: {
