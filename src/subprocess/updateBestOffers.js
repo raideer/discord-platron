@@ -14,6 +14,8 @@ async function callApi(query) {
         });
     }
 
+    console.log(`http://${process.env.API_IP}:${process.env.API_PORT}${process.env.API_SUFFIX}${query}.json`);
+
     const body = await request({
         uri: `http://${process.env.API_IP}:${process.env.API_PORT}${process.env.API_SUFFIX}${query}.json`,
         json: true
