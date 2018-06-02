@@ -103,6 +103,7 @@ function announceEpics(epicBattle) {
         if (division.epic !== C.BATTLE_TYPE.EPIC) continue;
 
         const timeLeft = divisionTimes[i];
+        if (timeLeft < 1) continue;
         const epicId = `i${epicBattle.id}z${epicBattle.zone_id}d${i}`;
 
         Push.findOrCreate({
