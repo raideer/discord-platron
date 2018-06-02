@@ -48,11 +48,9 @@ async function update() {
 
     for (let i of industries) {
         for (let quality of getQualities(i.code)) {
-            try {
-                const data = await callApi(`market/bestoffers/${i.id}/${quality}.json`);
+            const data = await callApi(`market/bestoffers/${i.id}/${quality}.json`);
 
-                if (!data || typeof data !== 'object') continue;
-
+            if (!data || typeof data !== 'object') {
                 await BestOffer.findOrCreate({
                     where: { industry: i.id, quality },
                     defaults: {
@@ -67,8 +65,6 @@ async function update() {
 
                     return offer.save();
                 });
-            } catch(e) {
-                console.error(e);
             }
         }
     }

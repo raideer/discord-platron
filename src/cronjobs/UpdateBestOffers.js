@@ -23,7 +23,7 @@ module.exports = class UpdateBestOffers extends CronModule {
             if (data.done) {
                 winston.info('Updated BO');
             } else {
-                winston.verbose(data.msg);
+                winston.info(data.msg);
             }
         });
     }
