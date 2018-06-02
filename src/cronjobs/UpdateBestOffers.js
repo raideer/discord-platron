@@ -7,7 +7,7 @@ module.exports = class UpdateBestOffers extends CronModule {
     constructor() {
         super('boUpdater', {
             tab: () => {
-                return '*/5 * * * *'
+                return '*/10 * * * *'
             }
         });
     }
