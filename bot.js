@@ -64,6 +64,7 @@ client.setDatabase('citizens', new SequelizeProvider(db.Citizen));
 client.setDatabase('roles', new SequelizeProvider(db.Role));
 client.setDatabase('config', new SequelizeProvider(db.GuildConfig));
 client.setDatabase('push', new SequelizeProvider(db.Push));
+client.setDatabase('bestoffers', new SequelizeProvider(db.BestOffer));
 
 const timer = winston.startTimer();
 
@@ -73,6 +74,7 @@ Promise.all([
     db.Role.sync(),
     db.GuildConfig.sync(),
     db.Push.sync(),
+    db.BestOffer.sync(),
     ErepublikData._initDb()
 ]).then(async () => {
     timer.done('Finished syncing database.');

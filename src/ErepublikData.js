@@ -21,13 +21,39 @@ class ErepublikData {
             code: Sequelize.STRING
         }, { timestamps: false });
 
+        this.Industry = sequelize.define('industry', {
+            id: {
+                type: Sequelize.INTEGER,
+                primaryKey: true
+            },
+            name: Sequelize.STRING,
+            code: Sequelize.STRING
+        }, { timestamps: false });
+
+        this.Region = sequelize.define('region', {
+            id: {
+                type: Sequelize.INTEGER,
+                primaryKey: true
+            },
+            name: Sequelize.STRING,
+            original_owner_country_id: Sequelize.INTEGER,
+            permalink: Sequelize.STRING,
+            zone: Sequelize.INTEGER
+        }, { timestamps: false });
+
         this.countries = new Collection();
+        this.industries = new Collection();
     }
 
     async _initDb() {
-        const rows = await this.Country.findAll();
-        for (const row of rows) {
+        const countries = await this.Country.findAll();
+        for (const row of countries) {
             this.countries.set(row.id, row);
+        }
+
+        const industries = await this.Industry.findAll();
+        for (const row of industries) {
+            this.industries.set(row.id, row);
         }
     }
 
@@ -47,6 +73,12 @@ class ErepublikData {
         if (this.countries.has(Number(id))) {
             return this.countries.get(Number(id)).name;
         }
+    }
+
+    industryCodeToId(code) {
+        return this.industries.find(industry => {
+            return industry.code == code;
+        });
     }
 }
 

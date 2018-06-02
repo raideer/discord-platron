@@ -15,12 +15,16 @@ module.exports = class APIRoleSetter extends CronModule {
     }
 
     async exec() {
-        await Promise.each(this.client.guilds.array(), async guild => {
-            winston.info('Setting API roles for guild', guild.name);
-            const timer = winston.startTimer();
-            await this._processGuild(guild);
-            timer.done(`Finished setting API roles for guild ${guild.name}`);
-        });
+        try {
+            await Promise.each(this.client.guilds.array(), async guild => {
+                winston.info('Setting API roles for guild', guild.name);
+                const timer = winston.startTimer();
+                await this._processGuild(guild);
+                timer.done(`Finished setting API roles for guild ${guild.name}`);
+            });
+        } catch(e) {
+            winston.error('Failed to run API role setter', e);
+        }
     }
 
     async _processGuild(guild, citizens) {

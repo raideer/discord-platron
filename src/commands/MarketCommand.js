@@ -1,5 +1,6 @@
 const Command = require('../PlatronCommand');
 const { RichEmbed } = require('discord.js');
+const ErepublikData = require('../ErepublikData');
 
 class MarketCommand extends Command {
     constructor() {
@@ -133,47 +134,46 @@ class MarketCommand extends Command {
             return this.client.platron_utils.invalidCommand(message, this);
         }
 
-        const data = await this.client.platron_utils.deutchlandApi(`market/bestoffers/${args.product}/${args.quality}`);
+        const industry = ErepublikData.industryCodeToId(args.product);
+        if (!industry) return message.reply(this.client._('command.market.invalid_combination'));
+
+        const BestOffers = await this.client.databases.bestoffers.table;
+        const rawData = await BestOffers.findOne({
+            where: {
+                industry: industry.id,
+                quality: args.quality
+            }
+        });
+
+        if (!rawData) return message.reply('Something went wrong...');
+
+        const data = JSON.parse(rawData.data);
         let answer = '';
 
         const l_for = this.client._('command.market.for');
         const l_go_to_offer = this.client._('command.market.go_to_offer');
         const l_bestoffers = this.client._('command.market.best_offers');
 
-        if (data.status == 'ok') {
-            for (let i = 0; i < Math.min(5, data.bestoffers.length); i++) {
-                const offer = data.bestoffers[i];
-                if (args.product == 'food') {
-                    var hp = this.getHpRestored(args.quality);
-                    var hpcc = Math.round((offer.price / hp) * 10000) / 10000;
-                    answer += `**${this.client.platron_utils.number(offer.amount)}** ${l_for} **${this.client.platron_utils.number(offer.price)} cc** (${hpcc} cc/hp) in ${this.client.platron_utils.getFlag(offer.country_name)} ${offer.country_name} | [${l_go_to_offer}](https://www.erepublik.com/en/economy/marketplace/offer/${offer.offer_id})\n`;
-                } else {
-                    answer += `**${this.client.platron_utils.number(offer.amount)}** ${l_for} **${this.client.platron_utils.number(offer.price)} cc** in ${this.client.platron_utils.getFlag(offer.country_name)} ${offer.country_name} | [${l_go_to_offer}](https://www.erepublik.com/en/economy/marketplace/offer/${offer.offer_id}) \n`;
-                }
+        for (let i = 0; i < Math.min(5, data.length); i++) {
+            const offer = data[i];
+
+            const countryName = ErepublikData.countryIdToName(offer.country_id);
+            if (args.product == 'food') {
+                var hp = this.getHpRestored(args.quality);
+                var hpcc = Math.round((offer.price / hp) * 10000) / 10000;
+                answer += `**${this.client.platron_utils.number(offer.amount)}** ${l_for} **${this.client.platron_utils.number(offer.priceWithTaxes)} cc** (${hpcc} cc/hp) in ${this.client.platron_utils.getFlag(countryName)} ${countryName} | [${l_go_to_offer}](https://www.erepublik.com/en/economy/marketplace/offer/${offer.id})\n`;
+            } else {
+                answer += `**${this.client.platron_utils.number(offer.amount)}** ${l_for} **${this.client.platron_utils.number(offer.priceWithTaxes)} cc** in ${this.client.platron_utils.getFlag(countryName)} ${countryName} | [${l_go_to_offer}](https://www.erepublik.com/en/economy/marketplace/offer/${offer.id}) \n`;
             }
-
-            const embed = new RichEmbed()
-            .setTitle(`${l_bestoffers} ${args.product} Q${args.quality}`)
-            .setThumbnail(this.getIcon(args.product, args.quality))
-            .setColor(2551405)
-            .setDescription(answer);
-
-            message.channel.send({ embed });
-        } else {
-            switch (data.message) {
-            case 'E_INVALID_ITEM_QUALITY_COMBINATION':
-                answer = this.client._('command.market.invalid_combination');
-                break;
-            case 'E_INVALID_ITEM':
-                answer = this.client._('command.market.invalid_product');
-                break;
-            default:
-                answer = data.message;
-                break;
-            }
-
-            message.reply(answer);
         }
+
+        const embed = new RichEmbed()
+        .setTitle(`${l_bestoffers} ${args.product} Q${args.quality}`)
+        .setThumbnail(this.getIcon(args.product, args.quality))
+        .setColor(2551405)
+        .setDescription(answer);
+
+        message.channel.send({ embed });
     }
 }
 
