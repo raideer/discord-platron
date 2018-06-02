@@ -2,26 +2,29 @@ require('dotenv').config({
     path: __dirname + '/../../.env'
 });
 
-const request = require('request-promise');
+const request = require('request');
 const ErepublikData = require('../ErepublikData');
 const { BestOffer } = require('../../db/models/index');
 
-async function callApi(query) {
+function send(data) {
     if (process.send) {
-        return process.send({
-            done: false,
-            msg: `http://${process.env.API_IP}:${process.env.API_PORT}${process.env.API_SUFFIX}${query}.json`
-        });
+        return process.send(data);
     }
+}
 
-    console.log(`http://${process.env.API_IP}:${process.env.API_PORT}${process.env.API_SUFFIX}${query}.json`);
+async function callApi(query) {
+    const endpoint = `http://${process.env.API_IP}:${process.env.API_PORT}${process.env.API_SUFFIX}${query}.json`;
 
-    const body = await request({
-        uri: `http://${process.env.API_IP}:${process.env.API_PORT}${process.env.API_SUFFIX}${query}.json`,
-        json: true
+    return new Promise((resolve, reject) => {
+        request({
+            uri: endpoint,
+            json: true
+        }, function(error, response, body) {
+            if (error) return reject(error);
+
+            resolve(body);
+        });
     });
-
-    return body;
 }
 
 function getQualities(industry) {
@@ -74,17 +77,14 @@ async function update() {
 
 try {
     update().then(() => {
-        if (process.send) {
-            return process.send({
-                done: true
-            });
-        }
+        send({
+            done: true
+        });
     });
 } catch(e) {
-    if (process.send) {
-        return process.send({
-            done: false,
-            msg: e
-        });
-    }
+    send({
+        done: false,
+        error: true,
+        msg: e
+    });
 }
