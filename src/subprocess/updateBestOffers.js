@@ -52,7 +52,7 @@ async function update() {
         for (let quality of getQualities(i.code)) {
             const data = await callApi(`market/bestoffers/${i.id}/${quality}.json`);
 
-            if (data) {
+            if (data && typeof data === 'object') {
                 await BestOffer.findOrCreate({
                     where: { industry: i.id, quality },
                     defaults: {
