@@ -25,7 +25,7 @@ class SalaryCommand extends Command {
         let answer = '**Best job offers:**\n\n';
 
         data.forEach(offer => {
-            answer += `**${this.client.platron_utils.number(offer.salary)} cc** ${offer.salaryLimit == 0 ? 'No' : offer.salaryLimit} limit) - ${this.client.platron_utils.getFlag(offer.countryName)} **${offer.countryName}** (${offer.citizen.name})\n`;
+            answer += `**${this.client.platron_utils.number(offer.salary)} cc** (${offer.salaryLimit == 0 ? 'No' : offer.salaryLimit} limit) - ${this.client.platron_utils.getFlag(offer.countryName)} **${offer.countryName}** (${offer.citizen.name})\n`;
         });
 
         message.util.send(answer);
