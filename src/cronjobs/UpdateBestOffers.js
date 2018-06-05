@@ -3,6 +3,8 @@ const spawn = require('child_process').spawn;
 const winston = require('winston');
 const path = require('path');
 
+let child;
+
 module.exports = class UpdateBestOffers extends CronModule {
     constructor() {
         super('boUpdater', {
