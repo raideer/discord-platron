@@ -18,7 +18,8 @@ async function callApi(query) {
     return new Promise((resolve, reject) => {
         request({
             uri: endpoint,
-            json: true
+            json: true,
+            timeout: 10000
         }, function(error, response, body) {
             if (error) return reject(error);
 
@@ -53,9 +54,11 @@ async function update() {
 
     for (let i of industries) {
         for (let quality of getQualities(i.code)) {
-            const data = await callApi(`market/bestoffers/${i.id}/${quality}.json`);
-
+            console.log('Updating', i.id, quality);
+            const data = await callApi(`market/bestoffers/${i.id}/${quality}.json`).catch(console.error);
+            // console.log('Received:', data);
             if (data && typeof data === 'object') {
+                console.log('Saving record');
                 await BestOffer.findOrCreate({
                     where: { industry: i.id, quality },
                     defaults: {
@@ -64,10 +67,10 @@ async function update() {
                         data: JSON.stringify(data)
                     }
                 }).spread((offer, created) => {
+                    console.log('Created?', created);
                     if (created) return;
 
                     offer.data = JSON.stringify(data);
-
                     return offer.save();
                 });
             }
