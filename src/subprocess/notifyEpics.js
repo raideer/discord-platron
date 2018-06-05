@@ -65,7 +65,7 @@ function getTimeLeft(battle, getDiv = null) {
     }
 
     if (getDiv) {
-        return getDivTimeLeft(getDiv);
+        return getDivTimeLeft(battle.div[getDiv]);
     }
 
     for(let div in battle.div) {
