@@ -3,6 +3,8 @@ const spawn = require('child_process').spawn;
 const winston = require('winston');
 const path = require('path');
 
+let child;
+
 module.exports = class UpdateBestOffers extends CronModule {
     constructor() {
         super('boUpdater', {
@@ -15,7 +17,11 @@ module.exports = class UpdateBestOffers extends CronModule {
     async exec() {
         winston.info('Spawning `boUpdater` childprocess');
 
-        const child = spawn('node', [path.resolve(__dirname, '../subprocess/updateBestOffers.js')], {
+        if (child) {
+            child.kill('SIGINT');
+        }
+
+        child = spawn('node', [path.resolve(__dirname, '../subprocess/updateBestOffers.js')], {
             stdio: ['pipe', 'pipe', 'pipe', 'ipc']
         });
 
@@ -25,6 +31,10 @@ module.exports = class UpdateBestOffers extends CronModule {
             } else {
                 winston.info(data.msg);
             }
+        });
+
+        child.on('exit', () => {
+            child = null;
         });
     }
 };
