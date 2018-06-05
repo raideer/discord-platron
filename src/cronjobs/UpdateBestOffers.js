@@ -7,7 +7,7 @@ module.exports = class UpdateBestOffers extends CronModule {
     constructor() {
         super('boUpdater', {
             tab: () => {
-                return '*/10 * * * *'
+                return '* * * * *'
             }
         });
     }
@@ -15,7 +15,12 @@ module.exports = class UpdateBestOffers extends CronModule {
     async exec() {
         winston.info('Spawning `boUpdater` childprocess');
 
-        const child = spawn('node', [path.resolve(__dirname, '../subprocess/updateBestOffers.js')], {
+        if (child) {
+            child.kill('SIGINT');
+            child = null;
+        }
+
+        child = spawn('node', [path.resolve(__dirname, '../subprocess/updateBestOffers.js')], {
             stdio: ['pipe', 'pipe', 'pipe', 'ipc']
         });
 
@@ -25,6 +30,11 @@ module.exports = class UpdateBestOffers extends CronModule {
             } else {
                 winston.info(data.msg);
             }
+        });
+
+        child.on('exit', () => {
+            winston.info('BO child exited');
+            child = null;
         });
     }
 };
