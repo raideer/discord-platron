@@ -5,6 +5,16 @@ require('dotenv').config({
 const request = require('request');
 const ErepublikData = require('../ErepublikData');
 const { BestOffer } = require('../../db/models/index');
+const { CronJob, CronTime } = require('cron');
+
+const CRON_EVERY_10MINUTES = '*/10 * * * *';
+
+let cron = new CronJob({
+    cronTime: CRON_EVERY_10MINUTES,
+    onTick: update,
+    start: false,
+    runOnInit: false
+});
 
 function send(data) {
     if (process.send) {
@@ -76,18 +86,14 @@ async function update() {
             }
         }
     }
+
+    if (!cron.running) cron.start();
+
+    send({
+        done: true
+    });
+
+    console.log('done');
 }
 
-try {
-    update().then(() => {
-        send({
-            done: true
-        });
-    });
-} catch(e) {
-    send({
-        done: false,
-        error: true,
-        msg: e
-    });
-}
+update();
