@@ -88,11 +88,24 @@ Promise.all([
     client.user.setActivity('eRepublik');
 
     winston.info('Spawning `notifyEpics` childprocess');
-    const child = spawn('node', [path.resolve('./src/subprocess/notifyEpics.js')], {
+    const epicNotifier = spawn('node', [path.resolve('./src/subprocess/notifyEpics.js')], {
         stdio: ['pipe', 'pipe', 'pipe', 'ipc']
     });
 
-    child.on('message', payload => {
+    epicNotifier.on('message', payload => {
         client.notifyEpic(payload);
     });
+
+    epicNotifier.on('exit', () => winston.error('Epic notifier exited'));
+
+    winston.info('Spawning `updateBestOffers` childprocess');
+    const boUpdater = spawn('node', [path.resolve('./src/subprocess/updateBestOffers.js')], {
+        stdio: ['pipe', 'pipe', 'pipe', 'ipc']
+    });
+
+    boUpdater.on('message', payload => {
+        winston.info('BO:', payload);
+    });
+
+    boUpdater.on('exit', () => winston.error('BO updater exited'));
 });
