@@ -48,11 +48,11 @@ class StatsCommand extends Command {
         embed.addField('XP', this.client.platron_utils.number(player.experience), true);
         embed.addField(this.client._('command.stats.citizenship'), `${this.client.platron_utils.getFlag(player.citizenship.name)} ${player.citizenship.name}`, true);
         embed.addField(this.client._('command.stats.location'), `${this.client.platron_utils.getFlag(player.residence.country.name)} ${player.residence.region.name} (${player.residence.country.name})`, true);
-        if (player.party.id) {
+        if (player.party) {
             embed.addField(this.client._('command.stats.party'), `[${player.party.name}](https://www.erepublik.com/en/party/${player.party.id})`, true);
         }
 
-        if (player.newspaper.id) {
+        if (player.newspaper) {
             embed.addField(this.client._('command.stats.newspaper'), `[${player.newspaper.name}](https://www.erepublik.com/en/newspaper/${player.newspaper.id})`, true);
         }
 
