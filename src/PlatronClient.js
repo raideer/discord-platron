@@ -42,6 +42,7 @@ module.exports = class PlatronClient extends AkairoClient {
     }
 
     async guildConfig(guild, key, defaultValue = null, isBoolean = false) {
+        if (!guild) return defaultValue;
         const Config = this.databases.config.table;
         const val = await Config.findOrCreate({
             where: {
