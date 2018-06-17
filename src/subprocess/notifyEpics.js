@@ -5,7 +5,7 @@ require('dotenv').config({
 const request = require('request-promise');
 const moment = require('moment-timezone');
 const winston = require('winston');
-const { CronJob, CronTime} = require('cron');
+const { CronJob, CronTime } = require('cron');
 const { Push } = require('../../db/models/index');
 
 const campaignsURI = 'https://www.erepublik.com/en/military/campaigns-new';
