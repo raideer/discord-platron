@@ -83,6 +83,14 @@ class UtilCommand extends Command {
                 return message.reply(`Role **${roleResolvable}** not found`);
             }
         }
+        case 'roles': {
+            let msg = [];
+            message.guild.roles.array().forEach(role => {
+                msg.push(`Role: ${role.name} | ID: \`${role.id}\``);
+            });
+
+            message.author.send(msg.join('\n'));
+        }
         }
     }
 
