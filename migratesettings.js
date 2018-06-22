@@ -9,7 +9,6 @@ function getFieldType(name) {
         case 'setMURoles':
         case 'autoDeleteMessages':
         case 'enableCommands':
-        case 'notifyMaverics':
         case 'setCountryRoles':
             return 'boolean';
         default:
@@ -50,6 +49,8 @@ Promise.all([
         const config = configs[i];
 
         console.log('Updating', config.field, 'for guild', config.guild_id);
+
+        if (config.field == 'notifyMaverics') continue;
 
         await db.Settings.create({
             name: `${config.field}:${config.guild_id}`,

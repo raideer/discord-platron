@@ -19,4 +19,3 @@ Automatically deletes registration messages to clear up spam
 11. greetMessage: *string/false* (default:false)   
 Use `{user}` and `{guild}` for string interpolation
 12. enableCommands: *boolean* (default:false)
-13. notifyMaverics: *role/false* (default:false)

@@ -1,4 +1,5 @@
 const SettingsProvider = require('./SettingsProvider');
+const RolesProvider = require('./RolesProvider');
 
 const { AkairoClient } = require('discord-akairo');
 const CronHandler = require('./CronHandler');
@@ -40,6 +41,7 @@ module.exports = class PlatronClient extends AkairoClient {
 
         this.databases = {};
         this.settings = new SettingsProvider(db.Settings);
+        this.roles = new RolesProvider(db.Role);
         this.platron_utils = new PlatronUtils(this);
     }
 
@@ -118,7 +120,7 @@ module.exports = class PlatronClient extends AkairoClient {
             const guildChannel = guild.channels.get(channel);
             if (!guildChannel) return;
 
-            const maveric = await this.settings.get(guild, 'notifyMaverics', false);
+            const maveric = await this.roles.get(guild, 'maveric', false);
 
             if (guildChannel.type != 'text') {
                 return;
