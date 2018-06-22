@@ -17,9 +17,10 @@ class RegisterCommand extends Command {
             description: () => {
                 return this.client._('command.register.description');
             },
-            usage: () => {
-                return `register ${this.client._('command.register.usage_note')}`;
-            }
+            usage: [
+                'register <citizen_id>',
+                'register <citizen_name>'
+            ]
         });
     }
 

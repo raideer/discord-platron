@@ -9,7 +9,7 @@ class MarketCommand extends Command {
             description: () => {
                 return this.client._('command.market.description');
             },
-            usage: 'bo (product) [quality]',
+            usage: 'bo <product> [quality]',
             usageExamples: [
                 'bo food 5',
                 'bo wrm'

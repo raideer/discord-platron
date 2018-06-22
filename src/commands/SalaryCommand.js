@@ -6,6 +6,7 @@ class SalaryCommand extends Command {
     constructor() {
         super('salary', {
             aliases: ['jobs', 'salary', 'j'],
+            description: 'Posts a list of best paid job offers',
             usage: 'salary'
         });
     }

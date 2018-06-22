@@ -155,6 +155,16 @@ module.exports = class Utils extends ClientUtil {
         return this.client.emit('invalidUsage', message, command);
     }
 
+    async resolveStringOrFunction(sof) {
+        const value = await Promise.resolve(sof);
+
+        if (typeof value === 'function') {
+            return value();
+        }
+
+        return value;
+    }
+
     async deutchlandApi(query) {
         const apiKey = this.client.env('EREP_API', () => {
             throw 'eRepublik Deutchland API key is not set!';

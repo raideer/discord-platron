@@ -6,9 +6,8 @@ class GifCommand extends Command {
         super('randomGif', {
             aliases: ['gif'],
             description: () => {
-                return 'Returns a random gif';
-            },
-            usage: 'gif'
+                return 'Posts a random gif from r/gifs';
+            }
         });
     }
 

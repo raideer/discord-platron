@@ -11,7 +11,10 @@ class StatsCommand extends Command {
             description: () => {
                 return this.client._('command.stats.description');
             },
-            usage: 'stats (player name|citizen ID)',
+            usage: [
+                'stats <citizen_id>',
+                'stats <citizen_name>'
+            ],
             args: [
                 {
                     id: 'citizenId',

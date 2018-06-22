@@ -15,11 +15,7 @@ class CombatOrdersCommand extends Command {
             description: () => {
                 return this.client._('command.combatorders.description');
             },
-            usage: 'co [1|2|3|4|air]',
-            usageExamples: [
-                'co',
-                'co air'
-            ]
+            usage: 'co [1|2|3|4|air]'
         });
     }
 

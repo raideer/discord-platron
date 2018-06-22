@@ -5,9 +5,13 @@ class InfoCommand extends Command {
         super('citizenLink', {
             aliases: ['link', 'l', 'profile'],
             description: () => {
-                return '';
+                return 'Returns a link to specified citizens profile page';
             },
-            usage: 'link (user)',
+            usage: [
+                'link <citizen_name>',
+                'link <citizen_id>',
+                'link <@registered_user>'
+            ],
             args: [
                 {
                     id: 'citizenId',

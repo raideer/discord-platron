@@ -4,6 +4,7 @@ class PingCommand extends Command {
     constructor() {
         super('8ball', {
             aliases: ['8ball'],
+            description: 'A fortune teller',
             usage: () => {
                 return `8ball (${this.client._('command.8ball.yesnoquestion')})`;
             }

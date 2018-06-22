@@ -18,7 +18,8 @@ class UtilCommand extends Command {
             ],
             userPermissions: ['ADMINISTRATOR'],
             channelRestriction: 'guild',
-            allowWhenDisabled: true
+            allowWhenDisabled: true,
+            showInHelp: false
         });
     }
 

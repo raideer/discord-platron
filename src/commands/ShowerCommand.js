@@ -6,7 +6,7 @@ class ShowerCommand extends Command {
         super('showerThougts', {
             aliases: ['thinking', 'shower'],
             description: () => {
-                return 'Returns a random shower thought';
+                return 'Posts a random shower thought';
             },
             usage: 'thinking'
         });

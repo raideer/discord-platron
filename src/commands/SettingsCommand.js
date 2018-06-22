@@ -7,7 +7,7 @@ class SettingsCommand extends Command {
             args: [
                 {
                     id: 'op',
-                    types: ['get', 'set', 'clear']
+                    types: ['get', 'set', 'clear', 'info']
                 },
                 {
                     id: 'setting'
@@ -22,12 +22,12 @@ class SettingsCommand extends Command {
             channelRestriction: 'guild',
             description: 'Configure various things',
             usage: [
+                'config info <setting>',
                 'config get <setting>',
                 'config clear <setting>',
                 'config set prefix <prefix>',
                 'config set locale <en | lv>',
-                'config set channel <discord_text_channel>',
-                'config set twitchNotifications <discord_text_channel>'
+                'config set channel <discord_text_channel>'
             ],
             notes: 'Can only be used by an administrator'
         });
@@ -89,6 +89,18 @@ class SettingsCommand extends Command {
 
             this.client.settings.clear(message.guild, args.setting);
             message.util.reply(`:white_check_mark: Setting **${args.setting}** is cleared`);
+            break;
+        }
+        case 'info': {
+            switch (args.setting) {
+            case 'prefix':
+                return message.util.reply(':information_source:  Sets the prefix for all commands. `!` by default');
+            case 'locale':
+                return message.util.reply(':information_source:  Set the default language for PlaTRON\'s replies');
+            case 'channel':
+                return message.util.reply(':information_source:  Limit all commands to a specific channel');
+            }
+
             break;
         }
         default: {

@@ -1,4 +1,6 @@
 const { Command } = require('discord-akairo');
+const { RichEmbed } = require('discord.js');
+const _ = require('lodash');
 
 module.exports = class PlatronCommand extends Command {
     constructor(id, exec, options) {
@@ -33,7 +35,7 @@ module.exports = class PlatronCommand extends Command {
 
         this.description = options.description || '';
         this.usage = options.usage || '';
-        this.usageExamples = options.usageExamples || [];
+        // this.usageExamples = options.usageExamples || [];
         this.usageNote = options.usageNote || '';
         this.allowWhenDisabled = !!options.allowWhenDisabled;
         this.showInHelp = typeof options.showInHelp === 'undefined' ? true : !!options.showInHelp;
@@ -47,5 +49,32 @@ module.exports = class PlatronCommand extends Command {
         await new Promise(resolve => setTimeout(() => {
             message.delete().then(resolve);
         }, timeout));
+    }
+
+    async getUsage(prefix = '!') {
+        const resolveStringOrFunction = this.client.platron_utils.resolveStringOrFunction;
+        const embed = new RichEmbed();
+        const aliases = _.drop(this.aliases).length > 0 ? `(${_.drop(this.aliases).join(' | ')})` : '';
+
+        const description = await resolveStringOrFunction(this.description);
+        const usage = await resolveStringOrFunction(this.usage);
+        const notes = await resolveStringOrFunction(this.usageNote);
+
+        embed.setTitle(`Command: ${_.first(this.aliases)} ${aliases}`);
+        embed.setDescription(description);
+
+        if (usage) {
+            if (Array.isArray(usage)) {
+                embed.addField('Usage', usage.map(usage => `\`${prefix}${usage}\``).join('\n'));
+            } else {
+                embed.addField('Usage', `\`${prefix}${usage}\``);
+            }
+        }
+
+        if (notes) {
+            embed.setFooter(notes);
+        }
+
+        return embed;
     }
 };
