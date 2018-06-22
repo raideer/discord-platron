@@ -29,7 +29,7 @@ module.exports = class RolesProvider extends SequelizeProvider {
         return !!this.get(guild, role, false);
     }
 
-    get(guild, role, def = null) {
+    get(guild, role) {
         const value = this.items.find(field => {
             if (field.name == role && field.guildId == guild.id) {
                 return true;
@@ -38,18 +38,25 @@ module.exports = class RolesProvider extends SequelizeProvider {
             return false;
         });
 
-        return value || def;
+        if (value) {
+            return guild.roles.find('id', value.id);
+        }
+
+        return null;
     }
 
     getGroup(guild, group) {
         return this.items.findAll('group', group);
     }
 
-    getAll(guild, roles, def = null) {
+    getAll(guild, roles) {
         const values = [];
         
         roles.forEach(role => {
-            values.push(this.get(guild, role, def));
+            const needle = this.get(guild, role);
+            if (needle) {
+                values.push(needle);
+            }
         });
 
         return values;

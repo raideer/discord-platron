@@ -61,9 +61,13 @@ Promise.all([
     const processes = {};
 
     for (let subName in subs) {
-        processes[subName] = spawn('node', [subs[subName]]);
+        processes[subName] = spawn('node', [subs[subName]], {
+            stdio: ['pipe', 'pipe', 'pipe', 'ipc']
+        });
+        
         processes[subName].on('message', payload => {
             if (subName == 'epicNotifier') {
+                winston.info('Received payload from epicNotifier')
                 return client.notifyEpic(payload);
             }
 

@@ -130,10 +130,10 @@ module.exports = class PlatronClient extends AkairoClient {
             let divText = '';
             if (role || maveric != 0) {
                 if (role) {
-                    divText += ` <@&${role.id}>`;
+                    divText += ` ${role}`;
                 }
                 if (maveric != 0) {
-                    divText += ` <@&${maveric}>`;
+                    divText += ` ${maveric}`;
                 }
             } else {
                 divText = `**Division ${data.div}**`;

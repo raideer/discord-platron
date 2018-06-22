@@ -117,7 +117,7 @@ function announceEpics(epicBattle) {
             defaults: { id: epicId }
         })
         .spread((p, created) => {
-            console.log(created);
+            console.log('Already notified', !created);
             if (!created) return;
 
             const payload = {
@@ -127,7 +127,6 @@ function announceEpics(epicBattle) {
                 id: epicId
             };
     
-            console.log(payload);
             if (process.send) {
                 return process.send(payload);
             }
