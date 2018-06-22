@@ -29,7 +29,8 @@ class SettingsCommand extends Command {
                 'config set locale <en | lv>',
                 'config set channel <discord_text_channel>'
             ],
-            notes: 'Can only be used by an administrator'
+            notes: 'Can only be used by an administrator',
+            allowWhenDisabled: true
         });
     }
 
