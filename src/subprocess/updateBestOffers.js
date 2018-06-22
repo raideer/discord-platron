@@ -52,7 +52,7 @@ function getQualities(industry) {
 }
 
 async function update() {
-    await ErepublikData._initDb();
+    await ErepublikData.init();
     await BestOffer.sync();
 
     const industries = ErepublikData.industries.map(industry => {
@@ -68,7 +68,6 @@ async function update() {
             const data = await callApi(`market/bestoffers/${i.id}/${quality}.json`).catch(console.error);
             // console.log('Received:', data);
             if (data && typeof data === 'object') {
-                console.log('Saving record');
                 await BestOffer.findOrCreate({
                     where: { industry: i.id, quality },
                     defaults: {
@@ -77,7 +76,6 @@ async function update() {
                         data: JSON.stringify(data)
                     }
                 }).spread((offer, created) => {
-                    console.log('Created?', created);
                     if (created) return;
 
                     offer.data = JSON.stringify(data);
