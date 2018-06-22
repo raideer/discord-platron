@@ -12,17 +12,7 @@ module.exports = class GuildJoinListener extends Listener {
     async exec(guild) {
         winston.info('Joined guild', guild.name);
 
-        const Guild = this.client.databases.guilds.table;
-
-        await Guild.findOrCreate({
-            where: {
-                id: guild.id
-            },
-            defaults: {
-                id: guild.id,
-                prefix: '!',
-                locale: 'en'
-            }
-        });
+        await this.client.settings.set(guild, 'prefix', '!', 'string', false);
+        await this.client.settings.set(guild, 'locale', 'en', 'string', false);
     }
 };

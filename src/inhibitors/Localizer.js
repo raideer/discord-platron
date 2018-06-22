@@ -26,7 +26,7 @@ module.exports = class CommandLocalizer extends Inhibitor {
 
         if (!locale) {
             if (message.guild) {
-                locale = this.client.databases.guilds.get(message.guild.id, 'locale', 'en');
+                locale = this.client.settings.get(message.guild, 'locale', 'en');
             } else {
                 locale = 'en';
             }
