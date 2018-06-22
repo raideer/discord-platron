@@ -1,4 +1,5 @@
 const { SequelizeProvider } = require('discord-akairo');
+
 const PlatronClient = require('./src/PlatronClient');
 const ErepublikData = require('./src/ErepublikData');
 const spawn = require('child_process').spawn;
@@ -6,6 +7,7 @@ require('winston-daily-rotate-file');
 const winston = require('winston');
 const path = require('path');
 require('dotenv').config();
+require('colors');
 
 winston.configure({
     transports: [
@@ -27,55 +29,20 @@ process.on('uncaughtException', error => {
 
 const db = require('./db/models/index');
 
-const options = {
-    ownerID: ['362625609538600971'],
-    commandDirectory: './src/commands/',
-    inhibitorDirectory: './src/inhibitors/',
-    listenerDirectory: './src/listeners/',
-    cronDirectory: './src/cronjobs/',
-    handleEdits: false,
-    defaultCooldown: 1000,
-    commandUtil: true,
-    prefix: message => {
-        if (!message.guild) {
-            return '!';
-        }
+const client = new PlatronClient();
 
-        const id = message.guild.id;
-        const prefix = client.databases.guilds.get(id, 'prefix');
-
-        if (!prefix) {
-            client.databases.guilds.set(id, 'prefix', '!');
-            return '!';
-        }
-
-        return prefix;
-    }
-};
-
-const clientOptions = {
-    disableEveryone: true
-};
-
-const client = new PlatronClient(options, clientOptions);
-
-client.setDatabase('guilds', new SequelizeProvider(db.Guild));
 client.setDatabase('citizens', new SequelizeProvider(db.Citizen));
 client.setDatabase('roles', new SequelizeProvider(db.Role));
-client.setDatabase('config', new SequelizeProvider(db.GuildConfig));
-client.setDatabase('push', new SequelizeProvider(db.Push));
 client.setDatabase('bestoffers', new SequelizeProvider(db.BestOffer));
 
 const timer = winston.startTimer();
 
 Promise.all([
-    db.Guild.sync(),
-    db.Citizen.sync(),
-    db.Role.sync(),
-    db.GuildConfig.sync(),
-    db.Push.sync(),
-    db.BestOffer.sync(),
-    ErepublikData._initDb()
+    client.settings.init(),
+    client.databases.roles.init(),
+    client.databases.bestoffers.init(),
+    client.databases.citizens.init(),
+    ErepublikData.init()
 ]).then(async () => {
     timer.done('Finished syncing database.');
     winston.info('Attempting to log in');
@@ -87,25 +54,33 @@ Promise.all([
     winston.info('Successfully logged in');
     client.user.setActivity('eRepublik');
 
-    winston.info('Spawning `notifyEpics` childprocess');
-    const epicNotifier = spawn('node', [path.resolve('./src/subprocess/notifyEpics.js')], {
-        stdio: ['pipe', 'pipe', 'pipe', 'ipc']
-    });
+    const subs = {
+        'epicNotifier': path.resolve('./src/subprocess/notifyEpics.js'),
+        'boUpdater': path.resolve('./src/subprocess/updateBestOffers.js')
+    };
 
-    epicNotifier.on('message', payload => {
-        client.notifyEpic(payload);
-    });
+    const processes = {};
 
-    epicNotifier.on('exit', () => winston.error('Epic notifier exited'));
+    for (let subName in subs) {
+        processes[subName] = spawn('node', [subs[subName]]);
+        processes[subName].on('message', payload => {
+            if (subName == 'epicNotifier') {
+                return client.notifyEpic(payload);
+            }
 
-    winston.info('Spawning `updateBestOffers` childprocess');
-    const boUpdater = spawn('node', [path.resolve('./src/subprocess/updateBestOffers.js')], {
-        stdio: ['pipe', 'pipe', 'pipe', 'ipc']
-    });
+            winston.info(`[${String(subName).yellow}] ${payload}`);
+        });
 
-    boUpdater.on('message', payload => {
-        winston.info('BO:', payload);
-    });
+        processes[subName].on('exit', code => {
+            winston.error(`[${String(subName).yellow}] Process exited with code ${code}`);
+        });
 
-    boUpdater.on('exit', () => winston.error('BO updater exited'));
+        processes[subName].stdout.on('data', function(data) {
+            winston.info(`[${String(subName).yellow}] ${data.toString().trim()}`);
+        });
+
+        processes[subName].stderr.on('data', function(data) {
+            winston.error(`[${String(subName).yellow}] ${data.toString().trim()}`);
+        });
+    }
 });
