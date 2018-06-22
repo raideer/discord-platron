@@ -216,7 +216,7 @@ module.exports = class Utils extends ClientUtil {
     }
 
     async removeAllRoles(member, guild) {
-        const Role = this.client.databases.roles.table;
+        const Role = this.client.roles.table;
         const roles = await Role.findAll({
             where: {
                 guildId: guild.id
@@ -232,7 +232,7 @@ module.exports = class Utils extends ClientUtil {
     }
 
     async getRolesWithGroup(group) {
-        const Role = this.client.databases.roles.table;
+        const Role = this.client.roles.table;
         const roles = await Role.findAll({
             where: {
                 group: group
@@ -245,7 +245,7 @@ module.exports = class Utils extends ClientUtil {
     }
 
     async findOrCreateRole(roleName, roleGroup, guild, defaults) {
-        const Role = this.client.databases.roles.table;
+        const Role = this.client.roles.table;
         const roleItem = await Role.findOne({
             where: {
                 name: roleName,

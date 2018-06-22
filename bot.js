@@ -32,14 +32,13 @@ const db = require('./db/models/index');
 const client = new PlatronClient();
 
 client.setDatabase('citizens', new SequelizeProvider(db.Citizen));
-client.setDatabase('roles', new SequelizeProvider(db.Role));
 client.setDatabase('bestoffers', new SequelizeProvider(db.BestOffer));
 
 const timer = winston.startTimer();
 
 Promise.all([
     client.settings.init(),
-    client.databases.roles.init(),
+    client.roles.init(),
     client.databases.bestoffers.init(),
     client.databases.citizens.init(),
     ErepublikData.init()
@@ -55,8 +54,8 @@ Promise.all([
     client.user.setActivity('eRepublik');
 
     const subs = {
-        'epicNotifier': path.resolve('./src/subprocess/notifyEpics.js'),
-        'boUpdater': path.resolve('./src/subprocess/updateBestOffers.js')
+        // 'epicNotifier': path.resolve('./src/subprocess/notifyEpics.js'),
+        // 'boUpdater': path.resolve('./src/subprocess/updateBestOffers.js')
     };
 
     const processes = {};
