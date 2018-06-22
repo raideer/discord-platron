@@ -114,7 +114,6 @@ module.exports = class PlatronClient extends AkairoClient {
         winston.info('Notifying', data.div, 'epic');
 
         await Promise.each(this.guilds.array(), async guild => {
-            const Role = this.databases.roles.table;
             const channel = await this.settings.get(guild, 'epicNotificator', false);
 
             const guildChannel = guild.channels.get(channel);
@@ -126,12 +125,7 @@ module.exports = class PlatronClient extends AkairoClient {
                 return;
             }
 
-            const role = await Role.findOne({
-                where: {
-                    guildId: guild.id,
-                    name: `div${data.div}`
-                }
-            });
+            const role = this.roles.get(guild, `div${data.div}`);
 
             let divText = '';
             if (role || maveric != 0) {
