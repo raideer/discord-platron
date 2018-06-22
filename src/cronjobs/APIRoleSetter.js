@@ -5,7 +5,7 @@ const request = require('request-promise');
 const _ = require('lodash');
 const slugify = require('slugify');
 
-module.exports = class APIRoleSetter extends CronModule {
+class APIRoleSetter extends CronModule {
     constructor() {
         super('apiRoleSetter', {
             tab: () => {
@@ -347,3 +347,5 @@ module.exports = class APIRoleSetter extends CronModule {
         };
     }
 };
+
+// module.exports = APIRoleSetter;
