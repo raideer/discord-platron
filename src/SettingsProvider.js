@@ -9,13 +9,21 @@ module.exports = class SettingsProvider extends SequelizeProvider {
         });
     }
 
-    async set(guild, setting, value, type = 'string') {
+    async set(guild, setting, value, type = 'string', override = true) {
+        if (!override && this.has(guild, setting)) {
+            return;
+        }
+
         await super.set(`${setting}:${guild.id}`, 'data', `${type}:${value}`);
         winston.info(`[${String(guild.id).cyan}] ${setting} was set to ${value}`);
     }
 
     clear(guild, setting) {
         super.clear(`${setting}:${guild.id}`);
+    }
+
+    has(guild, setting) {
+        return !!super.get(`${setting}:${guild.id}`, 'data');
     }
 
     get(guild, setting, def) {
