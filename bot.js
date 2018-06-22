@@ -54,8 +54,8 @@ Promise.all([
     client.user.setActivity('eRepublik');
 
     const subs = {
-        // 'epicNotifier': path.resolve('./src/subprocess/notifyEpics.js'),
-        // 'boUpdater': path.resolve('./src/subprocess/updateBestOffers.js')
+        'epicNotifier': path.resolve('./src/subprocess/notifyEpics.js'),
+        'boUpdater': path.resolve('./src/subprocess/updateBestOffers.js')
     };
 
     const processes = {};
