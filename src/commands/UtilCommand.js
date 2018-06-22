@@ -1,5 +1,6 @@
 const Command = require('../PlatronCommand');
 const winston = require('winston');
+const _ = require('lodash');
 
 class UtilCommand extends Command {
     constructor() {
@@ -70,7 +71,7 @@ class UtilCommand extends Command {
         }
     }
 
-    runGet(message, args) {
+    async runGet(message, args) {
         switch (args.command) {
         case 'invite':
             return message.reply(`<https://discordapp.com/oauth2/authorize?client_id=${this.client.user.id}&scope=bot&permissions=268435464>`);
@@ -89,7 +90,10 @@ class UtilCommand extends Command {
                 msg.push(`Role: ${role.name} | ID: \`${role.id}\``);
             });
 
-            message.author.send(msg.join('\n'));
+            const chunks = _.chunk(msg, 10);
+            for(let i in chunks) {
+                await message.author.send(chunks[i].join('\n'));
+            }
         }
         }
     }
