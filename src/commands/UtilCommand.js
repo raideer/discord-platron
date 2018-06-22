@@ -16,11 +16,19 @@ class UtilCommand extends Command {
                     match: 'rest'
                 }
             ],
-            userPermissions: ['ADMINISTRATOR'],
             channelRestriction: 'guild',
             allowWhenDisabled: true,
             showInHelp: false
         });
+    }
+
+    userPermissions(message) {
+        const isOwner = Array.isArray(this.client.ownerID)
+                ? this.client.ownerID.includes(message.author.id)
+                : message.author.id === this.client.ownerID;
+
+        return message.channel.permissionsFor(message.author).has('ADMINISTRATOR')
+        || isOwner;
     }
 
     async runSet(message, args) {

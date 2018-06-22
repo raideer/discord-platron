@@ -18,7 +18,6 @@ class SettingsCommand extends Command {
                     default: ''
                 }
             ],
-            userPermissions: ['ADMINISTRATOR'],
             channelRestriction: 'guild',
             description: 'Configure various things',
             usage: [
@@ -32,6 +31,15 @@ class SettingsCommand extends Command {
             notes: 'Can only be used by an administrator',
             allowWhenDisabled: true
         });
+    }
+
+    userPermissions(message) {
+        const isOwner = Array.isArray(this.client.ownerID)
+                ? this.client.ownerID.includes(message.author.id)
+                : message.author.id === this.client.ownerID;
+
+        return message.channel.permissionsFor(message.author).has('ADMINISTRATOR')
+        || isOwner;
     }
 
     setSetting(message, setting, value) {

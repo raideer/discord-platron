@@ -18,7 +18,6 @@ class RoleCommand extends Command {
                     default: ''
                 }
             ],
-            userPermissions: ['ADMINISTRATOR'],
             channelRestriction: 'guild',
             description: 'Configure roles for this guild',
             usage: [
@@ -31,6 +30,15 @@ class RoleCommand extends Command {
             notes: 'Can only be used by an administrator',
             allowWhenDisabled: true
         });
+    }
+
+    userPermissions(message) {
+        const isOwner = Array.isArray(this.client.ownerID)
+                ? this.client.ownerID.includes(message.author.id)
+                : message.author.id === this.client.ownerID;
+
+        return message.channel.permissionsFor(message.author).has('ADMINISTRATOR')
+        || isOwner;
     }
 
     setRole(message, role, value) {
