@@ -1,3 +1,5 @@
+const SettingsProvider = require('./SettingsProvider');
+
 const { AkairoClient } = require('discord-akairo');
 const CronHandler = require('./CronHandler');
 const { RichEmbed } = require('discord.js');
@@ -9,14 +11,36 @@ const winston = require('winston');
 const path = require('path');
 const _ = require('lodash');
 const fs = require('fs');
+const db = require('../db/models/index');
 
 module.exports = class PlatronClient extends AkairoClient {
-    constructor(options, clientOptions) {
-        super(options, clientOptions);
+    constructor() {
+        super({
+            ownerID: ['362625609538600971'],
+            commandDirectory: './src/commands/',
+            inhibitorDirectory: './src/inhibitors/',
+            listenerDirectory: './src/listeners/',
+            cronDirectory: './src/cronjobs/',
+            handleEdits: false,
+            defaultCooldown: 1000,
+            commandUtil: true,
+            prefix: message => {
+                if (message.guild) {
+                    const prefix = this.settings.get(message.guild, 'prefix', '!');
+                    if (prefix) {
+                        return prefix;
+                    }
+                }
+
+                return '!';
+            }
+        }, {
+            disableEveryone: true
+        });
 
         this.databases = {};
+        this.settings = new SettingsProvider(db.Settings);
         this.platron_utils = new PlatronUtils(this);
-        this.auth = {};
     }
 
     build() {
@@ -39,26 +63,6 @@ module.exports = class PlatronClient extends AkairoClient {
         this._addCitizenIdType();
 
         return this;
-    }
-
-    async guildConfig(guild, key, defaultValue = null, isBoolean = false) {
-        if (!guild) return defaultValue;
-        const Config = this.databases.config.table;
-        const val = await Config.findOrCreate({
-            where: {
-                field: key,
-                guild_id: guild.id
-            },
-            defaults: {
-                value: defaultValue
-            }
-        });
-
-        if (isBoolean) {
-            return _.first(val).value == 1;
-        }
-
-        return _.first(val).value;
     }
 
     _addCitizenIdType() {
@@ -109,12 +113,12 @@ module.exports = class PlatronClient extends AkairoClient {
 
         await Promise.each(this.guilds.array(), async guild => {
             const Role = this.databases.roles.table;
-            const channel = await this.guildConfig(guild, 'epicNotificator', false);
+            const channel = await this.settings.get(guild, 'epicNotificator', false);
 
             const guildChannel = guild.channels.get(channel);
             if (!guildChannel) return;
 
-            const maveric = await this.guildConfig(guild, 'notifyMaverics', false);
+            const maveric = await this.settings.get(guild, 'notifyMaverics', false);
 
             if (guildChannel.type != 'text') {
                 return;
