@@ -55,6 +55,8 @@ async function update() {
     await ErepublikData.init();
     await BestOffer.sync();
 
+    console.log('Updating best offers');
+
     const industries = ErepublikData.industries.map(industry => {
         return {
             id: industry.id,
@@ -64,9 +66,7 @@ async function update() {
 
     for (let i of industries) {
         for (let quality of getQualities(i.code)) {
-            console.log('Updating', i.id, quality);
             const data = await callApi(`market/bestoffers/${i.id}/${quality}.json`).catch(console.error);
-            // console.log('Received:', data);
             if (data && typeof data === 'object') {
                 await BestOffer.findOrCreate({
                     where: { industry: i.id, quality },
@@ -87,11 +87,7 @@ async function update() {
 
     if (!cron.running) cron.start();
 
-    send({
-        done: true
-    });
-
-    console.log('done');
+    console.log('Finished');
 }
 
 update();
