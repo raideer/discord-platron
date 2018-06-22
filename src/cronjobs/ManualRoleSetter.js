@@ -12,10 +12,10 @@ module.exports = class ManualRoleSetter extends CronModule {
     }
 
     async addCongressRoles(guild) {
-        const congressRoleEnabled = await this.client.guildConfig(guild, 'setCongressRoles', false, true);
+        const congressRoleEnabled = await this.client.settings.get(guild, 'setCongressRoles', false);
 
         if (congressRoleEnabled) {
-            const congressCountry = await this.client.guildConfig(guild, 'congressCountry', false);
+            const congressCountry = await this.client.settings.get(guild, 'congressCountry', false);
             if (!congressCountry) {
                 return winston.error(`Congress country not set in guild ${guild.name}`);
             }

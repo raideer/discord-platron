@@ -8,7 +8,7 @@ module.exports = class CommandDisabler extends Inhibitor {
     }
 
     async exec(message, command) {
-        const enabled = await this.client.guildConfig(message.guild, 'enableCommands', true, true);
+        const enabled = await this.client.settings.get(message.guild, 'enableCommands', true);
 
         if (!enabled && !command.allowWhenDisabled) {
             return Promise.reject();

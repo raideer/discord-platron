@@ -42,13 +42,13 @@ class APIRoleSetter extends CronModule {
         }
 
         // guild, configKey, default value, is value boolean
-        const partyRoleEnabled = await this.client.guildConfig(guild, 'setPartyRoles', false, true);
-        const verifiedRoleEnabled = await this.client.guildConfig(guild, 'setVerifiedRoles', false, true);
-        const countryRoleEnabled = await this.client.guildConfig(guild, 'setCountryRoles', false, true);
-        const divisionRoleEnabled = await this.client.guildConfig(guild, 'setDivisionRoles', false, true);
-        const muRoleEnabled = await this.client.guildConfig(guild, 'setMURoles', false, true);
+        const partyRoleEnabled = await this.client.settings.get(guild, 'setPartyRoles', false);
+        const verifiedRoleEnabled = await this.client.settings.get(guild, 'setVerifiedRoles', false);
+        const countryRoleEnabled = await this.client.settings.get(guild, 'setCountryRoles', false);
+        const divisionRoleEnabled = await this.client.settings.get(guild, 'setDivisionRoles', false);
+        const muRoleEnabled = await this.client.settings.get(guild, 'setMURoles', false);
 
-        let countryRole = await this.client.guildConfig(guild, 'countryRole', false);
+        let countryRole = await this.client.settings.get(guild, 'countryRole', false);
 
         if (countryRole == '0') {
             countryRole = false;

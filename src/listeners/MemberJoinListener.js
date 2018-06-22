@@ -12,13 +12,13 @@ module.exports = class MemberJoinListener extends Listener {
     async exec(member) {
         winston.info(member.user.username, 'joined guild', member.guild.name);
 
-        const greetMembers = await this.client.guildConfig(member.guild, 'greetMembers', false);
+        const greetMembers = await this.client.settings.get(member.guild, 'greetMembers', false);
 
         if (!greetMembers) {
             return;
         }
 
-        let defaultMessage = await this.client.guildConfig(member.guild, 'greetMessage', false);
+        let defaultMessage = await this.client.settings.get(member.guild, 'greetMessage', false);
         if (defaultMessage == '0') {
             defaultMessage = false;
         }
