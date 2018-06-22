@@ -45,7 +45,7 @@ class ErepublikData {
         this.industries = new Collection();
     }
 
-    async _initDb() {
+    async init() {
         const countries = await this.Country.findAll();
         for (const row of countries) {
             this.countries.set(row.id, row);
