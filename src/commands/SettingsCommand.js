@@ -48,7 +48,6 @@ class SettingsCommand extends Command {
             ['greetMembers', 'boolean'],
             ['enableCommands', 'boolean'],
             ['greetMessage', 'string'],
-            ['notifyMaverics', 'role'],
         ];
 
         const subject = otherSettings.find(f => f[0] == setting);
