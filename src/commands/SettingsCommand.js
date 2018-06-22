@@ -35,6 +35,38 @@ class SettingsCommand extends Command {
     }
 
     setSetting(message, setting, value) {
+        const otherSettings = [
+            ['autoDeleteMessages', 'boolean'],
+            ['setVerifiedRoles', 'boolean'],
+            ['setCountryRoles', 'boolean'],
+            ['setDivisionRoles', 'boolean'],
+            ['setMURoles', 'boolean'],
+            ['countryRole', 'role'],
+            ['setPartyRoles', 'boolean'],
+            ['setCongressRoles', 'boolean'],
+            ['epicNotificator', 'channel'],
+            ['greetMembers', 'boolean'],
+            ['enableCommands', 'boolean'],
+            ['greetMessage', 'string'],
+            ['notifyMaverics', 'role'],
+        ];
+
+        const subject = otherSettings.find(f => f[0] == setting);
+
+        if (subject) {
+            value = this.client.settings.resolveValue(value, subject[1], message.guild);
+            if (subject[1] === 'role' || subject[1] === 'channel') {
+                if (value) {
+                    value = value.id;
+                } else {
+                    value = false;
+                }
+            }
+
+            this.client.settings.set(message.guild, setting, value);
+            return message.util.reply(`:white_check_mark: \`${setting}\` has been set to \`${value}\``);
+        }
+
         switch (setting) {
         case 'prefix':
             if (value.length > 2) {

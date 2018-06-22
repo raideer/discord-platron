@@ -26,6 +26,32 @@ module.exports = class SettingsProvider extends SequelizeProvider {
         return !!super.get(`${setting}:${guild.id}`, 'data');
     }
 
+    resolveValue(value, type, guild) {
+        switch (type) {
+        case 'number': {
+            return Number(value);
+        }
+        case 'boolean': {
+            return value == 'true' || value == '1';
+        }
+        case 'false': {
+            return value == 'false' || value == '0';
+        }
+        case 'role': {
+            return guild.client.util.resolveRole(value, guild.roles);
+        }
+        case 'channel': {
+            return guild.client.util.resolveChannel(value, guild.channels);
+        }
+        case 'string': {
+            return String(value);
+        }
+        default: {
+            return null;
+        }
+        }
+    }
+
     get(guild, setting, def) {
         const value = super.get(`${setting}:${guild.id}`, 'data');
 
@@ -36,17 +62,7 @@ module.exports = class SettingsProvider extends SequelizeProvider {
         const match = String(value).match(/^(string|number|boolean):(.+)$/);
 
         if (match) {
-            switch (match[1]) {
-            case 'number': {
-                return Number(match[2]);
-            }
-            case 'boolean': {
-                return match[2] == 'true' || match[2] == '1';
-            }
-            default: {
-                return match[2];
-            }
-            }
+            return this.resolveValue(match[2], match[1], guild);
         }
 
         return value;
