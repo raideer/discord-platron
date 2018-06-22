@@ -115,4 +115,4 @@ class HistoryCommand extends Command {
     }
 }
 
-module.exports = HistoryCommand;
+// module.exports = HistoryCommand;
