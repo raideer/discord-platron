@@ -52,7 +52,7 @@ module.exports = class SettingsProvider extends SequelizeProvider {
         }
     }
 
-    get(guild, setting, def) {
+    get(guild, setting, def = null) {
         const value = super.get(`${setting}:${guild.id}`, 'data');
 
         if (!value) {
@@ -66,5 +66,15 @@ module.exports = class SettingsProvider extends SequelizeProvider {
         }
 
         return value;
+    }
+
+    getAll(guild, settings, def = null) {
+        const values = [];
+        
+        settings.forEach(setting => {
+            values.push(this.get(guild, setting, def));
+        });
+
+        return values;
     }
 };
