@@ -66,11 +66,7 @@ class APIRoleSetter extends CronModule {
         let data = null;
 
         await Promise.each(chunks, async (chunk, i, len) => {
-            const chunkData = await request({
-                method: 'GET',
-                json: true,
-                uri: `https://api.erepublik-deutschland.de/${apiKey}/players/details/${chunk.join(',')}`
-            });
+            const chunkData = await this.client.platron_utils.privateApi(`citizen/multiple/${chunk.join(',')}`);
 
             data = _.merge(data, chunkData);
 
@@ -81,7 +77,7 @@ class APIRoleSetter extends CronModule {
             }
         });
 
-        winston.info('Collected data for', Object.keys(data.players).length, 'players');
+        winston.info('Collected data for', Object.keys(data).length, 'players');
 
         if (verifiedRoleEnabled) {
             winston.verbose('Setting verified roles');
@@ -130,7 +126,7 @@ class APIRoleSetter extends CronModule {
     }
 
     async _addRoles(guild, citizen, apiData, roles) {
-        const player = apiData.players[citizen.citizen.id];
+        const player = apiData[citizen.citizen.id];
 
         const actions = {
             remove: [],
@@ -194,7 +190,7 @@ class APIRoleSetter extends CronModule {
         // Add MU role
         if (roles.muRoleEnabled) {
             try {
-                if (player.military_unit) {
+                if (player.military) {
                     const a = await this._addMURole(guild, citizen, player, roles.countryRole);
                     mergeActions(a);
                 }
@@ -203,6 +199,10 @@ class APIRoleSetter extends CronModule {
             }
         }
 
+        this._runActions(citizen, actions);
+    }
+
+    async _runActions(citizen, actions) {
         if (actions.remove.length > 0) {
             await citizen.member.removeRoles(actions.remove);
         }
@@ -233,8 +233,8 @@ class APIRoleSetter extends CronModule {
             return winston.warn('No citizenInfo for', citizen.member.user.username, '(divisionrole)');
         }
 
-        const role = await this.client.platron_utils.findOrCreateRole(`div${citizenInfo.military.division}`, 'division', guild, {
-            name: `DIV ${citizenInfo.military.division}`,
+        const role = await this.client.platron_utils.findOrCreateRole(`div${citizenInfo.division}`, 'division', guild, {
+            name: `DIV ${citizenInfo.division}`,
             color: '#0faf8d'
         });
 
@@ -301,15 +301,14 @@ class APIRoleSetter extends CronModule {
             return winston.warn('No citizenInfo for', citizen.member.user.username, '(mu)');
         }
 
-        const role = await this.client.platron_utils.findOrCreateRole(slugify(citizenInfo.military_unit.name).toLowerCase(), 'mu', guild, {
-            name: citizenInfo.military_unit.name,
+        const role = await this.client.platron_utils.findOrCreateRole(slugify(citizenInfo.military.unit.name).toLowerCase(), 'mu', guild, {
+            name: citizenInfo.military.unit.name,
             color: '#212121'
         });
 
         const otherMUs = muRoles.filter(key => {
             return key != role.id;
         });
-
 
         return {
             remove: otherMUs,
@@ -332,8 +331,8 @@ class APIRoleSetter extends CronModule {
             return winston.warn('No citizenInfo for', citizen.member.user.username, '(countryrole)');
         }
 
-        const role = await this.client.platron_utils.findOrCreateRole(slugify(citizenInfo.citizenship.country_name).toLowerCase(), 'country', guild, {
-            name: citizenInfo.citizenship.country_name,
+        const role = await this.client.platron_utils.findOrCreateRole(slugify(citizenInfo.citizenship.name).toLowerCase(), 'country', guild, {
+            name: citizenInfo.citizenship.name,
             color: '#af900f'
         });
 
@@ -341,11 +340,13 @@ class APIRoleSetter extends CronModule {
             return key != role.id;
         });
 
+        await citizen.member.addRole(role);
+
         return {
             remove: otherCountries,
-            add: [role]
+            add: []
         };
     }
 };
 
-// module.exports = APIRoleSetter;
+module.exports = APIRoleSetter;
