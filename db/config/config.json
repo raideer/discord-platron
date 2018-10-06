@@ -2,11 +2,13 @@
     "development": {
         "storage": "database.sqlite",
         "dialect": "sqlite",
-        "logging": false
+        "logging": false,
+        "operatorsAliases": false
     },
     "production": {
         "storage": "database.sqlite",
         "dialect": "sqlite",
-        "logging": false
+        "logging": false,
+        "operatorsAliases": false
     }
 }

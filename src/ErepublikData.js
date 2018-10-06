@@ -9,7 +9,8 @@ class ErepublikData {
 
         const sequelize = new Sequelize({
             dialect: 'sqlite',
-            storage: `${__dirname}/../ErepublikData.db`
+            storage: `${__dirname}/../ErepublikData.db`,
+            operatorsAliases: false
         });
 
         this.Country = sequelize.define('country', {
