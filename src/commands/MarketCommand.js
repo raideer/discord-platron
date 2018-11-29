@@ -44,7 +44,7 @@ class MarketCommand extends Command {
                         if (weapons.indexOf(product) !== -1) return 'weapons';
                         if (food.indexOf(product) !== -1) return 'food';
                         if (houses.indexOf(product) !== -1) return 'houses';
-                        if (aircraft.indexOf(product) !== -1) return 'aircraft';
+                        if (aircraft.indexOf(product) !== -1) return 'aircrafts';
                         if (tickets.indexOf(product) !== -1) return 'tickets';
 
                         return product;
@@ -108,7 +108,7 @@ class MarketCommand extends Command {
             industry = 1; break;
         case 'weapons':
             industry = 2; break;
-        case 'aircraft':
+        case 'aircrafts':
             industry = 23; break;
         case 'tickets':
             industry = 3; break;
