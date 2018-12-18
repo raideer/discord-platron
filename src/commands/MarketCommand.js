@@ -154,7 +154,7 @@ class MarketCommand extends Command {
         const l_go_to_offer = this.client._('command.market.go_to_offer');
         const l_bestoffers = this.client._('command.market.best_offers');
 
-        for (let i = 0; i < Math.min(5, data.length); i++) {
+        for (let i = 0; i < Math.min(10, data.length); i++) {
             const offer = data[i];
 
             const countryName = ErepublikData.countryIdToName(offer.country_id);
