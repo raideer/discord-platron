@@ -12,9 +12,8 @@ module.exports = class CommandListener extends Listener {
     async exec(message, command) {
         if (this.client.commandHandler.modules.has('help')) {
             winston.verbose('Displaying help command for', command.id);
-            const help = this.client.commandHandler.modules.get('help');
-            const response = help.getHelp(message, command);
-            await message.reply(response);
+            const usage = await command.getUsage();
+            return message.util.sendEmbed(usage);
         }
     }
 };

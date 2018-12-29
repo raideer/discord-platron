@@ -2,6 +2,8 @@ const Command = require('../PlatronCommand');
 const { RichEmbed } = require('discord.js');
 const moment = require('moment-timezone');
 const ErepublikData = require('../ErepublikData');
+const request = require('request-promise');
+const FuzzySearch = require('../FuzzySearch');
 
 class BattleDetailsCommand extends Command {
     constructor() {
@@ -14,8 +16,7 @@ class BattleDetailsCommand extends Command {
             args: [
                 {
                     id: 'battleId',
-                    type: 'integer',
-                    default: null
+                    match: 'rest'
                 }
             ]
         });
@@ -26,10 +27,27 @@ class BattleDetailsCommand extends Command {
             return this.client.platron_utils.invalidCommand(message, this);
         }
 
-        const data = await this.client.platron_utils.privateApi(`battle/${args.battleId}`);
+        const battleData = await request('https://www.erepublik.com/en/military/campaigns-new', {
+            json: true,
+            timeout: 3000
+        });
 
-        if (!data) {
-            return message.reply(this.client._('bot.invalid_request'));
+        let battle = null;
+
+        if (!isNaN(args.battleId)) {
+            battle = battleData.battles[args.battleId];
+        } else {
+            const battles = Object.keys(battleData.battles).map(id => battleData.battles[id]);
+            const searcher = new FuzzySearch(battles, ['region.name', 'city.name']);
+            const result = searcher.search(args.battleId);
+
+            if (result.length > 0) {
+                battle = result[0];
+            }
+        }
+
+        if (!battle) {
+            return message.reply(`Could not find battle \`${args.battleId}\``);
         }
 
         const l_vs = this.client._('command.combatorders.vs');
@@ -37,16 +55,16 @@ class BattleDetailsCommand extends Command {
 
         const embed = new RichEmbed();
 
-        const attackerName = ErepublikData.countryIdToName(data.inv.id);
-        const defenderName = ErepublikData.countryIdToName(data.def.id);
+        const attackerName = ErepublikData.countryIdToName(battle.inv.id);
+        const defenderName = ErepublikData.countryIdToName(battle.def.id);
         moment.locale(message.locale);
 
-        embed.setURL(`https://www.erepublik.com/en/military/battlefield/${args.battleId}`);
-        embed.setTitle(`${this.client.platron_utils.getFlag(attackerName)} **${attackerName}** ${l_vs} ${this.client.platron_utils.getFlag(defenderName)} **${defenderName}** - ${l_fight_for} *${data.region.name}*`);
+        embed.setURL(`https://www.erepublik.com/en/military/battlefield/${battle.id}`);
+        embed.setTitle(`${this.client.platron_utils.getFlag(attackerName)} **${attackerName}** ${l_vs} ${this.client.platron_utils.getFlag(defenderName)} **${defenderName}** - ${l_fight_for} *${battle.region.name}*`);
         // embed.addField(this.client._('command.battle.status'), !battle.general.finished_at ? `:red_circle: ${this.client._('command.battle.active')}` : `:white_circle: ${this.client._('command.battle.finished')}`, true);
-        // embed.addField(this.client._('command.battle.started'), moment.tz(data.start * 1000, 'America/Los_Angeles').fromNow(), true);
-        embed.addField(this.client._('command.battle.round'), data.zone_id, true);
-        embed.addField(this.client._('command.battle.last_round_started'), moment.tz(data.start * 1000, 'America/Los_Angeles').fromNow(), true);
+        embed.addField(this.client._('command.battle.started'), moment.tz(battle.start * 1000, 'America/Los_Angeles').fromNow(), true);
+        embed.addField(this.client._('command.battle.round'), battle.zone_id, true);
+        embed.addField(this.client._('command.battle.last_round_started'), moment.tz(battle.start * 1000, 'America/Los_Angeles').fromNow(), true);
 
         message.channel.send({
             embed
