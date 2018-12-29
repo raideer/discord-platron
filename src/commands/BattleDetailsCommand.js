@@ -62,7 +62,7 @@ class BattleDetailsCommand extends Command {
         embed.setURL(`https://www.erepublik.com/en/military/battlefield/${battle.id}`);
         embed.setTitle(`${this.client.platron_utils.getFlag(attackerName)} **${attackerName}** ${l_vs} ${this.client.platron_utils.getFlag(defenderName)} **${defenderName}** - ${l_fight_for} *${battle.region.name}*`);
         // embed.addField(this.client._('command.battle.status'), !battle.general.finished_at ? `:red_circle: ${this.client._('command.battle.active')}` : `:white_circle: ${this.client._('command.battle.finished')}`, true);
-        embed.addField(this.client._('command.battle.started'), moment.tz(battle.start * 1000, 'America/Los_Angeles').fromNow(), true);
+        // embed.addField(this.client._('command.battle.started'), moment.tz(battle.start * 1000, 'America/Los_Angeles').fromNow(), true);
         embed.addField(this.client._('command.battle.round'), battle.zone_id, true);
         embed.addField(this.client._('command.battle.last_round_started'), moment.tz(battle.start * 1000, 'America/Los_Angeles').fromNow(), true);
 
