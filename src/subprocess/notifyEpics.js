@@ -112,13 +112,14 @@ function announceEpics(epicBattle) {
         if (timeLeft < 1) continue;
         const epicId = `i${epicBattle.id}z${epicBattle.zone_id}d${i}`;
 
-        Push.findOrCreate({
-            where: { id: epicId },
-            defaults: { id: epicId }
+        Push.find({
+            where: { id: epicId }
         })
-        .spread((p, created) => {
-            console.log('Already notified', !created, epicId);
-            if (!created) return;
+        .then(push => {
+            if (push) {
+                console.log('Already notified', epicId);
+                return;
+            }
 
             const payload = {
                 div: i,
