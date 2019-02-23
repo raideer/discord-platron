@@ -158,6 +158,7 @@ module.exports = class PlatronClient extends AkairoClient {
 
             winston.info('Notified div', data.div, 'epic');
             await guildChannel.send(divText, { embed });
+            await this.platron_utils.sleep(2000);
         });
     }
 };

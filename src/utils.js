@@ -40,6 +40,10 @@ module.exports = class Utils extends ClientUtil {
         return Number(number).toLocaleString();
     }
 
+    async sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
     async resolveCitizen(name, discord_id, guild) {
         const member = this.client.util.resolveMember(name, guild.members);
         if (member) {
