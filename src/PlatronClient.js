@@ -116,7 +116,7 @@ module.exports = class PlatronClient extends AkairoClient {
             const channel = await this.settings.get(guild, 'epicNotificator', false);
 
             const guildChannel = guild.channels.get(channel);
-            winston.info(`Notifying in guild ${guild.name} | ${channel} | ${guildChannel.id}`);
+            winston.info(`Notifying in guild ${guild.name} | ${channel} | ${!!guildChannel}`);
 
             if (!guildChannel) return;
 
