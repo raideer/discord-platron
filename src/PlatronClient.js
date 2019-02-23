@@ -112,11 +112,12 @@ module.exports = class PlatronClient extends AkairoClient {
 
     async notifyEpic(data) {
         winston.info('Notifying', data.div, 'epic');
-
         await Promise.each(this.guilds.array(), async guild => {
             const channel = await this.settings.get(guild, 'epicNotificator', false);
 
             const guildChannel = guild.channels.get(channel);
+            winston.info(`Notifying in guild ${guild.name} | ${channel} | ${guildChannel.id}`);
+
             if (!guildChannel) return;
 
             const maveric = await this.roles.get(guild, 'maveric', false);
