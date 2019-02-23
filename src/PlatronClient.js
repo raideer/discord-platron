@@ -137,7 +137,9 @@ module.exports = class PlatronClient extends AkairoClient {
             if (role || maveric != 0) {
                 if (role) {
                     divText += ` ${role}`;
-                } else if (maveric && maveric != 0) {
+                }
+                
+                if (maveric && maveric != 0) {
                     divText += ` ${maveric}`;
                 }
             } else {
