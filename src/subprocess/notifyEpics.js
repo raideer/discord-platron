@@ -103,41 +103,44 @@ function getEpicsAndFS(battles) {
     return data;
 }
 
-async function announceEpics(epicBattle) {
+async function announceEpics(epicBattles) {
     announcingEpic = true;
-    const divisionTimes = getTimeLeft(epicBattle);
-    for (let i in epicBattle.div) {
-        const division = epicBattle.div[i];
-        if (division.epic !== C.BATTLE_TYPE.EPIC) continue;
 
-        const timeLeft = divisionTimes[i];
-        if (timeLeft < 1) continue;
-        const epicId = `i${epicBattle.id}z${epicBattle.zone_id}d${i}`;
-
-        await Push.findOrCreate({
-            where: { id: epicId },
-            defaults: { id: epicId }
-        })
-        .spread((push, created) => {
-            console.log('Epic', epicId, created);
-            if (!created) {
-                console.log('Already notified', epicId);
-                return;
-            }
-
-            const payload = {
-                div: i,
-                timeLeft,
-                battle: epicBattle,
-                id: epicId
-            };
+    for (let epicBattle of epicBattles) {
+        console.log('Notifying', epicBattle.id);
+        const divisionTimes = getTimeLeft(epicBattle);
+        for (let i in epicBattle.div) {
+            const division = epicBattle.div[i];
+            if (division.epic !== C.BATTLE_TYPE.EPIC) continue;
     
-            if (process.send) {
-                return process.send(payload);
-            }
-        });
+            const timeLeft = divisionTimes[i];
+            if (timeLeft < 1) continue;
+            const epicId = `i${epicBattle.id}z${epicBattle.zone_id}d${i}`;
+    
+            await Push.findOrCreate({
+                where: { id: epicId },
+                defaults: { id: epicId }
+            })
+            .spread((push, created) => {
+                if (!created) {
+                    console.log('Already notified', epicId);
+                    return;
+                }
+    
+                const payload = {
+                    div: i,
+                    timeLeft,
+                    battle: epicBattle,
+                    id: epicId
+                };
+        
+                if (process.send) {
+                    return process.send(payload);
+                }
+            });
+        }
     }
-
+    
     announcingEpic = false;
 }
 
@@ -159,16 +162,15 @@ async function checkForEpics() {
             activeTab = CRON_EVERY_30SECONDS;
         }
 
-        console.log('Found', eligibeCount, 'eligible battles');
         console.log('Found', eligibleBattles.epic.length, 'EPIC battles');
 
-        eligibleBattles.epic.forEach(epicBattle => {
+        if (eligibleBattles.epic.length > 0) {
             if (!announcingEpic) {
-                announceEpics(epicBattle);
+                announceEpics(eligibleBattles.epic);
             } else {
-                console.log('Already announcing an epic...');
+                console.log('Already announcing epics...');
             }
-        });
+        }
     } else {
         if (activeTab !== CRON_EVERY_5MINUTES) {
             console.log('No active battles. Increasing cron interval');
