@@ -35,6 +35,7 @@ client.setDatabase('citizens', new SequelizeProvider(db.Citizen));
 client.setDatabase('bestoffers', new SequelizeProvider(db.BestOffer));
 
 const timer = winston.startTimer();
+const processes = {};
 
 Promise.all([
     client.settings.init(),
@@ -57,8 +58,6 @@ Promise.all([
         'epicNotifier': path.resolve('./src/subprocess/notifyEpics.js'),
         'boUpdater': path.resolve('./src/subprocess/updateBestOffers.js')
     };
-
-    const processes = {};
 
     for (let subName in subs) {
         processes[subName] = spawn('node', [subs[subName]], {
@@ -87,3 +86,16 @@ Promise.all([
         });
     }
 });
+
+const cleanExit = function() {
+    console.log('Closing PLATRON');
+
+    for (const name in processes) {
+        console.log('Killing', name);
+        processes[name].kill();
+    }
+
+    process.exit();
+};
+process.on('SIGINT', cleanExit);
+process.on('SIGTERM', cleanExit);

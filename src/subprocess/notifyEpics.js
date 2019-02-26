@@ -24,6 +24,7 @@ const C = {
 
 let activeTab = CRON_EVERY_30SECONDS;
 let isFSorEpic = false;
+let announcingEpic = false;
 
 let cron = new CronJob({
     cronTime: activeTab,
@@ -102,7 +103,8 @@ function getEpicsAndFS(battles) {
     return data;
 }
 
-function announceEpics(epicBattle) {
+async function announceEpics(epicBattle) {
+    announcingEpic = true;
     const divisionTimes = getTimeLeft(epicBattle);
     for (let i in epicBattle.div) {
         const division = epicBattle.div[i];
@@ -112,11 +114,12 @@ function announceEpics(epicBattle) {
         if (timeLeft < 1) continue;
         const epicId = `i${epicBattle.id}z${epicBattle.zone_id}d${i}`;
 
-        Push.findOrCreate({
+        await Push.findOrCreate({
             where: { id: epicId },
             defaults: { id: epicId }
         })
-        .then((push, created) => {
+        .spread((push, created) => {
+            console.log('Epic', epicId, created);
             if (!created) {
                 console.log('Already notified', epicId);
                 return;
@@ -134,6 +137,8 @@ function announceEpics(epicBattle) {
             }
         });
     }
+
+    announcingEpic = false;
 }
 
 async function checkForEpics() {
@@ -158,7 +163,11 @@ async function checkForEpics() {
         console.log('Found', eligibleBattles.epic.length, 'EPIC battles');
 
         eligibleBattles.epic.forEach(epicBattle => {
-            announceEpics(epicBattle);
+            if (!announcingEpic) {
+                announceEpics(epicBattle);
+            } else {
+                console.log('Already announcing an epic...');
+            }
         });
     } else {
         if (activeTab !== CRON_EVERY_5MINUTES) {
