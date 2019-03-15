@@ -28,7 +28,7 @@ class APIRoleSetter extends CronModule {
     }
 
     async _processGuild(guild, citizens) {
-        const apiKey = this.client.env('EREP_API');
+        // const apiKey = this.client.env('EREP_API');
         if (!citizens) {
             citizens = await this.client.platron_utils.getCitizensInGuild(guild);
         }
@@ -62,20 +62,17 @@ class APIRoleSetter extends CronModule {
             return winston.info('All roles disabled in guild', guild.name);
         }
 
-        const chunks = _.chunk(ids, 10);
-        let data = null;
+        const data = {};
 
-        await Promise.each(chunks, async (chunk, i, len) => {
-            const chunkData = await this.client.platron_utils.privateApi(`citizen/multiple/${chunk.join(',')}`);
-
-            data = _.merge(data, chunkData);
-
-            winston.verbose(data);
-
-            if ((i + 1) < len) {
-                await new Promise(resolve => setTimeout(resolve, 200));
+        for (const id of ids) {
+            try {
+                const citizen = await this.client.platron_utils.getCitizenInfo(id);
+                data[id] = citizen;
+                await this.client.platron_utils.sleep(1000);
+            } catch(e) {
+                console.error('Could not fetch citizen data for', id);
             }
-        });
+        }
 
         winston.info('Collected data for', Object.keys(data).length, 'players');
 
@@ -233,8 +230,8 @@ class APIRoleSetter extends CronModule {
             return winston.warn('No citizenInfo for', citizen.member.user.username, '(divisionrole)');
         }
 
-        const role = await this.client.platron_utils.findOrCreateRole(`div${citizenInfo.division}`, 'division', guild, {
-            name: `DIV ${citizenInfo.division}`,
+        const role = await this.client.platron_utils.findOrCreateRole(`div${citizenInfo.military.militaryData.divisionData.division}`, 'division', guild, {
+            name: `DIV ${citizenInfo.military.militaryData.divisionData.division}`,
             color: '#0faf8d'
         });
 
@@ -259,9 +256,9 @@ class APIRoleSetter extends CronModule {
             };
         }
 
-        if (citizenInfo.party && citizen.citizen.verified) {
-            const role = await this.client.platron_utils.findOrCreateRole(slugify(citizenInfo.party.name).toLowerCase(), 'party', guild, {
-                name: citizenInfo.party.name,
+        if (citizenInfo.partyData && citizen.citizen.verified) {
+            const role = await this.client.platron_utils.findOrCreateRole(slugify(citizenInfo.partyData.name).toLowerCase(), 'party', guild, {
+                name: citizenInfo.partyData.name,
                 color: '#923dff'
             });
 
@@ -301,8 +298,8 @@ class APIRoleSetter extends CronModule {
             return winston.warn('No citizenInfo for', citizen.member.user.username, '(mu)');
         }
 
-        const role = await this.client.platron_utils.findOrCreateRole(slugify(citizenInfo.military.unit.name).toLowerCase(), 'mu', guild, {
-            name: citizenInfo.military.unit.name,
+        const role = await this.client.platron_utils.findOrCreateRole(slugify(citizenInfo.military.militaryUnit.name).toLowerCase(), 'mu', guild, {
+            name: citizenInfo.military.militaryUnit.name,
             color: '#212121'
         });
 
@@ -331,8 +328,8 @@ class APIRoleSetter extends CronModule {
             return winston.warn('No citizenInfo for', citizen.member.user.username, '(countryrole)');
         }
 
-        const role = await this.client.platron_utils.findOrCreateRole(slugify(citizenInfo.citizenship.name).toLowerCase(), 'country', guild, {
-            name: citizenInfo.citizenship.name,
+        const role = await this.client.platron_utils.findOrCreateRole(slugify(citizenInfo.location.citizenshipCountry.name).toLowerCase(), 'country', guild, {
+            name: citizenInfo.location.citizenshipCountry.name,
             color: '#af900f'
         });
 

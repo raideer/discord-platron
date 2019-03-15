@@ -200,6 +200,14 @@ module.exports = class Utils extends ClientUtil {
         return body;
     }
 
+    async getCitizenInfo(citizenId) {
+        return request({
+            uri: `https://www.erepublik.com/en/main/citizen-profile-json/${citizenId}`,
+            json: true,
+            timeout: 3000
+        });
+    }
+
     async getCitizensInGuild(guild) {
         const Citizen = this.client.databases.citizens.table;
         const citizens = await Citizen.all();
