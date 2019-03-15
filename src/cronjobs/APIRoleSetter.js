@@ -349,4 +349,4 @@ class APIRoleSetter extends CronModule {
     }
 };
 
-// module.exports = APIRoleSetter;
+module.exports = APIRoleSetter;
