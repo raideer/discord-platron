@@ -47,6 +47,7 @@ class APIRoleSetter extends CronModule {
         const countryRoleEnabled = await this.client.settings.get(guild, 'setCountryRoles', false);
         const divisionRoleEnabled = await this.client.settings.get(guild, 'setDivisionRoles', false);
         const muRoleEnabled = await this.client.settings.get(guild, 'setMURoles', false);
+        const mavericRoleEnabled = await this.client.settings.get(guild, 'setMavericRoles', false);
 
         let countryRole = await this.client.settings.get(guild, 'countryRole', false);
 
@@ -54,7 +55,7 @@ class APIRoleSetter extends CronModule {
             countryRole = false;
         }
 
-        const roles = { partyRoleEnabled, verifiedRoleEnabled, countryRoleEnabled, divisionRoleEnabled, muRoleEnabled, countryRole };
+        const roles = { mavericRoleEnabled, partyRoleEnabled, verifiedRoleEnabled, countryRoleEnabled, divisionRoleEnabled, muRoleEnabled, countryRole };
 
         const allDisabled = Object.keys(roles).every(role => !roles[role]);
 
@@ -196,6 +197,18 @@ class APIRoleSetter extends CronModule {
             }
         }
 
+        // Add Maveric role
+        if (roles.mavericRoleEnabled) {
+            try {
+                if (player.activePacks) {
+                    const a = await this._addMavericRole(guild, citizen, player, roles.countryRole);
+                    mergeActions(a);
+                }
+            } catch (e) {
+                winston.error(e);
+            }
+        }
+
         this._runActions(citizen, actions);
     }
 
@@ -207,6 +220,42 @@ class APIRoleSetter extends CronModule {
         if (actions.add.length > 0) {
             await citizen.member.addRoles(actions.add);
         }
+    }
+
+    async _addMavericRole(guild, citizen, citizenInfo, countryRole = false) {
+        //roleName, roleGroup, guild, defaults
+        const mavericRole = await this.client.platron_utils.findOrCreateRole('maveric', 'maveric', guild, {
+            name: 'Maveric',
+            color: '#d3a72c'
+        });
+
+        if (!citizen.citizen.verified) {
+            winston.verbose('User not verified. Removing maveric role');
+            return {
+                remove: mavericRole
+            };
+        }
+
+        if (countryRole && !citizen.member.roles.has(countryRole)) {
+            winston.verbose(`Citizen ${citizen.member.user.username} does not have countryrole ${countryRole}`);
+            return {
+                remove: mavericRole
+            };
+        }
+
+        if (!citizenInfo) {
+            return winston.warn('No citizenInfo for', citizen.member.user.username, '(mavericrole)');
+        }
+
+        if (citizenInfo.activePacks.division_switch_pack) {
+            return {
+                add: [mavericRole]
+            };
+        }
+
+        return {
+            remove: [mavericRole]
+        };
     }
 
     async _addDivisionRole(guild, citizen, citizenInfo, countryRole = false) {

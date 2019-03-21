@@ -48,6 +48,7 @@ class SettingsCommand extends Command {
             ['setVerifiedRoles', 'boolean'],
             ['setCountryRoles', 'boolean'],
             ['setDivisionRoles', 'boolean'],
+            ['setMavericRoles', 'boolean'],
             ['setMURoles', 'boolean'],
             ['countryRole', 'role'],
             ['setPartyRoles', 'boolean'],

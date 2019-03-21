@@ -15,6 +15,7 @@ Automatically deletes registration messages to clear up spam
 3. setCountryRoles: *boolean* (default:false)   
 4. setDivisionRoles: *boolean* (default:false)   
 5. setMURoles: *boolean* (default:false)   
+5. setMavericRoles: *boolean* (default:false)   
 6. countryRole: *role* (default:false)   
 7. setPartyRoles: *boolean* (default:false)   
 8. setCongressRoles: *boolean* (default:false)   
