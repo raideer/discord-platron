@@ -92,4 +92,4 @@ class CombatOrdersCommand extends Command {
     }
 }
 
-module.exports = CombatOrdersCommand;
+// module.exports = CombatOrdersCommand;
