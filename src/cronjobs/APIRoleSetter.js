@@ -347,6 +347,12 @@ class APIRoleSetter extends CronModule {
             return winston.warn('No citizenInfo for', citizen.member.user.username, '(mu)');
         }
 
+        if (!citizenInfo.military.militaryUnit.name) {
+            return {
+                remove: muRoles
+            }
+        }
+
         const role = await this.client.platron_utils.findOrCreateRole(slugify(citizenInfo.military.militaryUnit.name).toLowerCase(), 'mu', guild, {
             name: citizenInfo.military.militaryUnit.name,
             color: '#212121'
