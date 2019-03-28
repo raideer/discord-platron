@@ -126,12 +126,15 @@ class APIRoleSetter extends CronModule {
     async _addRoles(guild, citizen, apiData, roles) {
         const player = apiData[citizen.citizen.id];
 
+        if (!player) return winston.warn(`Player data for ${citizen.citizen.id} not found`);
+
         const actions = {
             remove: [],
             add: []
         };
 
         const mergeActions = a => {
+            if (!a) return;
             if (Array.isArray(a.remove)) {
                 for (const removeRole of a.remove) {
                     const roleId = typeof removeRole == 'object' ? removeRole.id : removeRole;
