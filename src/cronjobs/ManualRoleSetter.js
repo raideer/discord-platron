@@ -20,12 +20,20 @@ module.exports = class ManualRoleSetter extends CronModule {
                 return winston.error(`Congress country not set in guild ${guild.name}`);
             }
 
-            let members;
-            try {
-                members = await this.client.platron_utils.privateApi(`congress/${congressCountry}/members`);
-            } catch (e) {
-                return winston.error('There was an error calling the api');
+            const value = this.client.settings.get(guild, 'congressList', null);
+
+            if (!value) {
+                return;
             }
+
+            const members = value.split(',');
+
+            // let members;
+            // try {
+            //     members = await this.client.platron_utils.privateApi(`congress/${congressCountry}/members`);
+            // } catch (e) {
+            //     return winston.error('There was an error calling the api');
+            // }
 
             const role = await this.client.platron_utils.findOrCreateRole('congress', 'congress', guild, {
                 name: 'Congress',
