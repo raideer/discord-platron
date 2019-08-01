@@ -55,15 +55,15 @@ Promise.all([
     client.user.setActivity('eRepublik');
 
     const subs = {
-        'epicNotifier': path.resolve('./src/subprocess/notifyEpics.js'),
-        'boUpdater': path.resolve('./src/subprocess/updateBestOffers.js')
+        epicNotifier: path.resolve('./src/subprocess/notifyEpics.js'),
+        boUpdater: path.resolve('./src/subprocess/updateBestOffers.js')
     };
 
-    for (let subName in subs) {
+    for (const subName in subs) {
         processes[subName] = spawn('node', [subs[subName]], {
             stdio: ['pipe', 'pipe', 'pipe', 'ipc']
         });
-        
+
         processes[subName].on('message', payload => {
             if (subName == 'epicNotifier') {
                 winston.info('Received payload from epicNotifier')
@@ -77,17 +77,17 @@ Promise.all([
             winston.error(`[${String(subName).yellow}] Process exited with code ${code}`);
         });
 
-        processes[subName].stdout.on('data', function(data) {
+        processes[subName].stdout.on('data', data => {
             winston.info(`[${String(subName).yellow}] ${data.toString().trim()}`);
         });
 
-        processes[subName].stderr.on('data', function(data) {
+        processes[subName].stderr.on('data', data => {
             winston.error(`[${String(subName).yellow}] ${data.toString().trim()}`);
         });
     }
 });
 
-const cleanExit = function() {
+const cleanExit = () => {
     console.log('Closing PLATRON');
 
     for (const name in processes) {
