@@ -7,7 +7,7 @@ const ErepublikData = require('../ErepublikData');
 const { BestOffer } = require('../../db/models/index');
 const { CronJob, CronTime } = require('cron');
 
-const CRON_EVERY_10MINUTES = '*/10 * * * *';
+const CRON_EVERY_10MINUTES = '*/15 * * * *';
 
 let cron = new CronJob({
     cronTime: CRON_EVERY_10MINUTES,
