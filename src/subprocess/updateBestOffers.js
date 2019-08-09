@@ -1,93 +1,93 @@
-require('dotenv').config({
-    path: __dirname + '/../../.env'
-});
+// require('dotenv').config({
+//     path: __dirname + '/../../.env'
+// });
 
-const request = require('request');
-const ErepublikData = require('../ErepublikData');
-const { BestOffer } = require('../../db/models/index');
-const { CronJob, CronTime } = require('cron');
+// const request = require('request');
+// const ErepublikData = require('../ErepublikData');
+// const { BestOffer } = require('../../db/models/index');
+// const { CronJob, CronTime } = require('cron');
 
-const CRON_EVERY_10MINUTES = '*/15 * * * *';
+// const CRON_EVERY_10MINUTES = '*/15 * * * *';
 
-let cron = new CronJob({
-    cronTime: CRON_EVERY_10MINUTES,
-    onTick: update,
-    start: false,
-    runOnInit: false
-});
+// let cron = new CronJob({
+//     cronTime: CRON_EVERY_10MINUTES,
+//     onTick: update,
+//     start: false,
+//     runOnInit: false
+// });
 
-function send(data) {
-    if (process.send) {
-        return process.send(data);
-    }
-}
+// function send(data) {
+//     if (process.send) {
+//         return process.send(data);
+//     }
+// }
 
-async function callApi(query) {
-    const endpoint = `http://${process.env.API_IP}:${process.env.API_PORT}${process.env.API_SUFFIX}${query}.json`;
+// async function callApi(query) {
+//     const endpoint = `http://${process.env.API_IP}:${process.env.API_PORT}${process.env.API_SUFFIX}${query}.json`;
 
-    return new Promise((resolve, reject) => {
-        request({
-            uri: endpoint,
-            json: true,
-            timeout: 10000
-        }, function(error, response, body) {
-            if (error) return reject(error);
+//     return new Promise((resolve, reject) => {
+//         request({
+//             uri: endpoint,
+//             json: true,
+//             timeout: 10000
+//         }, function(error, response, body) {
+//             if (error) return reject(error);
 
-            resolve(body);
-        });
-    });
-}
+//             resolve(body);
+//         });
+//     });
+// }
 
-function getQualities(industry) {
-    switch (industry) {
-        case 'food':
-        case 'weapons':
-            return [1, 2, 3, 4, 5, 6, 7];
-        case 'tickets':
-        case 'houses':
-            return [1, 2, 3, 4, 5];
-        default:
-            return [1];
-    }
-}
+// function getQualities(industry) {
+//     switch (industry) {
+//         case 'food':
+//         case 'weapons':
+//             return [1, 2, 3, 4, 5, 6, 7];
+//         case 'tickets':
+//         case 'houses':
+//             return [1, 2, 3, 4, 5];
+//         default:
+//             return [1];
+//     }
+// }
 
-async function update() {
-    await ErepublikData.init();
-    await BestOffer.sync();
+// async function update() {
+//     await ErepublikData.init();
+//     await BestOffer.sync();
 
-    console.log('Updating best offers');
+//     console.log('Updating best offers');
 
-    const industries = ErepublikData.industries.map(industry => {
-        return {
-            id: industry.id,
-            code: industry.code
-        };
-    });
+//     const industries = ErepublikData.industries.map(industry => {
+//         return {
+//             id: industry.id,
+//             code: industry.code
+//         };
+//     });
 
-    for (let i of industries) {
-        for (let quality of getQualities(i.code)) {
-            const data = await callApi(`market/bestoffers/${i.id}/${quality}.json`).catch(console.error);
-            if (data && typeof data === 'object') {
-                await BestOffer.findOrCreate({
-                    where: { industry: i.id, quality },
-                    defaults: {
-                        industry: i.id,
-                        quality,
-                        data: JSON.stringify(data)
-                    }
-                }).spread((offer, created) => {
-                    if (created) return;
+//     for (let i of industries) {
+//         for (let quality of getQualities(i.code)) {
+//             const data = await callApi(`market/bestoffers/${i.id}/${quality}.json`).catch(console.error);
+//             if (data && typeof data === 'object') {
+//                 await BestOffer.findOrCreate({
+//                     where: { industry: i.id, quality },
+//                     defaults: {
+//                         industry: i.id,
+//                         quality,
+//                         data: JSON.stringify(data)
+//                     }
+//                 }).spread((offer, created) => {
+//                     if (created) return;
 
-                    offer.data = JSON.stringify(data);
-                    return offer.save();
-                });
-            }
-        }
-    }
+//                     offer.data = JSON.stringify(data);
+//                     return offer.save();
+//                 });
+//             }
+//         }
+//     }
 
-    if (!cron.running) cron.start();
+//     if (!cron.running) cron.start();
 
-    console.log('Finished');
-}
+//     console.log('Finished');
+// }
 
-update();
+// update();
