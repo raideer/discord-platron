@@ -128,7 +128,7 @@ async function announceEpics(epicBattles) {
                 }
     
                 const payload = {
-                    div: i,
+                    div: division.div,
                     timeLeft,
                     battle: epicBattle,
                     id: epicId
